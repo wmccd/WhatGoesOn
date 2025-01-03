@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.ui.screens.feature1.feature1topscreen
+package com.wmccd.whatgoeson.presentation.screens.feature1.feature1topscreen
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -14,11 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.wmccd.whatgoeson.MyApplication
-import com.wmccd.whatgoeson.ui.screens.NavigationEnum
-import com.wmccd.whatgoeson.ui.screens.common.DisplayError
-import com.wmccd.whatgoeson.ui.screens.common.InternetImage
-import com.wmccd.whatgoeson.ui.screens.common.DisplayLoading
-import com.wmccd.whatgoeson.ui.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
+import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
+import com.wmccd.whatgoeson.presentation.screens.common.InternetImage
+import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
+import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import java.util.UUID
 
 @Composable

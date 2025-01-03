@@ -2,8 +2,13 @@ package com.wmccd.whatgoeson.utility.logger
 
 import android.util.Log
 
-class Logger {
-    fun log(level:Int, tag: String, message: String) {
+interface ILogger {
+    fun log(level:Int, tag: String, message: String)
+    fun log(level:Int, tag: String, message: String, throwable: Throwable)
+}
+
+class Logger: ILogger {
+    override fun log(level:Int, tag: String, message: String) {
         val messageWithArrows = ">>> $message"
         when(level){
             Log.VERBOSE -> Log.v(tag, messageWithArrows)
@@ -15,7 +20,7 @@ class Logger {
         }
     }
 
-    fun log(level:Int, tag: String, message: String, throwable: Throwable) {
+    override fun log(level:Int, tag: String, message: String, throwable: Throwable) {
         val messageWithArrows = ">>> $message"
         when(level){
             Log.VERBOSE -> Log.v(tag, messageWithArrows, throwable)

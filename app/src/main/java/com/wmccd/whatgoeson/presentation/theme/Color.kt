@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.ui.theme
+package com.wmccd.whatgoeson.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

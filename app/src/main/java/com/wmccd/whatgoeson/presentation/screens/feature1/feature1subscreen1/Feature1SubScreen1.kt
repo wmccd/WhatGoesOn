@@ -1,6 +1,5 @@
-package com.wmccd.whatgoeson.ui.screens.feature3.feature3topscreen
+package com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen1
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,37 +12,33 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.wmccd.whatgoeson.MyApplication
-import com.wmccd.whatgoeson.ui.screens.common.DisplayError
-import com.wmccd.whatgoeson.ui.screens.common.DisplayLoading
-import com.wmccd.whatgoeson.ui.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
+import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
+import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
+import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import java.util.UUID
 
 @Composable
-fun Feature3TopScreen(
+fun Feature1SubScreen1(
     navController: NavHostController,
-    viewModel: TopScreen3ViewModel = TopScreen3ViewModel()
+    viewModel: Feature1SubScreen1ViewModel = Feature1SubScreen1ViewModel()
 ) {
-
     // Listen for navigation events sent by the ViewModel
     LaunchedEffect(key1 = UUID.randomUUID().toString()) {
-        viewModel.navigationEvent.collect { event ->
-            when (event) {
+        viewModel.messageFlow.collect { message ->
+            when (message) {
                 is NavigationEvent.NavigateToNextScreen -> {
-                    //navController.navigate(NavigationEnum.FeatureScreen1a.route)
+                    navController.navigate(NavigationEnum.Feature1SubScreen2.route)
                 }
             }
         }
     }
-
     DisplayContent(viewModel)
 }
 
 @Composable
-private fun DisplayContent(viewModel: TopScreen3ViewModel) {
-    // Display content based on uiState
+private fun DisplayContent(viewModel: Feature1SubScreen1ViewModel) {
     val uiState by viewModel.uiState.collectAsState()
-    MyApplication.utilities.logger.log(Log.INFO, "TopScreen1", "DisplayContent $uiState")
     when {
         uiState.isLoading -> DisplayLoading()
         uiState.error != null -> DisplayError(uiState.error)
@@ -51,10 +46,14 @@ private fun DisplayContent(viewModel: TopScreen3ViewModel) {
     }
 }
 
+
+
 @Composable
-fun DisplayData(viewModel: TopScreen3ViewModel) {
+fun DisplayData(viewModel: Feature1SubScreen1ViewModel) {
+
     //Display the data that was fetched
     val uiState by viewModel.uiState.collectAsState()
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -64,11 +63,12 @@ fun DisplayData(viewModel: TopScreen3ViewModel) {
         ) {
             Button(
                 onClick = {
-                    viewModel.onEvent(Feature3TopScreenEvents.ButtonClicked)
+                    viewModel.onEvent(Feature1SubScreen1Events.ButtonClicked)
                 }
             ) {
                 Text(text = "Click Me")
             }
+            //Box(modifier = Modifier.fillMaxWidth().height(50.dp).background(MaterialTheme.colorScheme.primary))
         }
     }
 }

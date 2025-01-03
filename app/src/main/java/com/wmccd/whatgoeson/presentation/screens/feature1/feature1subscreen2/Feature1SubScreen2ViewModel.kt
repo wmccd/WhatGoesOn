@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.ui.screens.feature1.feature1subscreen2
+package com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen2
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

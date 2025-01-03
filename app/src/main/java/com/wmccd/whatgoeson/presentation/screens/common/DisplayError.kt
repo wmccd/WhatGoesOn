@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.ui.screens.common
+package com.wmccd.whatgoeson.presentation.screens.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.wmccd.whatgoeson.ui.theme.WhatGoesOnTheme
+import com.wmccd.whatgoeson.presentation.theme.WhatGoesOnTheme
 
 @Composable
 fun DisplayError(error: String?) {

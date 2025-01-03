@@ -1,10 +1,11 @@
-package com.wmccd.whatgoeson.ui.screens.feature2.feature2topscreen
+package com.wmccd.whatgoeson.presentation.screens.feature3.feature3topscreen
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
-import com.wmccd.whatgoeson.ui.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
+
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,18 +13,18 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class Feature2TopScreenViewModel(
-) : ViewModel() {
+class TopScreen3ViewModel() : ViewModel() {
 
-    private val _uiState = MutableStateFlow(Feature2TopScreenUiState())
-    val uiState: StateFlow<Feature2TopScreenUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(Feature3TopScreenUiState())
+    val uiState: StateFlow<Feature3TopScreenUiState> = _uiState.asStateFlow()
 
+    //keeps track of when we want to navigate to another screen
     private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
     val navigationEvent = _navigationEvent.asSharedFlow()
 
+
     init {
-        MyApplication.utilities.logger.log(Log.INFO, TAG, "init1")
-        _uiState.value = Feature2TopScreenUiState(isLoading = true)
+        _uiState.value = Feature3TopScreenUiState(isLoading = true)
         fetchData()
     }
 
@@ -31,21 +32,21 @@ class Feature2TopScreenViewModel(
         //fetch the data and update the screen state
         try {
             //stop showing the loading screen spinner
-            _uiState.value = Feature2TopScreenUiState(isLoading = false)
+            _uiState.value = Feature3TopScreenUiState(isLoading = false)
 
             //start displaying the screen data
-            _uiState.value = Feature2TopScreenUiState(data = true)
+            _uiState.value = Feature3TopScreenUiState(data = true)
         }catch (ex: Exception){
             //something went wrong, show the error message
             MyApplication.utilities.logger.log(Log.ERROR, TAG, "fetchData", ex)
-            _uiState.value = Feature2TopScreenUiState(error = ex.message)
+            _uiState.value = Feature3TopScreenUiState(error = ex.message)
         }
     }
 
-    fun onEvent(event: Feature2TopScreenEvents) {
+    fun onEvent(event: Feature3TopScreenEvents) {
         //the user tapped on something on the screen and we need to handle that
         when (event) {
-            Feature2TopScreenEvents.ButtonClicked -> onActionButtonClicked()
+            Feature3TopScreenEvents.ButtonClicked -> onActionButtonClicked()
         }
     }
 
@@ -57,16 +58,16 @@ class Feature2TopScreenViewModel(
     }
 
     companion object{
-        private const val TAG = "Feature2TopScreenViewModel"
+        private const val TAG = "Feature3TopScreenViewModel"
     }
 }
 
-data class Feature2TopScreenUiState(
+data class Feature3TopScreenUiState(
     val isLoading: Boolean = false,
     val data: Any? = null, // Replace with your actual data type
     val error: String? = null
 )
 
-sealed interface Feature2TopScreenEvents{
-    object ButtonClicked: Feature2TopScreenEvents
+sealed interface Feature3TopScreenEvents{
+    data object ButtonClicked: Feature3TopScreenEvents
 }

@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.ui.screens.common
+package com.wmccd.whatgoeson.presentation.screens.common
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
-import com.wmccd.whatgoeson.ui.theme.WhatGoesOnTheme
+import com.wmccd.whatgoeson.presentation.theme.WhatGoesOnTheme
 
 @Composable
 fun DisplayLoading() {

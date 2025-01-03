@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.ui.screens.feature2.feature2topscreen
+package com.wmccd.whatgoeson.presentation.screens.feature3.feature3topscreen
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -14,15 +14,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.wmccd.whatgoeson.MyApplication
-import com.wmccd.whatgoeson.ui.screens.common.DisplayError
-import com.wmccd.whatgoeson.ui.screens.common.DisplayLoading
-import com.wmccd.whatgoeson.ui.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
+import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
+import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import java.util.UUID
 
 @Composable
-fun Feature2TopScreen(
+fun Feature3TopScreen(
     navController: NavHostController,
-    viewModel: Feature2TopScreenViewModel = Feature2TopScreenViewModel()
+    viewModel: TopScreen3ViewModel = TopScreen3ViewModel()
 ) {
 
     // Listen for navigation events sent by the ViewModel
@@ -40,7 +40,7 @@ fun Feature2TopScreen(
 }
 
 @Composable
-private fun DisplayContent(viewModel: Feature2TopScreenViewModel) {
+private fun DisplayContent(viewModel: TopScreen3ViewModel) {
     // Display content based on uiState
     val uiState by viewModel.uiState.collectAsState()
     MyApplication.utilities.logger.log(Log.INFO, "TopScreen1", "DisplayContent $uiState")
@@ -52,7 +52,7 @@ private fun DisplayContent(viewModel: Feature2TopScreenViewModel) {
 }
 
 @Composable
-fun DisplayData(viewModel: Feature2TopScreenViewModel) {
+fun DisplayData(viewModel: TopScreen3ViewModel) {
     //Display the data that was fetched
     val uiState by viewModel.uiState.collectAsState()
     Box(
@@ -64,7 +64,7 @@ fun DisplayData(viewModel: Feature2TopScreenViewModel) {
         ) {
             Button(
                 onClick = {
-                    viewModel.onEvent(Feature2TopScreenEvents.ButtonClicked)
+                    viewModel.onEvent(Feature3TopScreenEvents.ButtonClicked)
                 }
             ) {
                 Text(text = "Click Me")

@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.wmccd.whatgoeson.repository.database.AppDatabase
 import com.wmccd.whatgoeson.repository.datastore.AppDataStore
 import com.wmccd.whatgoeson.repository.webservice.SetListFmApi
+import com.wmccd.whatgoeson.utility.logger.ILogger
 import com.wmccd.whatgoeson.utility.logger.Logger
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -67,7 +68,7 @@ class MyApplication : Application() {
 
     data class Utilities(
         val gson: Gson,
-        val logger: Logger,
+        val logger: ILogger,
     )
 
     companion object {

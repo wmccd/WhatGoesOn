@@ -1,11 +1,11 @@
-package com.wmccd.whatgoeson.ui.screens.feature1.feature1subscreen2
+package com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen2
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
-import com.wmccd.whatgoeson.ui.screens.common.DisplayError
-import com.wmccd.whatgoeson.ui.screens.common.DisplayLoading
+import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
+import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
 
 @Composable
 fun Feature1SubScreen2(

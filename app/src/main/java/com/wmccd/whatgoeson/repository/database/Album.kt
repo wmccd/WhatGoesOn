@@ -11,13 +11,15 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
+private const val TABLE_NAME = "Albums"
+
 @Entity(
-    tableName = "Albums",
+    tableName = TABLE_NAME,
     foreignKeys = [
         ForeignKey(
             entity = Artist::class,
-            parentColumns = ["id"],
-            childColumns = ["artist_id"],
+            parentColumns = ["id"], //field name(s) in linked table
+            childColumns = ["artist_id"], //field(s) name in this table
             onDelete = ForeignKey.CASCADE
         )
     ]
@@ -41,13 +43,13 @@ interface AlbumDao {
     @Delete
     suspend fun delete(entity: Album)
 
-    @Query("SELECT * FROM Albums WHERE id = :id")
+    @Query("SELECT * FROM " + TABLE_NAME + " WHERE id = :id")
     fun getAlbumById(id: Int): Flow<Album>
 
-    @Query("SELECT * FROM Albums")
+    @Query("SELECT * FROM " + TABLE_NAME)
     fun getAllAlbums(): Flow<List<Album>>
 
-    @Query("SELECT * FROM Albums WHERE artist_id = :artistId")
+    @Query("SELECT * FROM " + TABLE_NAME + " WHERE artist_id = :artistId")
     fun getAlbumsByArtistId(artistId: Int): Flow<List<Album>>
 
 }

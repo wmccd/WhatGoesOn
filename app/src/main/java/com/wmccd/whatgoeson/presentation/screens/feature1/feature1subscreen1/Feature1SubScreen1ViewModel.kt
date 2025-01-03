@@ -1,10 +1,10 @@
-package com.wmccd.whatgoeson.ui.screens.feature1.feature1subscreen1
+package com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen1
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
-import com.wmccd.whatgoeson.ui.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.ui.screens.common
+package com.wmccd.whatgoeson.presentation.screens.common
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.wmccd.whatgoeson.ui.theme.WhatGoesOnTheme
+import com.wmccd.whatgoeson.presentation.theme.WhatGoesOnTheme
 
 @Composable
 fun InternetImage(

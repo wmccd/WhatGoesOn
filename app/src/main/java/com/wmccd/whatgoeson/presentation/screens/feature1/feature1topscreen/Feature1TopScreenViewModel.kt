@@ -1,10 +1,10 @@
-package com.wmccd.whatgoeson.ui.screens.feature1.feature1topscreen
+package com.wmccd.whatgoeson.presentation.screens.feature1.feature1topscreen
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
-import com.wmccd.whatgoeson.ui.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.usecases.albums.InsertAlbumUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +34,7 @@ class Feature1TopScreenViewModel: ViewModel() {
         viewModelScope.launch {
             MyApplication.repository.appDataStore.updateUserName("Bobbins ${System.currentTimeMillis().toString().takeLast(4)}")
             fetchData()
-            InsertAlbumUseCase(MyApplication.repository.appDatabase.albumDao).execute()
+            //InsertAlbumUseCase(MyApplication.repository.appDatabase.albumDao).execute()
         }
     }
 

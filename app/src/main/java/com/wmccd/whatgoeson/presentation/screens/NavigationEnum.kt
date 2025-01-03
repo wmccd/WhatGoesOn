@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.ui.screens
+package com.wmccd.whatgoeson.presentation.screens
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.VectorComposable
 import com.wmccd.whatgoeson.R
 
 //Defines the routes and screens that can be navigated to

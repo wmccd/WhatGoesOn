@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.ui.screens
+package com.wmccd.whatgoeson.presentation.screens
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -35,12 +35,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
-import com.wmccd.whatgoeson.ui.screens.feature1.feature1subscreen1.Feature1SubScreen1
-import com.wmccd.whatgoeson.ui.screens.feature1.feature1subscreen2.Feature1SubScreen2
-import com.wmccd.whatgoeson.ui.screens.feature1.feature1topscreen.Feature1TopScreen
-import com.wmccd.whatgoeson.ui.screens.feature2.feature2topscreen.Feature2TopScreen
-import com.wmccd.whatgoeson.ui.screens.feature3.feature3topscreen.Feature3TopScreen
-import com.wmccd.whatgoeson.ui.theme.WhatGoesOnTheme
+import com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen1.Feature1SubScreen1
+import com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen2.Feature1SubScreen2
+import com.wmccd.whatgoeson.presentation.screens.feature1.feature1topscreen.Feature1TopScreen
+import com.wmccd.whatgoeson.presentation.screens.feature2.feature2topscreen.Feature2TopScreen
+import com.wmccd.whatgoeson.presentation.screens.feature3.feature3topscreen.Feature3TopScreen
+import com.wmccd.whatgoeson.presentation.theme.WhatGoesOnTheme
 
 class MainActivity : ComponentActivity() {
 

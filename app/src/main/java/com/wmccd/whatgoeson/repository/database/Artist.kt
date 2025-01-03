@@ -10,10 +10,13 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
-@Entity(tableName = "Artists")
+private const val TABLE_NAME = "Artists"
+
+@Entity(tableName = TABLE_NAME)
 data class Artist(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "first_value") val firstName: String,
+    @ColumnInfo(name = "last_value") val lastName: String
 )
 
 @Dao
@@ -28,9 +31,9 @@ interface ArtistDao {
     @Delete
     suspend fun delete(entity: Artist)
 
-    @Query("SELECT * FROM Artists WHERE id = :id")
+    @Query("SELECT * FROM " + TABLE_NAME +  " WHERE id = :id")
     fun getArtistById(id: Int): Flow<Artist>
 
-    @Query("SELECT * FROM Artists")
+    @Query("SELECT * FROM " + TABLE_NAME)
     fun getAllArtists(): Flow<List<Artist>>
 }
