@@ -1,0 +1,87 @@
+package ${PACKAGE_NAME}
+
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+
+class ${NAME}ViewModel: ViewModel() {
+
+    //Keeps track of the current data that is to be displayed on the screen
+    private val _uiState = MutableStateFlow(${NAME}UiState())
+    val uiState: StateFlow<${NAME}UiState> = _uiState.asStateFlow()
+
+    //keeps track of when we want to navigate to another screen
+    private val _messageChannel = Channel<NavigationEvent>()
+    val messageFlow = _messageChannel.receiveAsFlow()
+
+    init {
+        //Init should only happen once
+        //Update the state to indicate that we are fetching data
+        _uiState.value = ${NAME}UiState(isLoading = true)
+        viewModelScope.launch {
+            fetchData()
+        }
+    }
+
+    private suspend fun fetchData() {
+        //fetch the data and update the screen state
+        try {
+            //start displaying the screen data
+            _uiState.value = uiState.value.copy(
+                isLoading = false,
+                data = fetchUiData()
+            )
+        }catch (ex: Exception){
+            //something went wrong, show the error message
+            //TODO: Log the error
+            _uiState.value = ${NAME}UiState(error = ex.message)
+        }
+    }
+
+    private suspend fun fetchUiData(): ${NAME}UiData{
+        val uiData = ${NAME}UiData(
+            randomText = System.currentTimeMillis().toString().takeLast(4),
+            randomLong = System.currentTimeMillis(),
+        )
+        return uiData
+    }
+
+    fun onEvent(event: ${NAME}Events) {
+        //the user tapped on something on the screen and we need to handle that
+        when (event) {
+            ${NAME}Events.ButtonClicked -> onActionButtonClicked()
+        }
+    }
+
+    private fun onActionButtonClicked() {
+        //the main action button was clicked and we want to move to next screen
+        viewModelScope.launch {
+            //_messageChannel.send(NavigationEvent.NavigateToNextScreen)
+        }
+    }
+
+    companion object{
+        private const val TAG = "${NAME}ViewModel"
+    }
+}
+
+data class ${NAME}UiState(
+    val isLoading: Boolean = false,
+    val data: ${NAME}UiData? = null,
+    val error: String? = null
+)
+
+data class ${NAME}UiData(
+    val randomText: String = "",
+    val randomLong: Long = 0L
+)
+
+sealed interface ${NAME}Events{
+    data object ButtonClicked: ${NAME}Events
+}

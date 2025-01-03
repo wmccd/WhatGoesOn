@@ -1,0 +1,37 @@
+package ${PACKAGE_NAME}
+
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
+
+@Entity(tableName = "${NAME}s")
+data class ${NAME}(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @ColumnInfo(name = "first_value") val firstName: String,
+    @ColumnInfo(name = "last_value") val lastName: String
+)
+
+@Dao
+interface ${NAME}Dao {
+
+    @Insert
+    suspend fun insert(entity: ${NAME})
+
+    @Update
+    suspend fun update(entity: ${NAME})
+
+    @Delete
+    suspend fun delete(entity: ${NAME})
+
+    @Query("SELECT * FROM ${NAME}s WHERE id = :id")
+    fun get${NAME}ById(id: Int): Flow<${NAME}>
+
+    @Query("SELECT * FROM ${NAME}s")
+    fun getAll${NAME}s(): Flow<List<${NAME}>>
+}
