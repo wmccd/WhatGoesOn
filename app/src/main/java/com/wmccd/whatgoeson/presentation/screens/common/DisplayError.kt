@@ -3,25 +3,29 @@ package com.wmccd.whatgoeson.presentation.screens.common
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.wmccd.whatgoeson.presentation.theme.WhatGoesOnTheme
+import androidx.compose.ui.unit.dp
+import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 
 @Composable
-fun DisplayError(error: String?) {
+fun DisplayError(error: String? = null) {
     //Displays an error message if an error occurs. Use anywhere in the app
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(STANDARD_SCREEN_PADDING),
         contentAlignment = Alignment.Center
     ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("Uh-oh. Something went wrong.")
-            Text(error?: "")
+            if(error != null) {
+                Text(error)
+            }
         }
     }
 }
@@ -29,7 +33,7 @@ fun DisplayError(error: String?) {
 @Composable
 @Preview(showBackground = true)
 fun DisplayErrorPreview() {
-    WhatGoesOnTheme(
+    MyAppTheme(
         darkTheme = false
     ) {
         DisplayError("This is an error message")

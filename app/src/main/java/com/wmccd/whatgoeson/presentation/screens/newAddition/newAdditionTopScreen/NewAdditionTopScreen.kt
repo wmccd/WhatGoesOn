@@ -1,6 +1,5 @@
-package com.wmccd.whatgoeson.presentation.screens.feature1.feature1topscreen
+package com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,28 +14,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
-import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
-import com.wmccd.whatgoeson.presentation.screens.common.InternetImage
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 import java.util.UUID
 
 @Composable
-fun Feature1TopScreen(
+fun NewAdditionTopScreen(
     navController: NavHostController,
-    viewModel: Feature1TopScreenViewModel = Feature1TopScreenViewModel()
+    viewModel: NewAdditionTopScreenViewModel = NewAdditionTopScreenViewModel()
 ) {
-
     // Listen for navigation events sent by the ViewModel
     LaunchedEffect(key1 = UUID.randomUUID().toString()) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
                 is NavigationEvent.NavigateToNextScreen -> {
-                     navController.navigate(NavigationEnum.Feature1SubScreen1.route)
+                    //navController.navigate(NavigationEnum.FeatureScreen1a.route)
                 }
             }
         }
@@ -45,15 +40,14 @@ fun Feature1TopScreen(
 }
 
 @Composable
-private fun DisplayContent(viewModel: Feature1TopScreenViewModel) {
+private fun DisplayContent(viewModel: NewAdditionTopScreenViewModel) {
     // Display content based on uiState
     val uiState by viewModel.uiState.collectAsState()
-    MyApplication.utilities.logger.log(Log.INFO, "TopScreen1", "DisplayContent $uiState")
     when {
         uiState.isLoading -> DisplayLoading()
         uiState.error != null -> DisplayError(uiState.error)
         uiState.data != null -> DisplayData(
-            uiState = uiState,
+            uiState= uiState,
             onEvent = viewModel::onEvent
         )
     }
@@ -61,8 +55,8 @@ private fun DisplayContent(viewModel: Feature1TopScreenViewModel) {
 
 @Composable
 fun DisplayData(
-    uiState: Feature1TopScreenUiState,
-    onEvent: (Feature1TopScreenEvents) -> Unit = {},
+    uiState: NewAdditionTopScreenUiState,
+    onEvent: (NewAdditionTopScreenEvents) -> Unit = {},
 ) {
     if(uiState.data == null) {
         DisplayError(stringResource(R.string.no_data_to_display))
@@ -75,15 +69,10 @@ fun DisplayData(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                InternetImage(
-                    imageUrl = "https://upload.wikimedia.org/wikipedia/en/0/01/Bob_Dylan_-_Oh_Mercy.jpg?20180114224124"
-                )
-                Text(text = data.randomText.orEmpty())
-                Text(text = data.randomLong.toString())
-                Text(text = data.randomInt.toString())
+                Text(text = data.someData.orEmpty())
                 Button(
                     onClick = {
-                        onEvent(Feature1TopScreenEvents.ButtonClicked)
+                        onEvent(NewAdditionTopScreenEvents.ButtonClicked)
                     }
                 ) {
                     Text(text = "Click Me")
@@ -93,19 +82,16 @@ fun DisplayData(
     }
 }
 
-@Composable
 @Preview
+@Composable
 private fun PreviewDisplayData(){
     MyAppTheme {
         DisplayData(
-            uiState = Feature1TopScreenUiState(
-                data = Feature1TopScreenUiData(
-                    randomText = "Hello",
-                    randomLong = System.currentTimeMillis(),
-                    randomInt = 123
-                ),
+            uiState = NewAdditionTopScreenUiState(
+               data = NewAdditionTopScreenUiData(
+                   someData = "Hello"
+               ),
             )
         )
     }
-
 }

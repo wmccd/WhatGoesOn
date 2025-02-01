@@ -239,7 +239,7 @@ private val highContrastDarkColorScheme = darkColorScheme(
 )
 
 @Composable
-fun WhatGoesOnTheme(
+fun MyAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
@@ -254,8 +254,6 @@ fun WhatGoesOnTheme(
         darkTheme -> darkScheme
         else -> lightScheme
     }
-
-
 
     MaterialTheme(
         colorScheme = colorScheme,

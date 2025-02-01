@@ -28,7 +28,7 @@ data class Album(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "image_url") val imageUrl: String,
-    @ColumnInfo(name = "artist_id") val artistId: String
+    @ColumnInfo(name = "artist_id") val artistId: Int
 )
 
 @Dao

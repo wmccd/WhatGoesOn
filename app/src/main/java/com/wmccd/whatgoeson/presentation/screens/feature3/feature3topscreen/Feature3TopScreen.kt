@@ -12,11 +12,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import com.wmccd.whatgoeson.MyApplication
+import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenEvents
+import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenUiData
+import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenUiState
+import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 import java.util.UUID
 
 @Composable
@@ -43,32 +50,56 @@ fun Feature3TopScreen(
 private fun DisplayContent(viewModel: TopScreen3ViewModel) {
     // Display content based on uiState
     val uiState by viewModel.uiState.collectAsState()
-    MyApplication.utilities.logger.log(Log.INFO, "TopScreen1", "DisplayContent $uiState")
     when {
         uiState.isLoading -> DisplayLoading()
         uiState.error != null -> DisplayError(uiState.error)
-        uiState.data != null -> DisplayData(viewModel)
+        uiState.data != null -> DisplayData(
+            uiState = uiState,
+            onEvent = viewModel::onEvent
+        )
     }
 }
 
 @Composable
-fun DisplayData(viewModel: TopScreen3ViewModel) {
-    //Display the data that was fetched
-    val uiState by viewModel.uiState.collectAsState()
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ){
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+fun DisplayData(
+    uiState: Feature3TopScreenUiState,
+    onEvent: (Feature3TopScreenEvents) -> Unit = {},
+
+    ) {
+    if(uiState.data == null) {
+        DisplayError(stringResource(R.string.no_data_to_display))
+    } else {
+        val data = uiState.data
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Button(
-                onClick = {
-                    viewModel.onEvent(Feature3TopScreenEvents.ButtonClicked)
-                }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Click Me")
+                Text(text = data.someData.orEmpty())
+                Button(
+                    onClick = {
+                        onEvent(Feature3TopScreenEvents.ButtonClicked)
+                    }
+                ) {
+                    Text(text = "Click Me")
+                }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewDisplayData(){
+    MyAppTheme {
+        DisplayData(
+            uiState = Feature3TopScreenUiState(
+                data = Feature3TopScreenUiData(
+                    someData = "Hello"
+                ),
+            )
+        )
     }
 }

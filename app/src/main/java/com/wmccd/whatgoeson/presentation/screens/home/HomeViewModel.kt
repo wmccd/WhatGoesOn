@@ -1,13 +1,11 @@
-package com.wmccd.whatgoeson.presentation.screens.feature1.feature1topscreen
+package com.wmccd.whatgoeson.presentation.screens.home
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
-import com.wmccd.whatgoeson.usecases.artists.DeleteArtistByIdUseCase
-import com.wmccd.whatgoeson.usecases.artists.GetAllArtistUseCase
-import com.wmccd.whatgoeson.usecases.artists.InsertArtistUseCase
+import com.wmccd.whatgoeson.repository.database.Album
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,13 +14,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class Feature1TopScreenViewModel(
-    mockedUiStateForTestingAndPreviews: Feature1TopScreenUiState? = null
-): ViewModel() {
+class HomeViewModel(
+    mockedUiStateForTestingAndPreviews: HomeUiState? = null
+) : ViewModel() {
 
     //Keeps track of the current data that is to be displayed on the screen
-    private val _uiState = MutableStateFlow(Feature1TopScreenUiState())
-    val uiState: StateFlow<Feature1TopScreenUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     //keeps track of when we want to navigate to another screen
     private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
@@ -36,36 +34,28 @@ class Feature1TopScreenViewModel(
             mockedUiStateMode(mockedUiStateForTestingAndPreviews)
     }
 
-    private fun mockedUiStateMode(uiStateForTestingAndPreviews: Feature1TopScreenUiState) {
+    private fun mockedUiStateMode(uiStateForTestingAndPreviews: HomeUiState) {
         _uiState.value = uiStateForTestingAndPreviews
     }
 
     private fun liveData() {
         MyApplication.utilities.logger.log(Log.INFO, TAG, "fetching live data")
-        _uiState.value = Feature1TopScreenUiState(isLoading = true)
+        _uiState.value = HomeUiState(isLoading = true)
         viewModelScope.launch {
-            MyApplication.repository.appDataStore.updateUserName("Bobbins ${System.currentTimeMillis().toString().takeLast(4)}")
             fetchData()
-
-            //TEMP ************
-            InsertArtistUseCase(MyApplication.repository.appDatabase.artistDao()).execute("The Mighty Bobbins 3")
-            DeleteArtistByIdUseCase(MyApplication.repository.appDatabase.artistDao()).execute(2)
-            val x = GetAllArtistUseCase(MyApplication.repository.appDatabase.artistDao()).execute().first()
-            MyApplication.utilities.logger.log(Log.INFO, TAG, "all artists $x")
         }
     }
-
 
     private suspend fun fetchData() {
         //fetch the data and update the screen state
         try {
             //stop showing the loading screen spinner
             //start showing the screen data
-             _uiState.value = uiState.value.copy(
+            _uiState.value = uiState.value.copy(
                 isLoading = false,
                 data = fetchUiData()
             )
-        }catch (ex: Exception){
+        } catch (ex: Exception) {
             //something went wrong, show the error message
             MyApplication.utilities.logger.log(Log.ERROR, TAG, "fetching live data: Exception", ex)
             _uiState.value = uiState.value.copy(
@@ -74,23 +64,38 @@ class Feature1TopScreenViewModel(
         }
     }
 
-    private suspend fun fetchUiData(): Feature1TopScreenUiData{
-        val response = MyApplication.repository.setListFmApi.searchArtists("The Beatles")
-        return Feature1TopScreenUiData(
-            randomText = MyApplication.repository.appDataStore.userNameFlow.first().orEmpty(),
-            randomLong = System.currentTimeMillis(),
-            randomInt = if(response.isSuccessful){
-                        response.body()?.total ?:0
-                    } else {-1}
-        )
+    private suspend fun fetchUiData(): HomeUiData {
+        val allAlbums = MyApplication.repository.appDatabase.albumDao().getAllAlbums().first()
+        val uiData = if(allAlbums.isEmpty()) {
+            noAlbumsStored()
+        }else{
+            randomAlbum( allAlbums = allAlbums )
+        }
+        
+        return uiData
     }
 
+    private fun noAlbumsStored() = HomeUiData(
+        noAlbumsStored = true,
+    )
 
-    fun onEvent(event: Feature1TopScreenEvents) {
+    private suspend fun randomAlbum(allAlbums: List<Album>): HomeUiData {
+        val randomAlbum = allAlbums.random()
+        val randomArtist = MyApplication.repository.appDatabase.artistDao().getArtistById(randomAlbum.artistId).first()
+        val uiData = HomeUiData(
+            artistName = randomArtist.artistName,
+            albumName = randomAlbum.name,
+            albumArtUrl = randomAlbum.imageUrl,
+            noAlbumsStored = false,
+        )
+        return uiData
+    }
+
+    fun onEvent(event: HomeEvents) {
         //the user tapped on something on the screen and we need to handle that
         MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent $event")
         when (event) {
-            Feature1TopScreenEvents.ButtonClicked -> onActionButtonClicked()
+            HomeEvents.ButtonClicked -> onActionButtonClicked()
         }
     }
 
@@ -99,7 +104,6 @@ class Feature1TopScreenViewModel(
         viewModelScope.launch {
             _navigationEvent.emit(NavigationEvent.NavigateToNextScreen)
         }
-
     }
 
     companion object{
@@ -107,18 +111,19 @@ class Feature1TopScreenViewModel(
     }
 }
 
-data class Feature1TopScreenUiState(
+data class HomeUiState(
     val isLoading: Boolean = false,
-    val data: Feature1TopScreenUiData? = null, // Replace with your actual data type
+    val data: HomeUiData? = null,
     val error: String? = null
 )
 
-data class Feature1TopScreenUiData(
-    val randomText: String = "",
-    val randomLong: Long = 0L,
-    val randomInt: Int = 0
+data class HomeUiData(
+    val artistName: String? = null,
+    val albumName: String? = null,
+    val albumArtUrl: String? = null,
+    val noAlbumsStored: Boolean,
 )
 
-sealed interface Feature1TopScreenEvents{
-    data object ButtonClicked: Feature1TopScreenEvents
+sealed interface HomeEvents {
+    data object ButtonClicked : HomeEvents
 }

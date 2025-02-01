@@ -3,25 +3,39 @@ package ${PACKAGE_NAME}
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class ${NAME}ViewModel: ViewModel() {
+class ${NAME}ViewModel(
+    mockedUiStateForTestingAndPreviews: ${NAME}UiState? = null
+): ViewModel() {
 
     //Keeps track of the current data that is to be displayed on the screen
     private val _uiState = MutableStateFlow(${NAME}UiState())
     val uiState: StateFlow<${NAME}UiState> = _uiState.asStateFlow()
 
     //keeps track of when we want to navigate to another screen
-    private val _messageChannel = Channel<NavigationEvent>()
-    val messageFlow = _messageChannel.receiveAsFlow()
+    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+    val navigationEvent = _navigationEvent.asSharedFlow()
 
     init {
-        //Init should only happen once
+        //The init block **only** runs when the ViewModel is created
+        if(mockedUiStateForTestingAndPreviews == null)
+            liveData()
+        else
+            mockedUiStateMode(mockedUiStateForTestingAndPreviews)
+    }
+
+    private fun mockedUiStateMode(uiStateForTestingAndPreviews: ${NAME}UiState) {
+        _uiState.value = uiStateForTestingAndPreviews
+    }
+
+    private fun liveData() {
+        MyApplication.utilities.logger.log(Log.INFO, TAG, "fetching Live Data")
         //Update the state to indicate that we are fetching data
         _uiState.value = ${NAME}UiState(isLoading = true)
         viewModelScope.launch {
@@ -29,31 +43,34 @@ class ${NAME}ViewModel: ViewModel() {
         }
     }
 
+
     private suspend fun fetchData() {
         //fetch the data and update the screen state
         try {
-            //start displaying the screen data
+            //stop showing the loading screen spinner
+            //start showing the screen data
             _uiState.value = uiState.value.copy(
                 isLoading = false,
                 data = fetchUiData()
             )
         }catch (ex: Exception){
             //something went wrong, show the error message
-            //TODO: Log the error
-            _uiState.value = ${NAME}UiState(error = ex.message)
+            MyApplication.utilities.logger.log(Log.ERROR, TAG, "fetching Live Data: Exception", ex)
+            _uiState.value = uiState.value.copy(
+                error = ex.message
+            )
         }
     }
 
     private suspend fun fetchUiData(): ${NAME}UiData{
-        val uiData = ${NAME}UiData(
-            randomText = System.currentTimeMillis().toString().takeLast(4),
-            randomLong = System.currentTimeMillis(),
+        return ${NAME}UiData(
+            someData = "Hello"
         )
-        return uiData
     }
 
     fun onEvent(event: ${NAME}Events) {
         //the user tapped on something on the screen and we need to handle that
+        MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent $event")
         when (event) {
             ${NAME}Events.ButtonClicked -> onActionButtonClicked()
         }
@@ -67,7 +84,7 @@ class ${NAME}ViewModel: ViewModel() {
     }
 
     companion object{
-        private const val TAG = "${NAME}ViewModel"
+        private val TAG = this::class.java.simpleName
     }
 }
 
@@ -78,8 +95,7 @@ data class ${NAME}UiState(
 )
 
 data class ${NAME}UiData(
-    val randomText: String = "",
-    val randomLong: Long = 0L
+    val someData: String? = "",
 )
 
 sealed interface ${NAME}Events{

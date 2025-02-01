@@ -19,7 +19,7 @@ class InsertAlbumUseCase (
 //            )
         }.onFailure {
             throw RepositoryException(
-                message = "Failed to insert album <parameters here>",
+                message = "Failed to insert Album <parameters here>",
                 cause = it
             )
         }
@@ -29,7 +29,7 @@ class InsertAlbumUseCase (
         runCatching {
             dao.insert(entity)
         }.onFailure {
-            throw Exception("Failed to insert album: $entity", it)
+            throw Exception("Failed to insert Album: $entity", it)
         }
     }
 

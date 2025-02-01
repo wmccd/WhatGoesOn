@@ -11,11 +11,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenEvents
+import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenUiData
+import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenUiState
+import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 import java.util.UUID
 
 @Composable
@@ -25,8 +32,8 @@ fun Feature1SubScreen1(
 ) {
     // Listen for navigation events sent by the ViewModel
     LaunchedEffect(key1 = UUID.randomUUID().toString()) {
-        viewModel.messageFlow.collect { message ->
-            when (message) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
                 is NavigationEvent.NavigateToNextScreen -> {
                     navController.navigate(NavigationEnum.Feature1SubScreen2.route)
                 }
@@ -42,33 +49,52 @@ private fun DisplayContent(viewModel: Feature1SubScreen1ViewModel) {
     when {
         uiState.isLoading -> DisplayLoading()
         uiState.error != null -> DisplayError(uiState.error)
-        uiState.data != null -> DisplayData(viewModel)
+        uiState.data != null -> DisplayData(
+            uiState = uiState,
+            onEvent = viewModel::onEvent
+        )
     }
 }
 
-
-
 @Composable
-fun DisplayData(viewModel: Feature1SubScreen1ViewModel) {
-
-    //Display the data that was fetched
-    val uiState by viewModel.uiState.collectAsState()
-
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ){
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+fun DisplayData(
+    uiState: Feature1SubScreen1UiState,
+    onEvent: (Feature1SubScreen1Events) -> Unit = {},
+) {
+    if(uiState.data == null) {
+        DisplayError(stringResource(R.string.no_data_to_display))
+    } else {
+        val data = uiState.data
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Button(
-                onClick = {
-                    viewModel.onEvent(Feature1SubScreen1Events.ButtonClicked)
-                }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Click Me")
+                Text(text = data.someData.orEmpty())
+                Button(
+                    onClick = {
+                        onEvent(Feature1SubScreen1Events.ButtonClicked)
+                    }
+                ) {
+                    Text(text = "Click Me")
+                }
             }
-            //Box(modifier = Modifier.fillMaxWidth().height(50.dp).background(MaterialTheme.colorScheme.primary))
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewDisplayData(){
+    MyAppTheme {
+        DisplayData(
+            uiState = Feature1SubScreen1UiState(
+                data = Feature1SubScreen1UiData(
+                    someData = "Hello"
+                ),
+            )
+        )
     }
 }

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
@@ -38,9 +37,10 @@ import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen1.Feature1SubScreen1
 import com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen2.Feature1SubScreen2
 import com.wmccd.whatgoeson.presentation.screens.feature1.feature1topscreen.Feature1TopScreen
-import com.wmccd.whatgoeson.presentation.screens.feature2.feature2topscreen.Feature2TopScreen
+import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreen
 import com.wmccd.whatgoeson.presentation.screens.feature3.feature3topscreen.Feature3TopScreen
-import com.wmccd.whatgoeson.presentation.theme.WhatGoesOnTheme
+import com.wmccd.whatgoeson.presentation.screens.home.HomeScreen
+import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -57,15 +57,18 @@ class MainActivity : ComponentActivity() {
             //If you set up a theme by hand there are dozens of entries to set up.
             //Use the Material 3 Theme Builder to help get you started:
             //https://m3.material.io/theme-builder#/custom
-            WhatGoesOnTheme {
+            MyAppTheme {
 
                 //The main object for navigating between screens
                 val navController = rememberNavController()
 
                 //Keeps track of the currently selected screen
-                val selectedScreen = remember { mutableStateOf(NavigationEnum.Feature1TopScreen) }
+                val selectedScreen = remember { mutableStateOf(NavigationEnum.HomeScreen) }
 
+                //Listens for changes to the current screen and updates the selectedScreen variable
                 ScreenChangeListener(navController = navController, selectedScreen = selectedScreen)
+
+                //Determines what to display on screen
                 DisplayScreenContent(navController = navController, selectedScreen = selectedScreen)
             }
         }
@@ -77,7 +80,7 @@ private fun DisplayScreenContent(
     navController: NavHostController,
     selectedScreen: MutableState<NavigationEnum>
 ) {
-    //The UI is surrounded by a Scaffold to allow for the Top Bar, Bottom Bar, and FAB
+    //The body of the UI is surrounded by a Scaffold to allow for the Top Bar, Bottom Bar, and FAB
     Scaffold(
         topBar = {
             DisplayTopBar(navController = navController, selectedScreen = selectedScreen.value)
@@ -100,7 +103,7 @@ private fun ScreenChangeListener(
 ) {
     //Listens for changes to the current screen and updates the selectedScreen variable
     navController.addOnDestinationChangedListener { _, destination, _ ->
-        val screenBeingDisplayed = NavigationEnum.fromRoute(destination.route)?: NavigationEnum.Feature1TopScreen
+        val screenBeingDisplayed = NavigationEnum.fromRoute(destination.route)?: NavigationEnum.HomeScreen
         selectedScreen.value = screenBeingDisplayed
     }
 }
@@ -128,7 +131,7 @@ private fun DisplayTopBar(
 @Composable
 private fun DisplayTitle(selectedScreen: NavigationEnum) {
     //Displays the title of the current screen
-    Text(text = stringResource(id = selectedScreen.title))
+    Text(text = stringResource(id = selectedScreen.topBarTitle))
 }
 
 @Composable
@@ -140,7 +143,7 @@ private fun DisplayNavigationIcon(
     if (!selectedScreen.topLevelScreen) {
         IconButton(onClick = { navController.popBackStack() }) {
             Icon(
-                Icons.AutoMirrored.Filled.ArrowBack,
+                selectedScreen.topBarNavigationIcon,
                 contentDescription = stringResource(R.string.back)
             )
         }
@@ -169,13 +172,13 @@ private fun CheckBeforeClosing(
                 showDialog.value = false
 
                 //Deletes the current screen and goes back to the main screen
-                navController.navigate(NavigationEnum.Feature1TopScreen.route) {
-                    popUpTo(NavigationEnum.Feature1TopScreen.route) { inclusive = true }
+                navController.navigate(NavigationEnum.HomeScreen.route) {
+                    popUpTo(NavigationEnum.HomeScreen.route) { inclusive = true }
                     launchSingleTop = true
                 }
 
             }) {
-                Text(text = stringResource(R.string.delete))
+                Text(text = stringResource(R.string.carry_on))
             }
         },
         dismissButton = {
@@ -193,7 +196,7 @@ private fun DisplayActionIcon(
     selectedScreen: NavigationEnum
 ) {
     //Displays the close button if the current screen is not a top level screen
-    if (selectedScreen.featureScreen) {
+    if (!selectedScreen.topLevelScreen) {
 
         //Determines if the "Are you sure dialog should display
         var showDialog = remember { mutableStateOf(false) }
@@ -202,7 +205,7 @@ private fun DisplayActionIcon(
             showDialog.value = true
         }) {
             Icon(
-                imageVector = selectedScreen.closeIcon,
+                imageVector = selectedScreen.topBarCloseIcon,
                 contentDescription = stringResource(R.string.close)
             )
         }
@@ -225,6 +228,7 @@ private fun DisplayBottomBar(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
+                DisplayBottomBarItem(navController, NavigationEnum.HomeScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.Feature1TopScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.Feature2TopScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.Feature3TopScreen, selectedScreen)
@@ -242,6 +246,7 @@ fun DisplayFloatingActionButton(
     if (selectedScreen.topLevelScreen) {
         FloatingActionButton(onClick = {
             when (selectedScreen) {
+                NavigationEnum.HomeScreen -> navController.navigate(NavigationEnum.Feature1TopScreen.route)
                 NavigationEnum.Feature1TopScreen -> navController.navigate(NavigationEnum.Feature1SubScreen1.route)
                 else -> {}
             }
@@ -256,14 +261,16 @@ private fun NavigationControl(
     navController: NavHostController,
     innerPadding: PaddingValues
 ) {
-    //Declares all the screens that can be navigated to
+    //Acts like a content page for all the screens that can be navigated to
     NavHost(
-        navController,
-        startDestination = NavigationEnum.Feature1TopScreen.route,
-        Modifier.padding(innerPadding)
+        navController = navController,
+        startDestination = NavigationEnum.HomeScreen.route, //This is the first screen that will be displayed
+        modifier = Modifier.padding(innerPadding)
     ) {
+        //Declares all the screens that can be navigated to
+        composable(NavigationEnum.HomeScreen.route) { HomeScreen(navController = navController) }
         composable(NavigationEnum.Feature1TopScreen.route) { Feature1TopScreen(navController = navController) }
-        composable(NavigationEnum.Feature2TopScreen.route) { Feature2TopScreen(navController = navController) }
+        composable(NavigationEnum.Feature2TopScreen.route) { NewAdditionTopScreen(navController = navController) }
         composable(NavigationEnum.Feature3TopScreen.route) { Feature3TopScreen(navController = navController) }
         composable(NavigationEnum.Feature1SubScreen1.route) { Feature1SubScreen1(navController = navController) }
         composable(NavigationEnum.Feature1SubScreen2.route) { Feature1SubScreen2(navController = navController) }
@@ -284,7 +291,7 @@ private fun DisplayBottomBarItem(
     ) {
         Icon(
             imageVector = navigationEnum.bottomTabIcon,
-            contentDescription = stringResource( navigationEnum.title),
+            contentDescription = stringResource( navigationEnum.topBarTitle),
             tint = if (selectedScreen == navigationEnum) {
                 MaterialTheme.colorScheme.primary
             } else {
@@ -297,7 +304,7 @@ private fun DisplayBottomBarItem(
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    WhatGoesOnTheme {
+    MyAppTheme {
         DisplayBottomBarItem(
             NavHostController(MyApplication.appContext),
             NavigationEnum.Feature1TopScreen,

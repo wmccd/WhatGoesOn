@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.wmccd.whatgoeson.presentation.theme.WhatGoesOnTheme
+import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 
 @Composable
 fun InternetImage(
@@ -50,7 +50,7 @@ fun InternetImage(
 @Preview
 @Composable
 private fun PreviewInternetImage100(){
-    WhatGoesOnTheme {
+    MyAppTheme {
         InternetImage(
             imageUrl = "https://superdeluxeedition.com/wp-content/uploads/2024/12/SDE_BSOTY.jpg",
             imageSize = 100
@@ -61,7 +61,7 @@ private fun PreviewInternetImage100(){
 @Preview
 @Composable
 private fun PreviewInternetImageFillMaxWidth(){
-    WhatGoesOnTheme {
+    MyAppTheme {
         InternetImage(
             imageUrl = "https://superdeluxeedition.com/wp-content/uploads/2024/12/SDE_BSOTY.jpg",
         )

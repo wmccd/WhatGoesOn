@@ -1,12 +1,15 @@
 package com.wmccd.whatgoeson.presentation.screens
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.wmccd.whatgoeson.R
@@ -14,42 +17,43 @@ import com.wmccd.whatgoeson.R
 //Defines the routes and screens that can be navigated to
 enum class NavigationEnum(
     val route: String,
-    @StringRes val title: Int,
-    @DrawableRes val icon: Int? = null,
+    @StringRes val topBarTitle: Int,
+    val topBarNavigationIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowBack,
+    val topBarCloseIcon: ImageVector = Icons.Default.Close,
     val bottomTabIcon: ImageVector = Icons.Default.Warning,
     val topLevelScreen: Boolean = false,
-    val closeIcon: ImageVector = Icons.Default.Close,
-    val featureScreen: Boolean = true,
-
-    ) {
-    Feature1TopScreen(
-        route = "Feature1TopScreen",
-        title = R.string.feature_1_top_screen,
+) {
+    HomeScreen(
+        route = "HomeScreen",
+        topBarTitle = R.string.random_record,
         bottomTabIcon = Icons.Default.Home,
         topLevelScreen= true,
-        featureScreen = false
+    ),
+    Feature1TopScreen(
+        route = "Feature1TopScreen",
+        topBarTitle = R.string.feature_1_top_screen,
+        bottomTabIcon = Icons.Filled.PlayArrow,
+        topLevelScreen= true,
     ),
     Feature2TopScreen(
         route = "Feature2TopScreen",
-        title = R.string.feature_2_top_screen,
-        bottomTabIcon = Icons.Default.Person,
+        topBarTitle = R.string.feature_2_top_screen,
+        bottomTabIcon = Icons.Default.Edit,
         topLevelScreen = true,
-        featureScreen = false
     ),
     Feature3TopScreen(
         route = "Feature3TopScreen",
-        title = R.string.feature_3_top_screen,
+        topBarTitle = R.string.feature_3_top_screen,
         bottomTabIcon = Icons.Default.Menu,
         topLevelScreen = true,
-        featureScreen = false
     ),
     Feature1SubScreen1(
         route = "Feature2SubScreen1",
-        title = R.string.feature_1_sub_screen_1,
+        topBarTitle = R.string.feature_1_sub_screen_1,
     ),
     Feature1SubScreen2(
         route = "Feature2SubScreen2",
-        title = R.string.feature_1_sub_screen_2,
+        topBarTitle = R.string.feature_1_sub_screen_2,
     );
 
     companion object {

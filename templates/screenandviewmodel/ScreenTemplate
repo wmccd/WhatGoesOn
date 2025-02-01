@@ -23,8 +23,8 @@ fun ${NAME}Screen(
 
     // Listen for navigation events sent by the ViewModel
     LaunchedEffect(key1 = UUID.randomUUID().toString()) {
-        viewModel.messageFlow.collect { message ->
-            when (message) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
                 is NavigationEvent.NavigateToNextScreen -> {
                     //TODO Add Destination Route
                     navController.navigate(NavigationEnum.AddDestination.route)
@@ -42,30 +42,37 @@ private fun DisplayContent(viewModel: ${NAME}ViewModel) {
     when {
         uiState.isLoading -> DisplayLoading()
         uiState.error != null -> DisplayError(uiState.error)
-        uiState.data != null -> DisplayData(viewModel)
+        uiState.data != null -> DisplayData(
+            uiState= uiState,
+            onEvent = viewModel::onEvent
+        )
     }
 }
 
 @Composable
-fun DisplayData(viewModel: ${NAME}ViewModel) {
-    //Display the data that was fetched
-    val uiState by viewModel.uiState.collectAsState()
-    val data = uiState.data
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ){
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            //Text(text = data?.randomText.orEmpty())
-            //Text(text = data?.randomLong.toString())
-            Button(
-                onClick = {
-                    viewModel.onEvent(${NAME}Events.ButtonClicked)
-                }
+fun DisplayData(
+    uiState: ${NAME}UiState,
+    onEvent: (${NAME}Events) -> Unit = {},
+) {
+    if(uiState.data == null) {
+        DisplayError(stringResource(R.string.no_data_to_display))
+    } else {
+        val data = uiState.data
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Click Me")
+                Text(text = data.someData.orEmpty())
+                Button(
+                    onClick = {
+                        onEvent(${NAME}Events.ButtonClicked)
+                    }
+                ) {
+                    Text(text = "Click Me")
+                }
             }
         }
     }

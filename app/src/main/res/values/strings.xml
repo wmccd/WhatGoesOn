@@ -5,9 +5,14 @@
     <string name="back">Back</string>
     <string name="cancel">Cancel</string>
     <string name="close">Close</string>
-    <string name="delete">Delete</string>
+    <string name="carry_on">Carry on</string>
     <string name="loading">Loading...</string>
     <string name="this_action_cant_be_undone">This action cannot be undone</string>
+    <string name="no_data_to_display">No data to display</string>">
+
+
+    <string name="random_record">Random Record</string>
+    <string name="it_looks_like_you_are_new_here">It looks you are new here.\n\nLets get started by clicking the + button.</string>
 
     <string name="feature_1_top_screen">Feature 1 Top Screen</string>
     <string name="feature_2_top_screen">Feature 2 Top Screen</string>
