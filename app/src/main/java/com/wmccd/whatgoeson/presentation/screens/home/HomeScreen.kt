@@ -1,16 +1,9 @@
 package com.wmccd.whatgoeson.presentation.screens.home
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,10 +20,8 @@ import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
-import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenUiData
-import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenUiState
-import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 import java.util.UUID
 
 @Composable
@@ -38,7 +29,6 @@ fun HomeScreen(
     navController: NavHostController,
     viewModel: HomeViewModel = HomeViewModel()
 ) {
-
     // Listen for navigation events sent by the ViewModel
     LaunchedEffect(key1 = UUID.randomUUID().toString()) {
         viewModel.navigationEvent.collect { event ->
@@ -49,17 +39,17 @@ fun HomeScreen(
             }
         }
     }
-    DisplayContent(viewModel)
+    DetermineDisplayMode(viewModel)
 }
 
 @Composable
-private fun DisplayContent(viewModel: HomeViewModel) {
+private fun DetermineDisplayMode(viewModel: HomeViewModel) {
     // Display content based on uiState
     val uiState by viewModel.uiState.collectAsState()
     when {
         uiState.isLoading -> DisplayLoading()
         uiState.error != null -> DisplayError(uiState.error)
-        uiState.data != null -> DisplayData(
+        uiState.data != null -> DisplayContent(
             uiState = uiState,
             onEvent = viewModel::onEvent
         )
@@ -67,15 +57,22 @@ private fun DisplayContent(viewModel: HomeViewModel) {
 }
 
 @Composable
-private fun DisplayData(
+private fun DisplayContent(
     uiState: HomeUiState,
     onEvent: (HomeEvents) -> Unit = {}
 ) {
-    //Display the data that was fetched
     if(uiState.data == null) {
         DisplayError(stringResource(R.string.no_data_to_display))
+    }else {
+        DisplayData(uiState.data, onEvent)
     }
-    val data = uiState.data
+}
+
+@Composable
+private fun DisplayData(
+    data: HomeUiData?,
+    onEvent: (HomeEvents) -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -85,16 +82,15 @@ private fun DisplayData(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(data?.noAlbumsStored == true){
+            if (data?.noAlbumsStored == true) {
                 Text(
                     text = stringResource(id = R.string.it_looks_like_you_are_new_here),
                     textAlign = TextAlign.Center
                 )
-            }else{
+            } else {
                 Text(text = "Artist: ${data?.artistName}")
                 Text(text = "Album: ${data?.albumName}")
             }
-
         }
     }
 }
@@ -102,8 +98,8 @@ private fun DisplayData(
 @Preview
 @Composable
 private fun PreviewDisplayData(){
-    MyAppTheme {
-        DisplayData(
+    PreviewTheme {
+        DisplayContent(
             uiState = HomeUiState(
                 data = HomeUiData(
                     artistName = "Artist",

@@ -32,11 +32,11 @@ fun ${NAME}Screen(
             }
         }
     }
-    DisplayContent(viewModel)
+    DisplayContentMode(viewModel)
 }
 
 @Composable
-private fun DisplayContent(viewModel: ${NAME}ViewModel) {
+private fun DisplayContentMode(viewModel: ${NAME}ViewModel) {
     // Display content based on uiState
     val uiState by viewModel.uiState.collectAsState()
     when {
@@ -50,14 +50,22 @@ private fun DisplayContent(viewModel: ${NAME}ViewModel) {
 }
 
 @Composable
-fun DisplayData(
+fun DisplayContent(
     uiState: ${NAME}UiState,
     onEvent: (${NAME}Events) -> Unit = {},
 ) {
     if(uiState.data == null) {
         DisplayError(stringResource(R.string.no_data_to_display))
     } else {
-        val data = uiState.data
+        DisplayData(uiState.data, onEvent)
+    }
+}
+
+@Composable
+fun DisplayData(
+    data: ${NAME}UiData,
+    onEvent: (${NAME}Events) -> Unit = {},
+) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -75,5 +83,19 @@ fun DisplayData(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewDisplayData(){
+    PreviewTheme {
+        DisplayContent(
+            uiState = ${NAME}UiState(
+                data = ${NAME}UiData(
+                    someData = "Hello"
+                ),
+            )
+        )
     }
 }

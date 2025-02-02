@@ -22,7 +22,7 @@ import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
 import com.wmccd.whatgoeson.presentation.screens.common.InternetImage
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
-import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
+import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import java.util.UUID
 
 @Composable
@@ -41,18 +41,18 @@ fun Feature1TopScreen(
             }
         }
     }
-    DisplayContent(viewModel)
+    DetermineDisplayMode(viewModel)
 }
 
 @Composable
-private fun DisplayContent(viewModel: Feature1TopScreenViewModel) {
+private fun DetermineDisplayMode(viewModel: Feature1TopScreenViewModel) {
     // Display content based on uiState
     val uiState by viewModel.uiState.collectAsState()
     MyApplication.utilities.logger.log(Log.INFO, "TopScreen1", "DisplayContent $uiState")
     when {
         uiState.isLoading -> DisplayLoading()
         uiState.error != null -> DisplayError(uiState.error)
-        uiState.data != null -> DisplayData(
+        uiState.data != null -> DisplayContent(
             uiState = uiState,
             onEvent = viewModel::onEvent
         )
@@ -60,34 +60,41 @@ private fun DisplayContent(viewModel: Feature1TopScreenViewModel) {
 }
 
 @Composable
-fun DisplayData(
+fun DisplayContent(
     uiState: Feature1TopScreenUiState,
     onEvent: (Feature1TopScreenEvents) -> Unit = {},
 ) {
     if(uiState.data == null) {
         DisplayError(stringResource(R.string.no_data_to_display))
     } else {
-        val data = uiState.data
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        DisplayData(uiState.data, onEvent)
+    }
+}
+
+@Composable
+private fun DisplayData(
+    data: Feature1TopScreenUiData,
+    onEvent: (Feature1TopScreenEvents) -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                InternetImage(
-                    imageUrl = "https://upload.wikimedia.org/wikipedia/en/0/01/Bob_Dylan_-_Oh_Mercy.jpg?20180114224124"
-                )
-                Text(text = data.randomText.orEmpty())
-                Text(text = data.randomLong.toString())
-                Text(text = data.randomInt.toString())
-                Button(
-                    onClick = {
-                        onEvent(Feature1TopScreenEvents.ButtonClicked)
-                    }
-                ) {
-                    Text(text = "Click Me")
+            InternetImage(
+                imageUrl = "https://upload.wikimedia.org/wikipedia/en/0/01/Bob_Dylan_-_Oh_Mercy.jpg?20180114224124"
+            )
+            Text(text = data.randomText.orEmpty())
+            Text(text = data.randomLong.toString())
+            Text(text = data.randomInt.toString())
+            Button(
+                onClick = {
+                    onEvent(Feature1TopScreenEvents.ButtonClicked)
                 }
+            ) {
+                Text(text = "Click Me")
             }
         }
     }
@@ -96,8 +103,8 @@ fun DisplayData(
 @Composable
 @Preview
 private fun PreviewDisplayData(){
-    MyAppTheme {
-        DisplayData(
+    PreviewTheme {
+        DisplayContent(
             uiState = Feature1TopScreenUiState(
                 data = Feature1TopScreenUiData(
                     randomText = "Hello",
@@ -107,5 +114,4 @@ private fun PreviewDisplayData(){
             )
         )
     }
-
 }

@@ -1,6 +1,5 @@
 package com.wmccd.whatgoeson.presentation.screens.feature3.feature3topscreen
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,15 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
-import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenEvents
-import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenUiData
-import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenUiState
-import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
+import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import java.util.UUID
 
 @Composable
@@ -42,18 +37,17 @@ fun Feature3TopScreen(
             }
         }
     }
-
-    DisplayContent(viewModel)
+    DetermineDisplayMode(viewModel)
 }
 
 @Composable
-private fun DisplayContent(viewModel: TopScreen3ViewModel) {
+private fun DetermineDisplayMode(viewModel: TopScreen3ViewModel) {
     // Display content based on uiState
     val uiState by viewModel.uiState.collectAsState()
     when {
         uiState.isLoading -> DisplayLoading()
         uiState.error != null -> DisplayError(uiState.error)
-        uiState.data != null -> DisplayData(
+        uiState.data != null -> DisplayContent(
             uiState = uiState,
             onEvent = viewModel::onEvent
         )
@@ -61,30 +55,36 @@ private fun DisplayContent(viewModel: TopScreen3ViewModel) {
 }
 
 @Composable
-fun DisplayData(
+fun DisplayContent(
     uiState: Feature3TopScreenUiState,
     onEvent: (Feature3TopScreenEvents) -> Unit = {},
-
-    ) {
+) {
     if(uiState.data == null) {
         DisplayError(stringResource(R.string.no_data_to_display))
     } else {
-        val data = uiState.data
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        DisplayData(uiState.data, onEvent)
+    }
+}
+
+@Composable
+private fun DisplayData(
+    data: Feature3TopScreenUiData,
+    onEvent: (Feature3TopScreenEvents) -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = data.someData.orEmpty())
-                Button(
-                    onClick = {
-                        onEvent(Feature3TopScreenEvents.ButtonClicked)
-                    }
-                ) {
-                    Text(text = "Click Me")
+            Text(text = data.someData.orEmpty())
+            Button(
+                onClick = {
+                    onEvent(Feature3TopScreenEvents.ButtonClicked)
                 }
+            ) {
+                Text(text = "Click Me")
             }
         }
     }
@@ -93,8 +93,8 @@ fun DisplayData(
 @Preview
 @Composable
 private fun PreviewDisplayData(){
-    MyAppTheme {
-        DisplayData(
+    PreviewTheme {
+        DisplayContent(
             uiState = Feature3TopScreenUiState(
                 data = Feature3TopScreenUiData(
                     someData = "Hello"

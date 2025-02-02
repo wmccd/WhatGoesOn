@@ -19,10 +19,7 @@ import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
-import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenEvents
-import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenUiData
-import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreenUiState
-import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
+import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import java.util.UUID
 
 @Composable
@@ -40,16 +37,16 @@ fun Feature1SubScreen1(
             }
         }
     }
-    DisplayContent(viewModel)
+    DetermineDisplayMode(viewModel)
 }
 
 @Composable
-private fun DisplayContent(viewModel: Feature1SubScreen1ViewModel) {
+private fun DetermineDisplayMode(viewModel: Feature1SubScreen1ViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     when {
         uiState.isLoading -> DisplayLoading()
         uiState.error != null -> DisplayError(uiState.error)
-        uiState.data != null -> DisplayData(
+        uiState.data != null -> DisplayContent(
             uiState = uiState,
             onEvent = viewModel::onEvent
         )
@@ -57,29 +54,36 @@ private fun DisplayContent(viewModel: Feature1SubScreen1ViewModel) {
 }
 
 @Composable
-fun DisplayData(
+fun DisplayContent(
     uiState: Feature1SubScreen1UiState,
     onEvent: (Feature1SubScreen1Events) -> Unit = {},
 ) {
     if(uiState.data == null) {
         DisplayError(stringResource(R.string.no_data_to_display))
     } else {
-        val data = uiState.data
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        DisplayData(uiState.data, onEvent)
+    }
+}
+
+@Composable
+private fun DisplayData(
+    data: Feature1SubScreen1UiData,
+    onEvent: (Feature1SubScreen1Events) -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = data.someData.orEmpty())
-                Button(
-                    onClick = {
-                        onEvent(Feature1SubScreen1Events.ButtonClicked)
-                    }
-                ) {
-                    Text(text = "Click Me")
+            Text(text = data.someData.orEmpty())
+            Button(
+                onClick = {
+                    onEvent(Feature1SubScreen1Events.ButtonClicked)
                 }
+            ) {
+                Text(text = "Click Me")
             }
         }
     }
@@ -88,8 +92,8 @@ fun DisplayData(
 @Preview
 @Composable
 private fun PreviewDisplayData(){
-    MyAppTheme {
-        DisplayData(
+    PreviewTheme {
+        DisplayContent(
             uiState = Feature1SubScreen1UiState(
                 data = Feature1SubScreen1UiData(
                     someData = "Hello"
