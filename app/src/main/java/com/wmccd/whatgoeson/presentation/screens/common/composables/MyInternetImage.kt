@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.presentation.screens.common
+package com.wmccd.whatgoeson.presentation.screens.common.composables
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -12,12 +12,14 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 
 @Composable
-fun InternetImage(
+fun MyInternetImage(
     imageUrl: String,
     imageSize: Int = 300,
+    modifier: Modifier = Modifier,
 ){
     val placeholder: Painter = rememberVectorPainter(image = Icons.Filled.Refresh)
     val error: Painter = rememberVectorPainter(image = Icons.Filled.Warning)
@@ -27,12 +29,12 @@ fun InternetImage(
         contentDescription = "Image description",
         placeholder = placeholder,
         error = error,
-        modifier = Modifier.size(imageSize.dp)
+        modifier = modifier.size(imageSize.dp).then(modifier)
     )
 }
 
 @Composable
-fun InternetImage(
+fun MyInternetImage(
     imageUrl: String,
 ){
     val placeholder: Painter = rememberVectorPainter(image = Icons.Filled.Refresh)
@@ -49,9 +51,9 @@ fun InternetImage(
 
 @Preview
 @Composable
-private fun PreviewInternetImage100(){
-    MyAppTheme {
-        InternetImage(
+private fun PreviewMyInternetImage100(){
+    PreviewTheme {
+        MyInternetImage(
             imageUrl = "https://superdeluxeedition.com/wp-content/uploads/2024/12/SDE_BSOTY.jpg",
             imageSize = 100
         )
@@ -61,8 +63,8 @@ private fun PreviewInternetImage100(){
 @Preview
 @Composable
 private fun PreviewInternetImageFillMaxWidth(){
-    MyAppTheme {
-        InternetImage(
+    PreviewTheme {
+        MyInternetImage(
             imageUrl = "https://superdeluxeedition.com/wp-content/uploads/2024/12/SDE_BSOTY.jpg",
         )
     }

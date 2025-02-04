@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen
+package com.wmccd.whatgoeson.presentation.screens.newAddition.newAlbumTopScreen
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -13,12 +13,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class NewAdditionTopScreenViewModel(
-    mockedUiStateForTestingAndPreviews: NewAdditionTopScreenUiState? = null
+    mockedUiStateForTestingAndPreviews: NewAlbumTopScreenUiState? = null
 ) : ViewModel() {
 
     //Keeps track of the current data that is to be displayed on the screen
-    private val _uiState = MutableStateFlow(NewAdditionTopScreenUiState())
-    val uiState: StateFlow<NewAdditionTopScreenUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(NewAlbumTopScreenUiState())
+    val uiState: StateFlow<NewAlbumTopScreenUiState> = _uiState.asStateFlow()
 
     //keeps track of when we want to navigate to another screen
     private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
@@ -32,13 +32,13 @@ class NewAdditionTopScreenViewModel(
             mockedUiStateMode(mockedUiStateForTestingAndPreviews)
     }
 
-    private fun mockedUiStateMode(uiStateForTestingAndPreviews: NewAdditionTopScreenUiState) {
+    private fun mockedUiStateMode(uiStateForTestingAndPreviews: NewAlbumTopScreenUiState) {
         _uiState.value = uiStateForTestingAndPreviews
     }
 
     private fun liveData() {
         MyApplication.utilities.logger.log(Log.INFO, TAG, "fetching Live Data")
-        _uiState.value = NewAdditionTopScreenUiState(isLoading = true)
+        _uiState.value = NewAlbumTopScreenUiState(isLoading = true)
         viewModelScope.launch {
             fetchData()
         }
@@ -62,15 +62,15 @@ class NewAdditionTopScreenViewModel(
         }
     }
 
-    private suspend fun fetchUiData(): NewAdditionTopScreenUiData {
-        return NewAdditionTopScreenUiData()
+    private suspend fun fetchUiData(): NewAlbumTopScreenUiData {
+        return NewAlbumTopScreenUiData()
     }
 
-    fun onEvent(event: NewAdditionTopScreenEvents) {
+    fun onEvent(event: NewAlbumTopScreenEvents) {
         //the user tapped on something on the screen and we need to handle that
         MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent $event")
         when (event) {
-            NewAdditionTopScreenEvents.ButtonClicked -> onActionButtonClicked()
+            NewAlbumTopScreenEvents.ButtonClicked -> onActionButtonClicked()
         }
     }
 
@@ -86,16 +86,20 @@ class NewAdditionTopScreenViewModel(
     }
 }
 
-data class NewAdditionTopScreenUiState(
+data class NewAlbumTopScreenUiState(
     val isLoading: Boolean = false,
-    val data: NewAdditionTopScreenUiData? = null,
+    val data: NewAlbumTopScreenUiData? = null,
     val error: String? = null
 )
 
-data class NewAdditionTopScreenUiData(
+data class NewAlbumTopScreenUiData(
+    val albumName: String? = "",
+    val artistName: String? = "",
+    val imageUrl: String? = "",
     val someData: String? = "",
+    val ctaEnabled: Boolean = false
 )
 
-sealed interface NewAdditionTopScreenEvents{
-    data object ButtonClicked: NewAdditionTopScreenEvents
+sealed interface NewAlbumTopScreenEvents{
+    data object ButtonClicked: NewAlbumTopScreenEvents
 }

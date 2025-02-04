@@ -38,7 +38,7 @@ enum class NavigationEnum(
     Feature2TopScreen(
         route = "Feature2TopScreen",
         topBarTitle = R.string.feature_2_top_screen,
-        bottomTabIcon = Icons.Default.Edit,
+        bottomTabIcon = Icons.Default.Add,
         topLevelScreen = true,
     ),
     Feature3TopScreen(

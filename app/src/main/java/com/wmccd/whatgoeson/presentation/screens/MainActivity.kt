@@ -37,7 +37,7 @@ import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen1.Feature1SubScreen1
 import com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen2.Feature1SubScreen2
 import com.wmccd.whatgoeson.presentation.screens.feature1.feature1topscreen.Feature1TopScreen
-import com.wmccd.whatgoeson.presentation.screens.newAddition.newAdditionTopScreen.NewAdditionTopScreen
+import com.wmccd.whatgoeson.presentation.screens.newAddition.newAlbumTopScreen.NewAlbumTopScreen
 import com.wmccd.whatgoeson.presentation.screens.feature3.feature3topscreen.Feature3TopScreen
 import com.wmccd.whatgoeson.presentation.screens.home.HomeScreen
 import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
@@ -270,7 +270,7 @@ private fun NavigationControl(
         //Declares all the screens that can be navigated to
         composable(NavigationEnum.HomeScreen.route) { HomeScreen(navController = navController) }
         composable(NavigationEnum.Feature1TopScreen.route) { Feature1TopScreen(navController = navController) }
-        composable(NavigationEnum.Feature2TopScreen.route) { NewAdditionTopScreen(navController = navController) }
+        composable(NavigationEnum.Feature2TopScreen.route) { NewAlbumTopScreen(navController = navController) }
         composable(NavigationEnum.Feature3TopScreen.route) { Feature3TopScreen(navController = navController) }
         composable(NavigationEnum.Feature1SubScreen1.route) { Feature1SubScreen1(navController = navController) }
         composable(NavigationEnum.Feature1SubScreen2.route) { Feature1SubScreen2(navController = navController) }

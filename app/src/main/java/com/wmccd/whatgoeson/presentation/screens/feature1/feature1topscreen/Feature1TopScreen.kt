@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,10 +20,11 @@ import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
-import com.wmccd.whatgoeson.presentation.screens.common.InternetImage
+import com.wmccd.whatgoeson.presentation.screens.common.composables.MyInternetImage
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
+import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
 import java.util.UUID
 
 @Composable
@@ -77,13 +79,13 @@ private fun DisplayData(
     onEvent: (Feature1TopScreenEvents) -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(STANDARD_SCREEN_PADDING),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            InternetImage(
+            MyInternetImage(
                 imageUrl = "https://upload.wikimedia.org/wikipedia/en/0/01/Bob_Dylan_-_Oh_Mercy.jpg?20180114224124"
             )
             Text(text = data.randomText.orEmpty())
