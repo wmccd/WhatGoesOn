@@ -10,8 +10,8 @@ import androidx.compose.ui.Modifier
 @Composable
 fun MyDropdownMenu(
     expanded: Boolean,
-    options: List<String>,
-    onOptionSelected: (String) -> Unit,
+    options: List<Pair<Long,String>>,
+    onOptionSelected: (Long, String) -> Unit,
     onDismissRequest: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -25,9 +25,9 @@ fun MyDropdownMenu(
     ){
         options.forEach { option ->
             DropdownMenuItem(
-                text = { Text(option) },
+                text = { Text(option.second) },
                 onClick = {
-                    onOptionSelected(option)
+                    onOptionSelected(option.first, option.second)
                     onDismissRequest(false)
                 }
             )

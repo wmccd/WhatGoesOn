@@ -1,15 +1,20 @@
 package com.wmccd.whatgoeson.presentation.screens.newAddition.newAlbumTopScreen
 
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.repository.database.Album
+import com.wmccd.whatgoeson.repository.database.Artist
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class NewAdditionTopScreenViewModel(
@@ -63,22 +68,138 @@ class NewAdditionTopScreenViewModel(
     }
 
     private suspend fun fetchUiData(): NewAlbumTopScreenUiData {
-        return NewAlbumTopScreenUiData()
+        return NewAlbumTopScreenUiData(
+            albumName = "",
+            artistName = "",
+            imageUrl = "",
+            saveButtonEnabled = false,
+            artistIdNameList = fetchArtistIdNameList(),
+        )
+    }
+
+    private suspend fun fetchArtistIdNameList(): List<Pair<Long, String>> {
+        val allArtists = MyApplication.repository.appDatabase.artistDao().getAllArtists().first()
+        return allArtists.map { it.id to it.artistName }.sortedBy { it.second }
     }
 
     fun onEvent(event: NewAlbumTopScreenEvents) {
         //the user tapped on something on the screen and we need to handle that
         MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent $event")
         when (event) {
-            NewAlbumTopScreenEvents.ButtonClicked -> onActionButtonClicked()
+            NewAlbumTopScreenEvents.SaveButtonClicked -> onSaveButtonClicked()
+            is NewAlbumTopScreenEvents.AlbumImageUrlChanged -> onAlbumImageUrlChanged(event.imageUrl)
+            is NewAlbumTopScreenEvents.AlbumNameChanged -> onAlbumNameChanged(event.albumName)
+            is NewAlbumTopScreenEvents.ArtistNameChanged -> onArtistNameChanged(event.artistName)
+            is NewAlbumTopScreenEvents.ArtistSelected -> onArtistSelected(event.artistId, event.artistName)
         }
     }
 
-    private fun onActionButtonClicked() {
-        //the main action button was clicked and we want to move to next screen
+    private fun onAlbumImageUrlChanged(imageUrl: String) {
+        _uiState.value = _uiState.value.copy(
+            data = _uiState.value.data?.copy(
+                imageUrl = imageUrl
+            )
+        )
+        checkIfSaveButtonShouldBeEnabled()
+    }
+
+    private fun onAlbumNameChanged(albumName: String) {
+        _uiState.value = _uiState.value.copy(
+            data = _uiState.value.data?.copy(
+                albumName = albumName
+            )
+        )
+        checkIfSaveButtonShouldBeEnabled()
+    }
+
+    private fun onArtistNameChanged(artistName: String) {
+        _uiState.value = _uiState.value.copy(
+            data = _uiState.value.data?.copy(
+                artistName = artistName
+            )
+        )
+        checkIfSaveButtonShouldBeEnabled()
+    }
+
+    private fun onArtistSelected(artistId: Long, artistName: String) {
+        _uiState.value = _uiState.value.copy(
+            data = _uiState.value.data?.copy(
+                artistName = artistName,
+                artistId = artistId
+            )
+        )
+        checkIfSaveButtonShouldBeEnabled()
+    }
+
+    private fun onSaveButtonClicked() {
+        //saving the details to the database
         viewModelScope.launch {
-            _navigationEvent.emit(NavigationEvent.NavigateToNextScreen)
+
+            try {
+                // Check if this artist is already in the database
+                val artist = MyApplication.repository.appDatabase.artistDao()
+                    .getArtistByString(
+                        uiState.value.data?.artistName.orEmpty()
+                    ).firstOrNull()
+
+                if (artist == null) {
+                    insertArtistAndAlbum()
+                } else {
+                    insertAlbum(artistId = artist.id)
+                }
+            }catch(ex: Exception){
+                MyApplication.utilities.logger.log(Log.ERROR, TAG, "onSaveButtonClicked: Exception", ex)
+                _uiState.value = uiState.value.copy(
+                    error = ex.message
+                )
+            }finally {
+                _uiState.value = _uiState.value.copy(
+                    data = NewAlbumTopScreenUiData()
+                )
+            }
         }
+    }
+
+    private suspend fun insertArtistAndAlbum() {
+        val artistId = MyApplication.repository.appDatabase.artistDao().insert(
+            Artist(
+                artistName = uiState.value.data?.artistName.orEmpty()
+            )
+        )
+        insertAlbum(artistId = artistId)
+    }
+
+    private suspend fun insertAlbum(artistId: Long) {
+
+        val allAlbums = MyApplication.repository.appDatabase.albumDao().getAllAlbums().first()
+        val existingMatch = allAlbums.firstOrNull {
+            it.artistId == artistId && it.name == uiState.value.data?.albumName
+        }
+
+        if(existingMatch == null){
+            MyApplication.repository.appDatabase.albumDao().insert(
+                Album(
+                    artistId = artistId,
+                    name = uiState.value.data?.albumName.orEmpty(),
+                    imageUrl = uiState.value.data?.imageUrl.orEmpty()
+                )
+            )
+            Toast.makeText(MyApplication.appContext, "Album saved", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(MyApplication.appContext, "Album already exists", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun checkIfSaveButtonShouldBeEnabled() {
+        val allFieldsFilled = _uiState.value.data?.artistName?.isNotBlank() ==true &&
+            _uiState.value.data?.albumName?.isNotBlank() ==true &&
+            _uiState.value.data?.imageUrl?.isNotBlank() ==true
+
+        _uiState.value = _uiState.value.copy(
+            data = _uiState.value.data?.copy(
+                saveButtonEnabled = allFieldsFilled
+            )
+        )
     }
 
     companion object{
@@ -94,12 +215,18 @@ data class NewAlbumTopScreenUiState(
 
 data class NewAlbumTopScreenUiData(
     val albumName: String? = "",
+    val artistId: Long = -1,
     val artistName: String? = "",
     val imageUrl: String? = "",
     val someData: String? = "",
-    val ctaEnabled: Boolean = false
+    val artistIdNameList: List<Pair<Long, String>> = emptyList(),
+    val saveButtonEnabled: Boolean = false
 )
 
 sealed interface NewAlbumTopScreenEvents{
-    data object ButtonClicked: NewAlbumTopScreenEvents
+    data class ArtistSelected(val artistId: Long, val artistName: String): NewAlbumTopScreenEvents
+    data class ArtistNameChanged(val artistName: String): NewAlbumTopScreenEvents
+    data class AlbumNameChanged(val albumName: String): NewAlbumTopScreenEvents
+    data class AlbumImageUrlChanged(val imageUrl: String): NewAlbumTopScreenEvents
+    data object SaveButtonClicked: NewAlbumTopScreenEvents
 }

@@ -1,5 +1,6 @@
 package com.wmccd.whatgoeson.presentation.screens.newAddition.newAlbumTopScreen
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -88,59 +90,67 @@ private fun DisplayData(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val artist = remember { mutableStateOf("") }
-            val album = remember { mutableStateOf("") }
-            val imageUrl = remember { mutableStateOf("") }
             var artistDropDownExpanded by remember { mutableStateOf(false) }
-            val artistList = remember { mutableStateOf(
-                listOf(
-                    "Artist 1", "Artist 2", "Artist 3", "Artist 4", "Artist 5", "Artist 6", "Artist 7", "Artist 8", "Artist 9", "Artist 10", "Artist 11", "Artist 12", "Artist 13", "Artist 14", "Artist 15", "Artist 16", "Artist 17", "Artist 18", "Artist 19", "Artist 20"
-                )
-            ) }
 
             MyOutlinedInputText(
-                label = "Artist",
-                currentValue = artist.value,
-                onValueChange = { artist.value = it }
+                label = stringResource(R.string.artist),
+                currentValue = data.artistName.orEmpty(),
+                onValueChange = {
+                    onEvent(
+                        NewAlbumTopScreenEvents.ArtistNameChanged(it)
+                    )
+                }
             )
             TextButton(
                 onClick = { artistDropDownExpanded = true }
             ) {
-                Text(text = "Select From Existing Artists")
+                Text(text = stringResource(R.string.select_from_existing_artists))
             }
             MyDropdownMenu(
                 expanded = artistDropDownExpanded,
-                options = artistList.value,
-                onOptionSelected = { artist.value = it },
+                options = data.artistIdNameList,
+                onOptionSelected = { id, name ->
+                    onEvent(
+                        NewAlbumTopScreenEvents.ArtistSelected(id, name)
+                    )
+               },
                 onDismissRequest = { artistDropDownExpanded = it },
             )
             MyOutlinedInputText(
                 label = "Album",
-                currentValue = album.value,
-                onValueChange = { album.value = it },
+                currentValue = data.albumName.orEmpty(),
+                onValueChange = {
+                    onEvent(
+                        NewAlbumTopScreenEvents.AlbumNameChanged(it)
+                    )
+                },
                 modifier = Modifier.padding(top = 8.dp)
             )
             MyOutlinedInputText(
                 label = "Image URL",
-                currentValue = imageUrl.value,
-                onValueChange = { imageUrl.value = it },
+                currentValue = data.imageUrl.orEmpty(),
+                onValueChange = {
+                    onEvent(NewAlbumTopScreenEvents.AlbumImageUrlChanged(it))
+                },
                 modifier = Modifier.padding(top = 8.dp)
             )
             Box(
                 modifier = Modifier.fillMaxWidth(0.5f)
             ){
                 MyInternetImage(
-                    imageUrl = imageUrl.value
+                    imageUrl = data.imageUrl.orEmpty(),
                 )
             }
 
             Text(text = data.someData.orEmpty())
             Button(
+                enabled = data.saveButtonEnabled,
+                modifier = Modifier.padding(top = 8.dp),
                 onClick = {
-                    onEvent(NewAlbumTopScreenEvents.ButtonClicked)
+                    onEvent(NewAlbumTopScreenEvents.SaveButtonClicked)
                 }
             ) {
-                Text(text = "Click Me")
+                Text(text = stringResource(R.string.save))
             }
         }
     }

@@ -5,9 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
-import com.wmccd.whatgoeson.usecases.artists.DeleteArtistByIdUseCase
-import com.wmccd.whatgoeson.usecases.artists.GetAllArtistUseCase
-import com.wmccd.whatgoeson.usecases.artists.InsertArtistUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,12 +43,6 @@ class Feature1TopScreenViewModel(
         viewModelScope.launch {
             MyApplication.repository.appDataStore.updateUserName("Bobbins ${System.currentTimeMillis().toString().takeLast(4)}")
             fetchData()
-
-            //TEMP ************
-            InsertArtistUseCase(MyApplication.repository.appDatabase.artistDao()).execute("The Mighty Bobbins 3")
-            DeleteArtistByIdUseCase(MyApplication.repository.appDatabase.artistDao()).execute(2)
-            val x = GetAllArtistUseCase(MyApplication.repository.appDatabase.artistDao()).execute().first()
-            MyApplication.utilities.logger.log(Log.INFO, TAG, "all artists $x")
         }
     }
 

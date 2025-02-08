@@ -20,7 +20,7 @@ private const val ARTIST_NAME = "artist_name"
     indices = [Index(value = [ARTIST_NAME], unique = true)]
 )
 data class Artist(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = ARTIST_NAME) val artistName: String,
 )
 
@@ -28,22 +28,25 @@ data class Artist(
 interface ArtistDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(entity: Artist)
+    suspend fun insert(entity: Artist): Long
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(entity: Artist)
 
     @Delete
     suspend fun delete(entity: Artist)
 
     @Query("DELETE FROM " + TABLE_NAME + "  WHERE id = :id")
-    suspend fun deleteById(id: Int)
+    suspend fun deleteById(id: Long)
 
     @Query("DELETE FROM " + TABLE_NAME)
     suspend fun deleteAll()
 
     @Query("SELECT * FROM " + TABLE_NAME +  " WHERE id = :id")
-    fun getArtistById(id: Int): Flow<Artist>
+    fun getArtistById(id: Long): Flow<Artist>
+
+    @Query("SELECT * FROM " + TABLE_NAME +  " WHERE $ARTIST_NAME = :artistName")
+    fun getArtistByString(artistName: String): Flow<Artist>
 
     @Query("SELECT * FROM " + TABLE_NAME)
     fun getAllArtists(): Flow<List<Artist>>

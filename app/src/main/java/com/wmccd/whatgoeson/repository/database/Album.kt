@@ -6,6 +6,7 @@ import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Update
@@ -25,19 +26,19 @@ private const val TABLE_NAME = "Albums"
     ]
 )
 data class Album(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "image_url") val imageUrl: String,
-    @ColumnInfo(name = "artist_id") val artistId: Int
+    @ColumnInfo(name = "artist_id") val artistId: Long
 )
 
 @Dao
 interface AlbumDao {
 
-    @Insert
-    suspend fun insert(entity: Album)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(entity: Album): Long
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(entity: Album)
 
     @Delete
@@ -50,6 +51,6 @@ interface AlbumDao {
     fun getAllAlbums(): Flow<List<Album>>
 
     @Query("SELECT * FROM " + TABLE_NAME + " WHERE artist_id = :artistId")
-    fun getAlbumsByArtistId(artistId: Int): Flow<List<Album>>
+    fun getAlbumsByArtistId(artistId: Long): Flow<List<Album>>
 
 }
