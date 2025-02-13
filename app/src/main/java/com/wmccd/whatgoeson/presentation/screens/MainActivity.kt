@@ -34,13 +34,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
+import com.wmccd.whatgoeson.presentation.screens.albumList.AlbumListScreen
 import com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen1.Feature1SubScreen1
 import com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen2.Feature1SubScreen2
 import com.wmccd.whatgoeson.presentation.screens.feature1.feature1topscreen.Feature1TopScreen
-import com.wmccd.whatgoeson.presentation.screens.newAddition.newAlbumTopScreen.NewAlbumTopScreen
+import com.wmccd.whatgoeson.presentation.screens.newAlbum.NewAlbumScreen
 import com.wmccd.whatgoeson.presentation.screens.feature3.feature3topscreen.Feature3TopScreen
 import com.wmccd.whatgoeson.presentation.screens.home.HomeScreen
 import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
 
@@ -230,8 +233,9 @@ private fun DisplayBottomBar(
             ) {
                 DisplayBottomBarItem(navController, NavigationEnum.HomeScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.Feature1TopScreen, selectedScreen)
-                DisplayBottomBarItem(navController, NavigationEnum.Feature2TopScreen, selectedScreen)
+                DisplayBottomBarItem(navController, NavigationEnum.NewAlbumScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.Feature3TopScreen, selectedScreen)
+                DisplayBottomBarItem(navController, NavigationEnum.AlbumListScreen, selectedScreen)
             }
         }
     }
@@ -243,15 +247,21 @@ fun DisplayFloatingActionButton(
     selectedScreen: NavigationEnum
 ) {
     //Displays the floating action button on a top level screen when needed
-    if (selectedScreen.topLevelScreen) {
-        FloatingActionButton(onClick = {
-            when (selectedScreen) {
-                NavigationEnum.HomeScreen -> navController.navigate(NavigationEnum.Feature1TopScreen.route)
-                NavigationEnum.Feature1TopScreen -> navController.navigate(NavigationEnum.Feature1SubScreen1.route)
-                else -> {}
+    var albumCount = 0
+    runBlocking {
+        albumCount = MyApplication.repository.appDatabase.albumDao().getAlbumCount().first()
+    }
+    if (albumCount == 0) {
+        if (selectedScreen.topLevelScreen) {
+            FloatingActionButton(onClick = {
+                when (selectedScreen) {
+                    NavigationEnum.HomeScreen -> navController.navigate(NavigationEnum.NewAlbumScreen.route)
+                    NavigationEnum.Feature1TopScreen -> navController.navigate(NavigationEnum.Feature1SubScreen1.route)
+                    else -> {}
+                }
+            }) {
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add))
             }
-        }) {
-            Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add))
         }
     }
 }
@@ -270,10 +280,11 @@ private fun NavigationControl(
         //Declares all the screens that can be navigated to
         composable(NavigationEnum.HomeScreen.route) { HomeScreen(navController = navController) }
         composable(NavigationEnum.Feature1TopScreen.route) { Feature1TopScreen(navController = navController) }
-        composable(NavigationEnum.Feature2TopScreen.route) { NewAlbumTopScreen(navController = navController) }
+        composable(NavigationEnum.NewAlbumScreen.route) { NewAlbumScreen(navController = navController) }
         composable(NavigationEnum.Feature3TopScreen.route) { Feature3TopScreen(navController = navController) }
         composable(NavigationEnum.Feature1SubScreen1.route) { Feature1SubScreen1(navController = navController) }
         composable(NavigationEnum.Feature1SubScreen2.route) { Feature1SubScreen2(navController = navController) }
+        composable(NavigationEnum.AlbumListScreen.route) { AlbumListScreen(navController = navController) }
     }
 }
 

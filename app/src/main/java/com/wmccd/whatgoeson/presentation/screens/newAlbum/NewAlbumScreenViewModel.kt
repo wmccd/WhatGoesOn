@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.presentation.screens.newAddition.newAlbumTopScreen
+package com.wmccd.whatgoeson.presentation.screens.newAlbum
 
 import android.util.Log
 import android.widget.Toast
@@ -17,13 +17,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
-class NewAdditionTopScreenViewModel(
-    mockedUiStateForTestingAndPreviews: NewAlbumTopScreenUiState? = null
+class NewAdditionScreenViewModel(
+    mockedUiStateForTestingAndPreviews: NewAlbumScreenUiState? = null
 ) : ViewModel() {
 
     //Keeps track of the current data that is to be displayed on the screen
-    private val _uiState = MutableStateFlow(NewAlbumTopScreenUiState())
-    val uiState: StateFlow<NewAlbumTopScreenUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(NewAlbumScreenUiState())
+    val uiState: StateFlow<NewAlbumScreenUiState> = _uiState.asStateFlow()
 
     //keeps track of when we want to navigate to another screen
     private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
@@ -37,13 +37,13 @@ class NewAdditionTopScreenViewModel(
             mockedUiStateMode(mockedUiStateForTestingAndPreviews)
     }
 
-    private fun mockedUiStateMode(uiStateForTestingAndPreviews: NewAlbumTopScreenUiState) {
+    private fun mockedUiStateMode(uiStateForTestingAndPreviews: NewAlbumScreenUiState) {
         _uiState.value = uiStateForTestingAndPreviews
     }
 
     private fun liveData() {
         MyApplication.utilities.logger.log(Log.INFO, TAG, "fetching Live Data")
-        _uiState.value = NewAlbumTopScreenUiState(isLoading = true)
+        _uiState.value = NewAlbumScreenUiState(isLoading = true)
         viewModelScope.launch {
             fetchData()
         }
@@ -67,8 +67,8 @@ class NewAdditionTopScreenViewModel(
         }
     }
 
-    private suspend fun fetchUiData(): NewAlbumTopScreenUiData {
-        return NewAlbumTopScreenUiData(
+    private suspend fun fetchUiData(): NewAlbumScreenUiData {
+        return NewAlbumScreenUiData(
             albumName = "",
             artistName = "",
             imageUrl = "",
@@ -82,15 +82,15 @@ class NewAdditionTopScreenViewModel(
         return allArtists.map { it.id to it.artistName }.sortedBy { it.second }
     }
 
-    fun onEvent(event: NewAlbumTopScreenEvents) {
+    fun onEvent(event: NewAlbumScreenEvents) {
         //the user tapped on something on the screen and we need to handle that
         MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent $event")
         when (event) {
-            NewAlbumTopScreenEvents.SaveButtonClicked -> onSaveButtonClicked()
-            is NewAlbumTopScreenEvents.AlbumImageUrlChanged -> onAlbumImageUrlChanged(event.imageUrl)
-            is NewAlbumTopScreenEvents.AlbumNameChanged -> onAlbumNameChanged(event.albumName)
-            is NewAlbumTopScreenEvents.ArtistNameChanged -> onArtistNameChanged(event.artistName)
-            is NewAlbumTopScreenEvents.ArtistSelected -> onArtistSelected(event.artistId, event.artistName)
+            NewAlbumScreenEvents.SaveButtonClicked -> onSaveButtonClicked()
+            is NewAlbumScreenEvents.AlbumImageUrlChanged -> onAlbumImageUrlChanged(event.imageUrl)
+            is NewAlbumScreenEvents.AlbumNameChanged -> onAlbumNameChanged(event.albumName)
+            is NewAlbumScreenEvents.ArtistNameChanged -> onArtistNameChanged(event.artistName)
+            is NewAlbumScreenEvents.ArtistSelected -> onArtistSelected(event.artistId, event.artistName)
         }
     }
 
@@ -147,14 +147,13 @@ class NewAdditionTopScreenViewModel(
                 } else {
                     insertAlbum(artistId = artist.id)
                 }
+                _uiState.value = _uiState.value.copy(
+                    data = fetchUiData()
+                )
             }catch(ex: Exception){
                 MyApplication.utilities.logger.log(Log.ERROR, TAG, "onSaveButtonClicked: Exception", ex)
                 _uiState.value = uiState.value.copy(
                     error = ex.message
-                )
-            }finally {
-                _uiState.value = _uiState.value.copy(
-                    data = NewAlbumTopScreenUiData()
                 )
             }
         }
@@ -207,13 +206,13 @@ class NewAdditionTopScreenViewModel(
     }
 }
 
-data class NewAlbumTopScreenUiState(
+data class NewAlbumScreenUiState(
     val isLoading: Boolean = false,
-    val data: NewAlbumTopScreenUiData? = null,
+    val data: NewAlbumScreenUiData? = null,
     val error: String? = null
 )
 
-data class NewAlbumTopScreenUiData(
+data class NewAlbumScreenUiData(
     val albumName: String? = "",
     val artistId: Long = -1,
     val artistName: String? = "",
@@ -223,10 +222,10 @@ data class NewAlbumTopScreenUiData(
     val saveButtonEnabled: Boolean = false
 )
 
-sealed interface NewAlbumTopScreenEvents{
-    data class ArtistSelected(val artistId: Long, val artistName: String): NewAlbumTopScreenEvents
-    data class ArtistNameChanged(val artistName: String): NewAlbumTopScreenEvents
-    data class AlbumNameChanged(val albumName: String): NewAlbumTopScreenEvents
-    data class AlbumImageUrlChanged(val imageUrl: String): NewAlbumTopScreenEvents
-    data object SaveButtonClicked: NewAlbumTopScreenEvents
+sealed interface NewAlbumScreenEvents{
+    data class ArtistSelected(val artistId: Long, val artistName: String): NewAlbumScreenEvents
+    data class ArtistNameChanged(val artistName: String): NewAlbumScreenEvents
+    data class AlbumNameChanged(val albumName: String): NewAlbumScreenEvents
+    data class AlbumImageUrlChanged(val imageUrl: String): NewAlbumScreenEvents
+    data object SaveButtonClicked: NewAlbumScreenEvents
 }

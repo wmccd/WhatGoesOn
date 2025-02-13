@@ -12,14 +12,15 @@
     <string name="save">Save</string>">
     <string name="select_from_existing_artists">Select From Existing Artists</string>">
     <string name="artist">Artist</string>">
+    <string name="by">by</string>">
 
-
+    <string name="new_album">New Album</string>
+    <string name="album_list">Album List</string>
 
     <string name="random_record">Random Record</string>
     <string name="it_looks_like_you_are_new_here">It looks you are new here.\n\nLets get started by clicking the + button.</string>
 
     <string name="feature_1_top_screen">Feature 1 Top Screen</string>
-    <string name="feature_2_top_screen">Feature 2 Top Screen</string>
     <string name="feature_3_top_screen">Feature 3 Top Screen </string>
     <string name="feature_1_sub_screen_1">Feature 1 Sub-Screen 1</string>">
     <string name="feature_1_sub_screen_2">Feature 1 Sub-Screen 2</string>">

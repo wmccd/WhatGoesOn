@@ -20,6 +20,7 @@ fun MyInternetImage(
     imageUrl: String,
     imageSize: Int = 300,
     modifier: Modifier = Modifier,
+    successful: (Boolean) -> Unit = {},
 ){
     val placeholder: Painter = rememberVectorPainter(image = Icons.Filled.Refresh)
     val error: Painter = rememberVectorPainter(image = Icons.Filled.Warning)
@@ -29,23 +30,13 @@ fun MyInternetImage(
         contentDescription = "Image description",
         placeholder = placeholder,
         error = error,
-        modifier = modifier.size(imageSize.dp).then(modifier)
-    )
-}
-
-@Composable
-fun MyInternetImage(
-    imageUrl: String,
-){
-    val placeholder: Painter = rememberVectorPainter(image = Icons.Filled.Refresh)
-    val error: Painter = rememberVectorPainter(image = Icons.Filled.Warning)
-
-    AsyncImage(
-        model = imageUrl,
-        contentDescription = "Image description",
-        placeholder = placeholder,
-        error = error,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.size(imageSize.dp).then(modifier),
+        onSuccess = {
+            successful(true)
+        },
+        onError = {
+            successful(false)
+        }
     )
 }
 

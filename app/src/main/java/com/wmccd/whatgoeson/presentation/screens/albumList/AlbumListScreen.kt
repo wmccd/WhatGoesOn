@@ -1,4 +1,4 @@
-package ${PACKAGE_NAME}
+package com.wmccd.whatgoeson.presentation.screens.albumList
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,12 +14,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import com.wmccd.whatgoeson.R
+import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
+import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
+import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
+import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import java.util.UUID
 
 @Composable
-fun ${NAME}Screen(
+fun AlbumListScreen(
     navController: NavHostController,
-    viewModel: ${NAME}ViewModel = ${NAME}ViewModel()
+    viewModel: AlbumListViewModel = AlbumListViewModel()
 ) {
 
     // Listen for navigation events sent by the ViewModel
@@ -28,7 +34,7 @@ fun ${NAME}Screen(
             when (event) {
                 is NavigationEvent.NavigateToNextScreen -> {
                     //TODO Add Destination Route
-                    navController.navigate(NavigationEnum.AddDestination.route)
+                    //navController.navigate(NavigationEnum.AddDestination.route)
                 }
             }
         }
@@ -37,14 +43,14 @@ fun ${NAME}Screen(
 }
 
 @Composable
-private fun DisplayContentMode(viewModel: ${NAME}ViewModel) {
+private fun DisplayContentMode(viewModel: AlbumListViewModel) {
     // Display content based on uiState
     val uiState by viewModel.uiState.collectAsState()
     when {
         uiState.isLoading -> DisplayLoading()
         uiState.error != null -> DisplayError(uiState.error)
         uiState.data != null -> DisplayContent(
-            uiState= uiState,
+            uiState = uiState,
             onEvent = viewModel::onEvent
         )
     }
@@ -52,10 +58,10 @@ private fun DisplayContentMode(viewModel: ${NAME}ViewModel) {
 
 @Composable
 fun DisplayContent(
-    uiState: ${NAME}UiState,
-    onEvent: (${NAME}Events) -> Unit = {},
+    uiState: AlbumListUiState,
+    onEvent: (AlbumListEvents) -> Unit = {},
 ) {
-    if(uiState.data == null) {
+    if (uiState.data == null) {
         DisplayError(stringResource(R.string.no_data_to_display))
     } else {
         DisplayData(uiState.data, onEvent)
@@ -64,20 +70,20 @@ fun DisplayContent(
 
 @Composable
 fun DisplayData(
-    data: ${NAME}UiData,
-    onEvent: (${NAME}Events) -> Unit = {},
+    data: AlbumListUiData,
+    onEvent: (AlbumListEvents) -> Unit = {},
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
-    ){
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = data.someData.orEmpty())
             Button(
                 onClick = {
-                    onEvent(${NAME}Events.ButtonClicked)
+                    onEvent(AlbumListEvents.ButtonClicked)
                 }
             ) {
                 Text(text = "Click Me")
@@ -88,11 +94,11 @@ fun DisplayData(
 
 @Preview
 @Composable
-private fun PreviewDisplayData(){
+private fun PreviewDisplayData() {
     PreviewTheme {
         DisplayContent(
-            uiState = ${NAME}UiState(
-                data = ${NAME}UiData(
+            uiState = AlbumListUiState(
+                data = AlbumListUiData(
                     someData = "Hello"
                 ),
             )

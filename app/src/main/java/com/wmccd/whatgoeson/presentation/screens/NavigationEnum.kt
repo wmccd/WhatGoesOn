@@ -3,12 +3,12 @@ package com.wmccd.whatgoeson.presentation.screens
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -35,10 +35,16 @@ enum class NavigationEnum(
         bottomTabIcon = Icons.Filled.PlayArrow,
         topLevelScreen= true,
     ),
-    Feature2TopScreen(
-        route = "Feature2TopScreen",
-        topBarTitle = R.string.feature_2_top_screen,
+    NewAlbumScreen(
+        route = "NewAlbumScreen",
+        topBarTitle = R.string.new_album,
         bottomTabIcon = Icons.Default.Add,
+        topLevelScreen = true,
+    ),
+    AlbumListScreen(
+        route = "AlbumListScreen",
+        topBarTitle = R.string.album_list,
+        bottomTabIcon = Icons.AutoMirrored.Filled.List,
         topLevelScreen = true,
     ),
     Feature3TopScreen(

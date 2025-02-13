@@ -90,7 +90,6 @@ class Feature1TopScreenViewModel(
         viewModelScope.launch {
             _navigationEvent.emit(NavigationEvent.NavigateToNextScreen)
         }
-
     }
 
     companion object{

@@ -13,6 +13,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 class MyApplication : Application() {
 
@@ -48,6 +49,9 @@ class MyApplication : Application() {
         //add the logging interceptor to the client
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
+            .connectTimeout(10, TimeUnit.SECONDS) // Connection timeout
+            .readTimeout(10, TimeUnit.SECONDS)    // Read timeout
+            .writeTimeout(10, TimeUnit.SECONDS)   // Write timeout
             .build()
 
         //set up the Retrofit instance that will call all the service end points at the base URL

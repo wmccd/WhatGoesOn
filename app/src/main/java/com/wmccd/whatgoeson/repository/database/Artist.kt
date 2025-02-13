@@ -12,11 +12,12 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
-private const val TABLE_NAME = "Artists"
+private const val ARTIST_TABLE_NAME = "Artists"
+private const val ARTIST_ID = "artist_id"
 private const val ARTIST_NAME = "artist_name"
 
 @Entity(
-    tableName = TABLE_NAME,
+    tableName = ARTIST_TABLE_NAME,
     indices = [Index(value = [ARTIST_NAME], unique = true)]
 )
 data class Artist(
@@ -36,18 +37,18 @@ interface ArtistDao {
     @Delete
     suspend fun delete(entity: Artist)
 
-    @Query("DELETE FROM " + TABLE_NAME + "  WHERE id = :id")
+    @Query("DELETE FROM " + ARTIST_TABLE_NAME + "  WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-    @Query("DELETE FROM " + TABLE_NAME)
+    @Query("DELETE FROM " + ARTIST_TABLE_NAME)
     suspend fun deleteAll()
 
-    @Query("SELECT * FROM " + TABLE_NAME +  " WHERE id = :id")
+    @Query("SELECT * FROM " + ARTIST_TABLE_NAME +  " WHERE id = :id")
     fun getArtistById(id: Long): Flow<Artist>
 
-    @Query("SELECT * FROM " + TABLE_NAME +  " WHERE $ARTIST_NAME = :artistName")
+    @Query("SELECT * FROM " + ARTIST_TABLE_NAME +  " WHERE $ARTIST_NAME = :artistName")
     fun getArtistByString(artistName: String): Flow<Artist>
 
-    @Query("SELECT * FROM " + TABLE_NAME)
+    @Query("SELECT * FROM " + ARTIST_TABLE_NAME)
     fun getAllArtists(): Flow<List<Artist>>
 }

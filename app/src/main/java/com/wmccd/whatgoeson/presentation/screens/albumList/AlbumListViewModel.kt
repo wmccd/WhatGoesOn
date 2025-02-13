@@ -1,22 +1,28 @@
-package ${PACKAGE_NAME}
+package com.wmccd.whatgoeson.presentation.screens.albumList
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wmccd.whatgoeson.MyApplication
+import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.repository.database.AlbumWithArtistName
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
-class ${NAME}ViewModel(
-    mockedUiStateForTestingAndPreviews: ${NAME}UiState? = null
-): ViewModel() {
+class AlbumListViewModel(
+    mockedUiStateForTestingAndPreviews: AlbumListUiState? = null
+) : ViewModel() {
 
     //Keeps track of the current data that is to be displayed on the screen
-    private val _uiState = MutableStateFlow(${NAME}UiState())
-    val uiState: StateFlow<${NAME}UiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(AlbumListUiState())
+    val uiState: StateFlow<AlbumListUiState> = _uiState.asStateFlow()
 
     //keeps track of when we want to navigate to another screen
     private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
@@ -24,20 +30,20 @@ class ${NAME}ViewModel(
 
     init {
         //The init block **only** runs when the ViewModel is created
-        if(mockedUiStateForTestingAndPreviews == null)
+        if (mockedUiStateForTestingAndPreviews == null)
             liveData()
         else
             mockedUiStateMode(mockedUiStateForTestingAndPreviews)
     }
 
-    private fun mockedUiStateMode(uiStateForTestingAndPreviews: ${NAME}UiState) {
+    private fun mockedUiStateMode(uiStateForTestingAndPreviews: AlbumListUiState) {
         _uiState.value = uiStateForTestingAndPreviews
     }
 
     private fun liveData() {
         MyApplication.utilities.logger.log(Log.INFO, TAG, "fetching Live Data")
         //Update the state to indicate that we are fetching data
-        _uiState.value = ${NAME}UiState(isLoading = true)
+        _uiState.value = AlbumListUiState(isLoading = true)
         viewModelScope.launch {
             fetchData()
         }
@@ -53,7 +59,7 @@ class ${NAME}ViewModel(
                 isLoading = false,
                 data = fetchUiData()
             )
-        }catch (ex: Exception){
+        } catch (ex: Exception) {
             //something went wrong, show the error message
             MyApplication.utilities.logger.log(Log.ERROR, TAG, "fetching Live Data: Exception", ex)
             _uiState.value = uiState.value.copy(
@@ -62,17 +68,22 @@ class ${NAME}ViewModel(
         }
     }
 
-    private suspend fun fetchUiData(): ${NAME}UiData{
-        return ${NAME}UiData(
+    private suspend fun fetchUiData(): AlbumListUiData {
+        var list: List<AlbumWithArtistName> = listOf()
+        runBlocking {
+            list = MyApplication.repository.appDatabase.albumDao().getAllDetails().first()
+        }
+        MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData: ${list.size}")
+        return AlbumListUiData(
             someData = "Hello"
         )
     }
 
-    fun onEvent(event: ${NAME}Events) {
+    fun onEvent(event: AlbumListEvents) {
         //the user tapped on something on the screen and we need to handle that
-        MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent $event")
+        MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent ")
         when (event) {
-            ${NAME}Events.ButtonClicked -> onActionButtonClicked()
+            AlbumListEvents.ButtonClicked -> onActionButtonClicked()
         }
     }
 
@@ -83,21 +94,21 @@ class ${NAME}ViewModel(
         }
     }
 
-    companion object{
+    companion object {
         private val TAG = this::class.java.simpleName
     }
 }
 
-data class ${NAME}UiState(
+data class AlbumListUiState(
     val isLoading: Boolean = false,
-    val data: ${NAME}UiData? = null,
+    val data: AlbumListUiData? = null,
     val error: String? = null
 )
 
-data class ${NAME}UiData(
+data class AlbumListUiData(
     val someData: String? = "",
 )
 
-sealed interface ${NAME}Events{
-    data object ButtonClicked: ${NAME}Events
+sealed interface AlbumListEvents {
+    data object ButtonClicked : AlbumListEvents
 }
