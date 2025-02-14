@@ -257,7 +257,7 @@ fun DisplayFloatingActionButton(
             FloatingActionButton(onClick = {
                 when (selectedScreen) {
                     NavigationEnum.HomeScreen -> navController.navigate(NavigationEnum.NewAlbumScreen.route)
-                    NavigationEnum.Feature1TopScreen -> navController.navigate(NavigationEnum.Feature1SubScreen1.route)
+                    NavigationEnum.AlbumListScreen -> navController.navigate(NavigationEnum.NewAlbumScreen.route)
                     else -> {}
                 }
             }) {

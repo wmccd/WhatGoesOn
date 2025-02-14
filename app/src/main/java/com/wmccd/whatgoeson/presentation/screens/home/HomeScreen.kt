@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,9 +26,11 @@ import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.common.NoAlbums
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyInternetImage
+import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 import java.util.UUID
 
 @Composable
@@ -102,10 +105,9 @@ private fun AlbumDetails(data: HomeUiData?) {
     val fetchedImageSuccessful = remember { mutableStateOf(true) }
     Text(text = "${data?.albumName}")
     Text(
-        text = stringResource(R.string.by),
-        fontWeight = FontWeight.W200
+        text = "${data?.artistName}",
+        style = MaterialTheme.typography.bodySmall
     )
-    Text(text = "${data?.artistName}")
 
     AnimatedVisibility(fetchedImageSuccessful.value) {
         MyInternetImage(
@@ -116,14 +118,6 @@ private fun AlbumDetails(data: HomeUiData?) {
         )
     }
 
-}
-
-@Composable
-private fun NoAlbums() {
-    Text(
-        text = stringResource(id = R.string.it_looks_like_you_are_new_here),
-        textAlign = TextAlign.Center
-    )
 }
 
 @Preview

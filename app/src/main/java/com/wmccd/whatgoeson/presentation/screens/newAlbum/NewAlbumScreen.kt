@@ -1,7 +1,10 @@
 package com.wmccd.whatgoeson.presentation.screens.newAlbum
 
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -23,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
 import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
@@ -94,7 +99,6 @@ private fun DisplayData(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             var artistDropDownExpanded by remember { mutableStateOf(false) }
-
             MyOutlinedInputText(
                 label = stringResource(R.string.artist),
                 currentValue = data.artistName.orEmpty(),
@@ -137,15 +141,24 @@ private fun DisplayData(
                 },
                 modifier = Modifier.padding(top = 8.dp)
             )
-            Box(
-                modifier = Modifier.fillMaxWidth(0.5f)
-            ){
-                MyInternetImage(
-                    imageUrl = data.imageUrl.orEmpty(),
-                )
-            }
-
-            Text(text = data.someData.orEmpty())
+            Spacer(modifier = Modifier.padding(top = 8.dp))
+            var imageSize by remember { mutableIntStateOf(20) }
+            MyInternetImage(
+                imageUrl = data.imageUrl.orEmpty(),
+                successful = { successful ->
+                    MyApplication.utilities.logger.log(
+                        Log.INFO,
+                        "TAG",
+                        "fetch image successful: $successful"
+                    )
+                    if (successful) {
+                        imageSize = 300
+                    } else {
+                        imageSize = 20
+                    }
+                },
+                imageSize = imageSize,
+            )
             Button(
                 enabled = data.saveButtonEnabled,
                 modifier = Modifier.padding(top = 8.dp),
@@ -170,7 +183,6 @@ private fun PreviewDisplayData(){
         DetermineDisplayMode(
             uiState = NewAlbumScreenUiState(
                data = NewAlbumScreenUiData(
-                   someData = "Hello"
                ),
             )
         )

@@ -217,7 +217,6 @@ data class NewAlbumScreenUiData(
     val artistId: Long = -1,
     val artistName: String? = "",
     val imageUrl: String? = "",
-    val someData: String? = "",
     val artistIdNameList: List<Pair<Long, String>> = emptyList(),
     val saveButtonEnabled: Boolean = false
 )

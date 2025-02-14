@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.repository.database.Album
 import com.wmccd.whatgoeson.repository.database.AlbumWithArtistName
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,9 +82,35 @@ class AlbumListViewModel(
 
     fun onEvent(event: AlbumListEvents) {
         //the user tapped on something on the screen and we need to handle that
-        MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent ")
+        MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent $event")
         when (event) {
             AlbumListEvents.ButtonClicked -> onActionButtonClicked()
+            is AlbumListEvents.DeleteAlbum -> onDeleteAlbum(event.album)
+            is AlbumListEvents.LongClicked -> onLongClicked(event.clicked, album = event.album)
+        }
+    }
+
+    private fun onLongClicked(clicked: Boolean, album: AlbumWithArtistName? = null) {
+        _uiState.value = uiState.value.copy(
+            data = uiState.value.data?.copy(
+                displayDeleteDialog = clicked,
+                albumSelectedForDelete = album
+            )
+        )
+    }
+
+    private fun onDeleteAlbum(album: AlbumWithArtistName) {
+        MyApplication.utilities.logger.log(Log.INFO, TAG, "onDeleteAlbum $album")
+        viewModelScope.launch {
+            MyApplication.repository.appDatabase.albumDao().delete(
+                Album(
+                    id =  album.albumId,
+                    name = album.albumName,
+                    imageUrl = album.albumUrl,
+                    artistId = album.artistId
+                )
+            )
+            fetchData()
         }
     }
 
@@ -95,7 +122,7 @@ class AlbumListViewModel(
     }
 
     companion object {
-        private val TAG = this::class.java.simpleName
+        private val TAG = AlbumListViewModel::class.java.simpleName
     }
 }
 
@@ -106,9 +133,13 @@ data class AlbumListUiState(
 )
 
 data class AlbumListUiData(
-    val albumList: List<AlbumWithArtistName>? = null
+    val albumList: List<AlbumWithArtistName>? = null,
+    val displayDeleteDialog: Boolean = false,
+    val albumSelectedForDelete: AlbumWithArtistName? = null
 )
 
 sealed interface AlbumListEvents {
     data object ButtonClicked : AlbumListEvents
+    data class LongClicked(val clicked: Boolean, val album: AlbumWithArtistName?) : AlbumListEvents
+    data class DeleteAlbum(val album: AlbumWithArtistName) : AlbumListEvents
 }

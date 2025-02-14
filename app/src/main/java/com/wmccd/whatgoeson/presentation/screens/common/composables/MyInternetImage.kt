@@ -1,6 +1,5 @@
 package com.wmccd.whatgoeson.presentation.screens.common.composables
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
@@ -13,7 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
-import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 
 @Composable
 fun MyInternetImage(
@@ -24,7 +22,6 @@ fun MyInternetImage(
 ){
     val placeholder: Painter = rememberVectorPainter(image = Icons.Filled.Refresh)
     val error: Painter = rememberVectorPainter(image = Icons.Filled.Warning)
-
     AsyncImage(
         model = imageUrl,
         contentDescription = "Image description",

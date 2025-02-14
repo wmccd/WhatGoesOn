@@ -84,7 +84,7 @@ class ${NAME}ViewModel(
     }
 
     companion object{
-        private val TAG = this::class.java.simpleName
+        private val TAG = ${NAME}ViewModel::class.java.simpleName
     }
 }
 
