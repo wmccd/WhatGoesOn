@@ -69,13 +69,13 @@ class AlbumListViewModel(
     }
 
     private suspend fun fetchUiData(): AlbumListUiData {
-        var list: List<AlbumWithArtistName> = listOf()
+        var list: List<AlbumWithArtistName>
         runBlocking {
             list = MyApplication.repository.appDatabase.albumDao().getAllDetails().first()
         }
         MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData: ${list.size}")
         return AlbumListUiData(
-            someData = "Hello"
+            albumList = list
         )
     }
 
@@ -106,7 +106,7 @@ data class AlbumListUiState(
 )
 
 data class AlbumListUiData(
-    val someData: String? = "",
+    val albumList: List<AlbumWithArtistName>? = null
 )
 
 sealed interface AlbumListEvents {

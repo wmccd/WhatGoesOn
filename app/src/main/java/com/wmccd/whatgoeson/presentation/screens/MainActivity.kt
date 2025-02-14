@@ -3,6 +3,7 @@ package com.wmccd.whatgoeson.presentation.screens
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -55,8 +56,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
-
             //If you set up a theme by hand there are dozens of entries to set up.
             //Use the Material 3 Theme Builder to help get you started:
             //https://m3.material.io/theme-builder#/custom
