@@ -21,7 +21,7 @@ fun MyInternetImage(
     successful: (Boolean) -> Unit = {},
 ){
     val placeholder: Painter = rememberVectorPainter(image = Icons.Filled.Refresh)
-    val error: Painter = rememberVectorPainter(image = Icons.Filled.Warning)
+    val error: Painter = rememberVectorPainter(image = Icons.Filled.Refresh)
     AsyncImage(
         model = imageUrl,
         contentDescription = "Image description",
