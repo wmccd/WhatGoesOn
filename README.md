@@ -176,6 +176,9 @@ TODO
 
 To help keep things simple and consistent template files have been created and added to the project in the Templates folder. These are normally kept within the Android Studio IDE and not with the app project itself but have been copied here to make sure they don't get lost. 
 
+### Icon Generator
+https://icon.kitchen
+
 ### Setting Up in Git For the First Time.
 In Terminal go to the folder where your code lives and make sure you are in the top level folder.
 
