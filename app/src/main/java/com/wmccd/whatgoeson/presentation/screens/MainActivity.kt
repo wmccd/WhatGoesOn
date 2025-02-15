@@ -233,10 +233,10 @@ private fun DisplayBottomBar(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 DisplayBottomBarItem(navController, NavigationEnum.HomeScreen, selectedScreen)
-                DisplayBottomBarItem(navController, NavigationEnum.Feature1TopScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.NewAlbumScreen, selectedScreen)
-                DisplayBottomBarItem(navController, NavigationEnum.Feature3TopScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.AlbumListScreen, selectedScreen)
+                //DisplayBottomBarItem(navController, NavigationEnum.Feature3TopScreen, selectedScreen)
+                //DisplayBottomBarItem(navController, NavigationEnum.Feature1TopScreen, selectedScreen)
             }
         }
     }

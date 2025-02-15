@@ -13,12 +13,20 @@
     <string name="select_from_existing_artists">Select From Existing Artists</string>">
     <string name="artist">Artist</string>">
     <string name="by">by</string>">
+    <string name="favourite">Favourite</string>">
+    <string name="non_favourite">Non-Favourite</string>">
     <string name="new_album">New Album</string>
     <string name="album_list">Album List</string>
     <string name="no_albums_found">No Albums Found</string>
-    <string name="random_record">Random Record</string>
+    <string name="random_record">Random Album</string>
     <string name="it_looks_like_you_are_new_here">It looks you are new here.\n\nLets get started by clicking the + button.</string>
+    <string name="az_artists">A-Z Artists</string>
+    <string name="az_albums">A-Z Albums</string>
+    <string name="favourites">Favourites</string>
+    <string name="all">All</string>
+    <string name="no_filter_matches">No albums match your filter</string>
 
+    no_filter_matches
     <string name="feature_1_top_screen">Feature 1 Top Screen</string>
     <string name="feature_3_top_screen">Feature 3 Top Screen </string>
     <string name="feature_1_sub_screen_1">Feature 1 Sub-Screen 1</string>">

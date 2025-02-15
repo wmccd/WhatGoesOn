@@ -12,10 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class AlbumListViewModel(
     mockedUiStateForTestingAndPreviews: AlbumListUiState? = null
@@ -53,31 +50,37 @@ class AlbumListViewModel(
 
     private suspend fun fetchData() {
         //fetch the data and update the screen state
-        try {
-            //stop showing the loading screen spinner
-            //start showing the screen data
-            _uiState.value = uiState.value.copy(
-                isLoading = false,
-                data = fetchUiData()
-            )
-        } catch (ex: Exception) {
-            //something went wrong, show the error message
-            MyApplication.utilities.logger.log(Log.ERROR, TAG, "fetching Live Data: Exception", ex)
-            _uiState.value = uiState.value.copy(
-                error = ex.message
-            )
+        viewModelScope.launch {
+            try {
+                fetchUiData()
+            } catch (ex: Exception) {
+                //something went wrong, show the error message
+                MyApplication.utilities.logger.log(
+                    Log.ERROR,
+                    TAG,
+                    "fetching Live Data: Exception",
+                    ex
+                )
+                _uiState.value = uiState.value.copy(
+                    error = ex.message
+                )
+            }
         }
     }
 
-    private suspend fun fetchUiData(): AlbumListUiData {
-        var list: List<AlbumWithArtistName>
-        runBlocking {
-            list = MyApplication.repository.appDatabase.albumDao().getAllDetails().first()
+    private suspend fun fetchUiData() {
+        MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData")
+        MyApplication.repository.appDatabase.albumDao().getAllDetails().collect {
+            MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData collecting $it")
+            _uiState.value = uiState.value.copy(
+                isLoading = false,
+                data = AlbumListUiData(
+                    albumList = it,
+                    displayDeleteDialog = _uiState.value.data?.displayDeleteDialog ?: false,
+                    albumSelectedForDelete = _uiState.value.data?.albumSelectedForDelete
+                )
+            )
         }
-        MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData: ${list.size}")
-        return AlbumListUiData(
-            albumList = list
-        )
     }
 
     fun onEvent(event: AlbumListEvents) {
@@ -87,6 +90,30 @@ class AlbumListViewModel(
             AlbumListEvents.ButtonClicked -> onActionButtonClicked()
             is AlbumListEvents.DeleteAlbum -> onDeleteAlbum(event.album)
             is AlbumListEvents.LongClicked -> onLongClicked(event.clicked, album = event.album)
+            is AlbumListEvents.MarkAsFavourite -> onMarkAsFavourite(event.isFavourite, event.album)
+            is AlbumListEvents.AlbumFilterSortClicked -> onAlbumFilterSortClicked(event.albumFilterSort)
+        }
+    }
+
+    private fun onAlbumFilterSortClicked(albumFilterSort: AlbumFilterSort) {
+        _uiState.value = uiState.value.copy(
+            data = uiState.value.data?.copy(
+                albumFilterSort = albumFilterSort
+            )
+        )
+    }
+
+    private fun onMarkAsFavourite(isFavourite: Boolean, album: AlbumWithArtistName) {
+        viewModelScope.launch {
+            MyApplication.repository.appDatabase.albumDao().update(
+                Album(
+                    id = album.albumId,
+                    name = album.albumName,
+                    imageUrl = album.albumUrl,
+                    artistId = album.artistId,
+                    isFavourite = isFavourite
+                )
+            )
         }
     }
 
@@ -135,11 +162,20 @@ data class AlbumListUiState(
 data class AlbumListUiData(
     val albumList: List<AlbumWithArtistName>? = null,
     val displayDeleteDialog: Boolean = false,
-    val albumSelectedForDelete: AlbumWithArtistName? = null
+    val albumSelectedForDelete: AlbumWithArtistName? = null,
+    val albumFilterSort: AlbumFilterSort = AlbumFilterSort.AZ_ALBUMS
 )
+
+enum class AlbumFilterSort {
+    AZ_ALBUMS,
+    AZ_ARTISTS,
+    FAVOURITES
+}
 
 sealed interface AlbumListEvents {
     data object ButtonClicked : AlbumListEvents
     data class LongClicked(val clicked: Boolean, val album: AlbumWithArtistName?) : AlbumListEvents
     data class DeleteAlbum(val album: AlbumWithArtistName) : AlbumListEvents
+    data class MarkAsFavourite(val isFavourite: Boolean, val album: AlbumWithArtistName) : AlbumListEvents
+    data class AlbumFilterSortClicked(val albumFilterSort: AlbumFilterSort) : AlbumListEvents
 }

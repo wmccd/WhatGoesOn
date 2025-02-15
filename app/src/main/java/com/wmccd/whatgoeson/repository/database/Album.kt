@@ -16,6 +16,7 @@ private const val ALBUM_TABLE_NAME = "Albums"
 private const val ALBUM_ID = "album_id"
 private const val ALBUM_NAME = "album_name"
 private const val ALBUM_URL = "album_url"
+private const val ALBUM_FAVOURITE = "album_favourite"
 
 
 @Entity(
@@ -33,6 +34,7 @@ data class Album(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = ALBUM_NAME) val name: String,
     @ColumnInfo(name = ALBUM_URL) val imageUrl: String,
+    @ColumnInfo(name = ALBUM_FAVOURITE) val isFavourite: Boolean = false,
     @ColumnInfo(name = "artist_id") val artistId: Long
 )
 
@@ -65,6 +67,7 @@ interface AlbumDao {
                 "Albums.album_name AS albumName, " +
                 "Albums.album_url AS albumUrl, " +
                 "Albums.id AS albumId, " +
+                "Albums.album_favourite AS albumFavourite, " +
                 "Artists.artist_name AS artistName, " +
                 "Artists.id AS artistId " +
                 "FROM Albums " +
@@ -77,6 +80,7 @@ interface AlbumDao {
 data class AlbumWithArtistName(
     @ColumnInfo(name = "albumName") val albumName: String,
     @ColumnInfo(name = "albumUrl") val albumUrl: String,
+    @ColumnInfo(name = "albumFavourite") val albumFavourite: Boolean,
     @ColumnInfo(name = "albumId") val albumId: Long,
     @ColumnInfo(name = "artistName") val artistName: String,
     @ColumnInfo(name = "artistId") val artistId: Long

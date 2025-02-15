@@ -53,7 +53,9 @@ class HomeViewModel(
             //start showing the screen data
             _uiState.value = uiState.value.copy(
                 isLoading = false,
-                data = fetchUiData()
+                data = fetchUiData(
+                    albumFilterSort = AlbumFavouriteFilter.ALL_ALBUMS
+                )
             )
         } catch (ex: Exception) {
             //something went wrong, show the error message
@@ -64,14 +66,18 @@ class HomeViewModel(
         }
     }
 
-    private suspend fun fetchUiData(): HomeUiData {
+    private suspend fun fetchUiData(
+        albumFilterSort: AlbumFavouriteFilter = AlbumFavouriteFilter.ALL_ALBUMS
+    ): HomeUiData {
         val allAlbums = MyApplication.repository.appDatabase.albumDao().getAllAlbums().first()
         val uiData = if(allAlbums.isEmpty()) {
             noAlbumsStored()
         }else{
-            randomAlbum( allAlbums = allAlbums )
+            randomAlbum(
+                allAlbums = allAlbums,
+                albumFavouriteFilter = albumFilterSort
+            )
         }
-        
         return uiData
     }
 
@@ -79,16 +85,38 @@ class HomeViewModel(
         noAlbumsStored = true,
     )
 
-    private suspend fun randomAlbum(allAlbums: List<Album>): HomeUiData {
-        val randomAlbum = allAlbums.random()
-        val randomArtist = MyApplication.repository.appDatabase.artistDao().getArtistById(randomAlbum.artistId).first()
-        val uiData = HomeUiData(
-            artistName = randomArtist.artistName,
-            albumName = randomAlbum.name,
-            albumArtUrl = randomAlbum.imageUrl,
-            noAlbumsStored = false,
-        )
-        return uiData
+    private fun noFilterMatches( albumFavouriteFilter: AlbumFavouriteFilter
+    ) = HomeUiData(
+        noFilterMatches = true,
+        albumFilterSort = albumFavouriteFilter
+    )
+
+    private suspend fun randomAlbum(
+        allAlbums: List<Album>,
+        albumFavouriteFilter: AlbumFavouriteFilter
+    ): HomeUiData {
+        val newList = when(albumFavouriteFilter){
+            AlbumFavouriteFilter.FAVOURITES_ONLY -> { allAlbums.filter { it.isFavourite }}
+            AlbumFavouriteFilter.NON_FAVOURITES_ONLY -> { allAlbums.filter { !it.isFavourite }}
+            else -> { allAlbums }
+        }
+        return if(newList.isEmpty()){
+            noFilterMatches(
+                albumFavouriteFilter = albumFavouriteFilter
+            )
+        }else {
+            val randomAlbum = newList.random()
+            val randomArtist = MyApplication.repository.appDatabase.artistDao().getArtistById(randomAlbum.artistId).first()
+            HomeUiData(
+                artistName = randomArtist.artistName,
+                albumName = randomAlbum.name,
+                albumArtUrl = randomAlbum.imageUrl,
+                noAlbumsStored = false,
+                noFilterMatches = false,
+                albumFilterSort = albumFavouriteFilter
+            )
+
+        }
     }
 
     fun onEvent(event: HomeEvents) {
@@ -96,6 +124,17 @@ class HomeViewModel(
         MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent $event")
         when (event) {
             HomeEvents.ButtonClicked -> onActionButtonClicked()
+            is HomeEvents.AlbumFilterSortClicked -> onAlbumFilterSortClicked(event.albumFavouriteFilter)
+        }
+    }
+
+    private fun onAlbumFilterSortClicked(albumFilterSort: AlbumFavouriteFilter) {
+        viewModelScope.launch {
+            _uiState.value = uiState.value.copy(
+                data = fetchUiData(
+                    albumFilterSort = albumFilterSort
+                )
+            )
         }
     }
 
@@ -121,9 +160,18 @@ data class HomeUiData(
     val artistName: String? = null,
     val albumName: String? = null,
     val albumArtUrl: String? = null,
-    val noAlbumsStored: Boolean,
+    val noAlbumsStored: Boolean = false,
+    val noFilterMatches: Boolean = false,
+    val albumFilterSort: AlbumFavouriteFilter = AlbumFavouriteFilter.ALL_ALBUMS
 )
+
+enum class AlbumFavouriteFilter {
+    ALL_ALBUMS,
+    FAVOURITES_ONLY,
+    NON_FAVOURITES_ONLY
+}
 
 sealed interface HomeEvents {
     data object ButtonClicked : HomeEvents
+    data class AlbumFilterSortClicked(val albumFavouriteFilter: AlbumFavouriteFilter) : HomeEvents
 }
