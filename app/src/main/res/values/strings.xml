@@ -30,5 +30,6 @@
     <string name="feature_1_top_screen">Feature 1 Top Screen</string>
     <string name="feature_3_top_screen">Feature 3 Top Screen </string>
     <string name="feature_1_sub_screen_1">Feature 1 Sub-Screen 1</string>">
-    <string name="feature_1_sub_screen_2">Feature 1 Sub-Screen 2</string>">
+    <string name="feature_1_sub_screen_2">Feature 1 Sub-Screen 2</string>
+    <string name="no_image_url_available">No image URL available</string>">
 </resources>

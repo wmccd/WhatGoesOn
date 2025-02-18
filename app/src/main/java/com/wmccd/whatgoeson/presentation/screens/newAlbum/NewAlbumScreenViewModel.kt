@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.presentation.screens.common.composables.INTERNET_IMAGE_NOT_AVAILABLE
 import com.wmccd.whatgoeson.repository.database.Album
 import com.wmccd.whatgoeson.repository.database.Artist
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -91,7 +92,16 @@ class NewAdditionScreenViewModel(
             is NewAlbumScreenEvents.AlbumNameChanged -> onAlbumNameChanged(event.albumName)
             is NewAlbumScreenEvents.ArtistNameChanged -> onArtistNameChanged(event.artistName)
             is NewAlbumScreenEvents.ArtistSelected -> onArtistSelected(event.artistId, event.artistName)
+            NewAlbumScreenEvents.NoImageUrlAvailableClicked -> onNoImageUrlAvailableClicked()
         }
+    }
+
+    private fun onNoImageUrlAvailableClicked() {
+        _uiState.value = _uiState.value.copy(
+            data = _uiState.value.data?.copy(
+                imageUrl = INTERNET_IMAGE_NOT_AVAILABLE
+            )
+        )
     }
 
     private fun onAlbumImageUrlChanged(imageUrl: String) {
@@ -226,5 +236,6 @@ sealed interface NewAlbumScreenEvents{
     data class ArtistNameChanged(val artistName: String): NewAlbumScreenEvents
     data class AlbumNameChanged(val albumName: String): NewAlbumScreenEvents
     data class AlbumImageUrlChanged(val imageUrl: String): NewAlbumScreenEvents
+    data object NoImageUrlAvailableClicked: NewAlbumScreenEvents
     data object SaveButtonClicked: NewAlbumScreenEvents
 }

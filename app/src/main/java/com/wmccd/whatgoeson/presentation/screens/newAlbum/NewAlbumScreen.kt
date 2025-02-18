@@ -1,12 +1,10 @@
 package com.wmccd.whatgoeson.presentation.screens.newAlbum
 
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -98,67 +96,9 @@ private fun DisplayData(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            var artistDropDownExpanded by remember { mutableStateOf(false) }
-            MyOutlinedInputText(
-                label = stringResource(R.string.artist),
-                currentValue = data.artistName.orEmpty(),
-                onValueChange = {
-                    onEvent(
-                        NewAlbumScreenEvents.ArtistNameChanged(it)
-                    )
-                }
-            )
-            TextButton(
-                onClick = { artistDropDownExpanded = true }
-            ) {
-                Text(text = stringResource(R.string.select_from_existing_artists))
-            }
-            MyDropdownMenu(
-                expanded = artistDropDownExpanded,
-                options = data.artistIdNameList,
-                onOptionSelected = { id, name ->
-                    onEvent(
-                        NewAlbumScreenEvents.ArtistSelected(id, name)
-                    )
-               },
-                onDismissRequest = { artistDropDownExpanded = it },
-            )
-            MyOutlinedInputText(
-                label = "Album",
-                currentValue = data.albumName.orEmpty(),
-                onValueChange = {
-                    onEvent(
-                        NewAlbumScreenEvents.AlbumNameChanged(it)
-                    )
-                },
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            MyOutlinedInputText(
-                label = "Image URL",
-                currentValue = data.imageUrl.orEmpty(),
-                onValueChange = {
-                    onEvent(NewAlbumScreenEvents.AlbumImageUrlChanged(it))
-                },
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            Spacer(modifier = Modifier.padding(top = 8.dp))
-            var imageSize by remember { mutableIntStateOf(100) }
-            MyInternetImage(
-                imageUrl = data.imageUrl.orEmpty(),
-                successful = { successful ->
-                    MyApplication.utilities.logger.log(
-                        Log.INFO,
-                        "TAG",
-                        "fetch image successful: $successful"
-                    )
-                    if (successful) {
-                        imageSize = 300
-                    } else {
-                        imageSize = 100
-                    }
-                },
-                imageSize = imageSize,
-            )
+            DisplayArtistInputs(data, onEvent)
+            DisplayAlbumInputs(data, onEvent)
+            DisplayImageUrlInputs(data, onEvent)
             Button(
                 enabled = data.saveButtonEnabled,
                 modifier = Modifier.padding(top = 8.dp),
@@ -172,8 +112,100 @@ private fun DisplayData(
     }
 }
 
+@Composable
+private fun DisplayImageUrlInputs(
+    data: NewAlbumScreenUiData,
+    onEvent: (NewAlbumScreenEvents) -> Unit
+) {
+    MyOutlinedInputText(
+        label = "Image URL",
+        currentValue = data.imageUrl.orEmpty(),
+        onValueChange = {
+            onEvent(NewAlbumScreenEvents.AlbumImageUrlChanged(it))
+        },
+        modifier = Modifier.padding(top = 8.dp)
+    )
 
+    Spacer(modifier = Modifier.padding(top = 8.dp))
 
+    TextButton(
+        onClick = {
+            onEvent(NewAlbumScreenEvents.NoImageUrlAvailableClicked)
+        }
+    ) {
+        Text(text = stringResource(R.string.no_image_url_available))
+    }
+
+    Spacer(modifier = Modifier.padding(top = 8.dp))
+
+    var imageSize by remember { mutableIntStateOf(100) }
+
+    MyInternetImage(
+        imageUrl = data.imageUrl.orEmpty(),
+        successful = { successful ->
+            MyApplication.utilities.logger.log(
+                Log.INFO,
+                "TAG",
+                "fetch image successful: $successful"
+            )
+            if (successful) {
+                imageSize = 300
+            } else {
+                imageSize = 100
+            }
+        },
+        imageSize = imageSize,
+    )
+}
+
+@Composable
+private fun DisplayAlbumInputs(
+    data: NewAlbumScreenUiData,
+    onEvent: (NewAlbumScreenEvents) -> Unit
+) {
+    MyOutlinedInputText(
+        label = "Album",
+        currentValue = data.albumName.orEmpty(),
+        onValueChange = {
+            onEvent(
+                NewAlbumScreenEvents.AlbumNameChanged(it)
+            )
+        },
+        modifier = Modifier.padding(top = 8.dp)
+    )
+}
+
+@Composable
+private fun DisplayArtistInputs(
+    data: NewAlbumScreenUiData,
+    onEvent: (NewAlbumScreenEvents) -> Unit
+) {
+    var artistDropDownExpanded by remember { mutableStateOf(false) }
+    MyOutlinedInputText(
+        label = stringResource(R.string.artist),
+        currentValue = data.artistName.orEmpty(),
+        onValueChange = {
+            onEvent(
+                NewAlbumScreenEvents.ArtistNameChanged(it)
+            )
+        }
+    )
+    TextButton(
+        onClick = { artistDropDownExpanded = true }
+    ) {
+        Text(text = stringResource(R.string.select_from_existing_artists))
+    }
+    MyDropdownMenu(
+        expanded = artistDropDownExpanded,
+        options = data.artistIdNameList,
+        onOptionSelected = { id, name ->
+            onEvent(
+                NewAlbumScreenEvents.ArtistSelected(id, name)
+            )
+        },
+        onDismissRequest = { artistDropDownExpanded = it },
+    )
+}
 
 
 @Preview
