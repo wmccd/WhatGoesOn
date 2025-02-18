@@ -142,7 +142,7 @@ private fun DisplayData(
                 modifier = Modifier.padding(top = 8.dp)
             )
             Spacer(modifier = Modifier.padding(top = 8.dp))
-            var imageSize by remember { mutableIntStateOf(20) }
+            var imageSize by remember { mutableIntStateOf(100) }
             MyInternetImage(
                 imageUrl = data.imageUrl.orEmpty(),
                 successful = { successful ->
@@ -154,7 +154,7 @@ private fun DisplayData(
                     if (successful) {
                         imageSize = 300
                     } else {
-                        imageSize = 20
+                        imageSize = 100
                     }
                 },
                 imageSize = imageSize,

@@ -71,13 +71,15 @@ class AlbumListViewModel(
     private suspend fun fetchUiData() {
         MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData")
         MyApplication.repository.appDatabase.albumDao().getAllDetails().collect {
+            val filterSortApplied = _uiState.value.data?.albumFilterSort?: AlbumFilterSort.AZ_ALBUMS
             MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData collecting $it")
             _uiState.value = uiState.value.copy(
                 isLoading = false,
                 data = AlbumListUiData(
                     albumList = it,
                     displayDeleteDialog = _uiState.value.data?.displayDeleteDialog ?: false,
-                    albumSelectedForDelete = _uiState.value.data?.albumSelectedForDelete
+                    albumSelectedForDelete = _uiState.value.data?.albumSelectedForDelete,
+                    albumFilterSort = filterSortApplied
                 )
             )
         }
