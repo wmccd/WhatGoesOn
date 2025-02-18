@@ -165,7 +165,12 @@ fun NoFilterMatches() {
 private fun ColumnScope.FilterMatches(
     data: HomeUiData?
 ) {
+    val fetchedImageFor = remember { mutableStateOf("") }
     val fetchedImageSuccessful = remember { mutableStateOf(true) }
+
+    if(fetchedImageFor.value != data?.albumName){
+        fetchedImageSuccessful.value = true
+    }
     Text(
         text = "${data?.albumName}",
         style = MaterialTheme.typography.headlineMedium,
@@ -182,6 +187,7 @@ private fun ColumnScope.FilterMatches(
             imageUrl = data?.albumArtUrl.orEmpty(),
             successful = {
                 fetchedImageSuccessful.value = it
+                fetchedImageFor.value = data?.albumName.toString()
             }
         )
     }
