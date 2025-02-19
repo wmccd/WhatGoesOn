@@ -48,6 +48,7 @@ import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.presentation.screens.common.NoAlbums
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
+import com.wmccd.whatgoeson.presentation.screens.common.composables.INTERNET_IMAGE_NOT_AVAILABLE
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyInternetImage
 import com.wmccd.whatgoeson.repository.database.AlbumWithArtistName
 import java.util.UUID
@@ -268,13 +269,21 @@ fun AlbumItem(
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        MyInternetImage(
-            imageUrl = album.albumUrl,
-            modifier = Modifier
+        if(album.albumUrl == INTERNET_IMAGE_NOT_AVAILABLE)
+            Box(modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .height(75.dp)
                 .width(75.dp)
-        )
+            )
+        else
+            MyInternetImage(
+                imageUrl = album.albumUrl,
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .height(75.dp)
+                    .width(75.dp)
+            )
+
         Column(
             modifier = Modifier.weight(1f),
         ) {

@@ -102,6 +102,7 @@ class NewAdditionScreenViewModel(
                 imageUrl = INTERNET_IMAGE_NOT_AVAILABLE
             )
         )
+        checkIfSaveButtonShouldBeEnabled()
     }
 
     private fun onAlbumImageUrlChanged(imageUrl: String) {

@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 
-public const val INTERNET_IMAGE_NOT_AVAILABLE = "N/A"
+const val INTERNET_IMAGE_NOT_AVAILABLE = "N/A"
 
 @Composable
 fun MyInternetImage(
@@ -21,15 +21,17 @@ fun MyInternetImage(
     modifier: Modifier = Modifier,
     successful: (Boolean) -> Unit = {},
 ){
-    if(imageUrl.isEmpty() || imageUrl == INTERNET_IMAGE_NOT_AVAILABLE)
+    if(imageUrl.isEmpty() || imageUrl == INTERNET_IMAGE_NOT_AVAILABLE) {
+        successful(false)
         return
+    }
 
     val placeholder: Painter = rememberVectorPainter(image = Icons.Filled.Refresh)
     val error: Painter = rememberVectorPainter(image = Icons.Filled.Refresh)
     AsyncImage(
         model = imageUrl,
         contentDescription = "Image description",
-        //placeholder = placeholder,
+        placeholder = placeholder,
         error = error,
         modifier = modifier.size(imageSize.dp).then(modifier),
         onSuccess = {
