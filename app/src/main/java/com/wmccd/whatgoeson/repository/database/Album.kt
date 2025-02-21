@@ -74,8 +74,24 @@ interface AlbumDao {
                 "INNER JOIN Artists ON Albums.artist_id = Artists.id"
     )
     fun getAllDetails(): Flow<List<AlbumWithArtistName>>
+
+    @Query(
+        "SELECT " +
+                "Artists.artist_name AS artistName, " +
+                "Count(*) AS albumCount " +
+                "FROM Albums " +
+                "INNER JOIN Artists ON Albums.artist_id = Artists.id " +
+                "GROUP BY Artists.artist_name " +
+                "ORDER BY albumCount DESC, LOWER(Artists.artist_name) ASC"
+    )
+    fun getAlbumArtistCountList(): Flow<List<AlbumArtistCount>>
 }
 
+
+data class AlbumArtistCount(
+    @ColumnInfo(name = "artistName") val artistName: String,
+    @ColumnInfo(name = "albumCount") val albumCount: Int,
+)
 
 data class AlbumWithArtistName(
     @ColumnInfo(name = "albumName") val albumName: String,

@@ -16,6 +16,7 @@
     <string name="favourite">Favourite</string>">
     <string name="non_favourite">Non-Favourite</string>">
     <string name="new_album">New Album</string>
+    <string name="stats">Stats</string>
     <string name="album_list">Album List</string>
     <string name="no_albums_found">No Albums Found</string>
     <string name="random_record">Random Album</string>
@@ -31,5 +32,7 @@
     <string name="feature_3_top_screen">Feature 3 Top Screen </string>
     <string name="feature_1_sub_screen_1">Feature 1 Sub-Screen 1</string>">
     <string name="feature_1_sub_screen_2">Feature 1 Sub-Screen 2</string>
-    <string name="no_image_url_available">No image URL available</string>">
+    <string name="no_image_url_available">No image URL available</string>
+    <string name="album_count">Album Count</string>
+    <string name="artist_count">Artist Count</string>">
 </resources>

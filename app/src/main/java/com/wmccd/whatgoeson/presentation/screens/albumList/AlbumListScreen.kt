@@ -164,9 +164,16 @@ private fun DisplayAlbums(
     albumFilterSort: AlbumFilterSort,
 ) {
     val newAlbumList = when(albumFilterSort){
-        AlbumFilterSort.AZ_ALBUMS -> albumList.sortedBy { it.albumName }
-        AlbumFilterSort.AZ_ARTISTS -> albumList.sortedBy { it.artistName }
-        AlbumFilterSort.FAVOURITES -> albumList.filter { it.albumFavourite }
+        AlbumFilterSort.AZ_ALBUMS -> albumList
+            .sortedBy { it.albumName }
+        AlbumFilterSort.AZ_ARTISTS -> albumList
+            .sortedWith(
+                compareBy({ it.artistName.lowercase() }, { it.albumName })
+            )
+        AlbumFilterSort.FAVOURITES -> albumList
+            .filter { it.albumFavourite }
+            .sortedBy { it.albumName }
+            .sortedBy { it.artistName.lowercase() }
     }
     LazyColumn {
         items(newAlbumList.size) { index ->

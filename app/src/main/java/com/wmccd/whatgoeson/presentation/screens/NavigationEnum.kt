@@ -7,6 +7,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
@@ -39,6 +40,12 @@ enum class NavigationEnum(
         route = "NewAlbumScreen",
         topBarTitle = R.string.new_album,
         bottomTabIcon = Icons.Default.Add,
+        topLevelScreen = true,
+    ),
+    StatsScreen(
+        route = "StatsScreen",
+        topBarTitle = R.string.stats,
+        bottomTabIcon = Icons.Default.Info,
         topLevelScreen = true,
     ),
     AlbumListScreen(

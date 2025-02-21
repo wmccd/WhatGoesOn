@@ -42,6 +42,7 @@ import com.wmccd.whatgoeson.presentation.screens.feature1.feature1topscreen.Feat
 import com.wmccd.whatgoeson.presentation.screens.newAlbum.NewAlbumScreen
 import com.wmccd.whatgoeson.presentation.screens.feature3.feature3topscreen.Feature3TopScreen
 import com.wmccd.whatgoeson.presentation.screens.home.HomeScreen
+import com.wmccd.whatgoeson.presentation.screens.stats.StatsScreen
 import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -235,6 +236,7 @@ private fun DisplayBottomBar(
                 DisplayBottomBarItem(navController, NavigationEnum.HomeScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.NewAlbumScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.AlbumListScreen, selectedScreen)
+                DisplayBottomBarItem(navController, NavigationEnum.StatsScreen, selectedScreen)
                 //DisplayBottomBarItem(navController, NavigationEnum.Feature3TopScreen, selectedScreen)
                 //DisplayBottomBarItem(navController, NavigationEnum.Feature1TopScreen, selectedScreen)
             }
@@ -286,6 +288,7 @@ private fun NavigationControl(
         composable(NavigationEnum.Feature1SubScreen1.route) { Feature1SubScreen1(navController = navController) }
         composable(NavigationEnum.Feature1SubScreen2.route) { Feature1SubScreen2(navController = navController) }
         composable(NavigationEnum.AlbumListScreen.route) { AlbumListScreen(navController = navController) }
+        composable(NavigationEnum.StatsScreen.route) { StatsScreen(navController = navController) }
     }
 }
 
