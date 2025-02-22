@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.wmccd.whatgoeson.R
@@ -46,6 +47,12 @@ enum class NavigationEnum(
         route = "StatsScreen",
         topBarTitle = R.string.stats,
         bottomTabIcon = Icons.Default.Info,
+        topLevelScreen = true,
+    ),
+    SettingsScreen(
+        route = "SettingsScreen",
+        topBarTitle = R.string.settings,
+        bottomTabIcon = Icons.Default.Settings,
         topLevelScreen = true,
     ),
     AlbumListScreen(

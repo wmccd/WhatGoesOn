@@ -97,16 +97,18 @@ fun DisplayData(
             )
             Text(
                 text = data.albumCount.toString(),
-                style = MaterialTheme.typography.displayLarge
+                style = MaterialTheme.typography.displayLarge,
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(32.dp))
             Text(
                 text = stringResource(R.string.artist_count),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
             Text(
                 text = data.artistCount.toString(),
-                style = MaterialTheme.typography.displayLarge
+                style = MaterialTheme.typography.displayLarge,
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(32.dp))
             LazyColumn{
@@ -121,7 +123,8 @@ fun DisplayData(
                         Text(
                             text = data.artistAlbumCount[it].albumCount.toString(),
                             modifier = Modifier.weight(0.2f),
-                            textAlign = TextAlign.End
+                            textAlign = TextAlign.End,
+                            color = MaterialTheme.colorScheme.primary
                         )
 
                     }
