@@ -238,9 +238,14 @@ private fun StickyFilters(
                     onEvent(AlbumListEvents.AlbumFilterSortClicked(AlbumFilterSort.FAVOURITES))
                 },
                 label = {
-                    Text(
-                        text = stringResource(R.string.favourites),
-                        style = TextStyle(fontSize = nonScaledFontSize)
+//                    Text(
+//                        text = stringResource(R.string.favourites),
+//                        style = TextStyle(fontSize = nonScaledFontSize)
+//                    )
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = stringResource(R.string.favourites),
+                        tint = Color.Red
                     )
                 }
             )
@@ -248,15 +253,7 @@ private fun StickyFilters(
     }
 }
 
-@Composable
-fun TextUnit.toNonScalableTextUnit(): TextUnit {
-    val density = LocalDensity.current
-    return with(density) {
-        this@toNonScalableTextUnit.toDp().value.sp
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AlbumItem(
     album: AlbumWithArtistName,
