@@ -70,16 +70,16 @@ class AlbumListViewModel(
 
     private suspend fun fetchUiData() {
         MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData")
-        MyApplication.repository.appDatabase.albumDao().getAllDetails().collect {
-            val filterSortApplied = _uiState.value.data?.albumFilterSort?: AlbumFilterSort.AZ_ALBUMS
-            MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData collecting $it")
+        MyApplication.repository.appDatabase.albumDao().getAllDetails().collect { allDetails ->
+            val filterSortApplied = _uiState.value.data?.albumSort?: AlbumSort.AZ_ALBUMS
+            MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData collecting $allDetails")
             _uiState.value = uiState.value.copy(
                 isLoading = false,
                 data = AlbumListUiData(
-                    albumList = it,
+                    albumList = allDetails.sortedBy { it.albumName },
                     displayDeleteDialog = _uiState.value.data?.displayDeleteDialog ?: false,
                     albumSelectedForDelete = _uiState.value.data?.albumSelectedForDelete,
-                    albumFilterSort = filterSortApplied
+                    albumSort = filterSortApplied
                 )
             )
         }
@@ -93,17 +93,35 @@ class AlbumListViewModel(
             is AlbumListEvents.DeleteAlbum -> onDeleteAlbum(event.album)
             is AlbumListEvents.LongClicked -> onLongClicked(event.clicked, album = event.album)
             is AlbumListEvents.MarkAsFavourite -> onMarkAsFavourite(event.isFavourite, event.album)
-            is AlbumListEvents.AlbumFilterSortClicked -> onAlbumFilterSortClicked(event.albumFilterSort)
+            is AlbumListEvents.SortOrderClicked -> onSortOrderClicked(event.albumSort)
         }
     }
 
-    private fun onAlbumFilterSortClicked(albumFilterSort: AlbumFilterSort) {
+    private fun onSortOrderClicked(albumSort: AlbumSort) {
+        val newListOrder = when(albumSort) {
+            AlbumSort.AZ_ALBUMS -> sortedByAlbum()
+            AlbumSort.AZ_ARTISTS -> sortedByArtistThenArtist()
+            AlbumSort.FAVOURITES -> sortedByFavouriteThenArtist()
+        }
         _uiState.value = uiState.value.copy(
             data = uiState.value.data?.copy(
-                albumFilterSort = albumFilterSort
+                albumSort = albumSort,
+                albumList = newListOrder
             )
         )
     }
+
+    private fun sortedByFavouriteThenArtist() =
+        _uiState.value.data?.albumList
+            ?.sortedBy { it.artistName.lowercase() }
+            ?.sortedByDescending { it.albumFavourite }
+
+
+    private fun sortedByArtistThenArtist() = _uiState.value.data?.albumList
+        ?.sortedWith(compareBy({ it.artistName.lowercase() }, { it.artistName })
+    )
+
+    private fun sortedByAlbum() = uiState.value.data?.albumList?.sortedBy { it.albumName }
 
     private fun onMarkAsFavourite(isFavourite: Boolean, album: AlbumWithArtistName) {
         viewModelScope.launch {
@@ -165,10 +183,11 @@ data class AlbumListUiData(
     val albumList: List<AlbumWithArtistName>? = null,
     val displayDeleteDialog: Boolean = false,
     val albumSelectedForDelete: AlbumWithArtistName? = null,
-    val albumFilterSort: AlbumFilterSort = AlbumFilterSort.AZ_ALBUMS
+    val albumSort: AlbumSort = AlbumSort.AZ_ALBUMS,
+    val filterChar: Char? = null
 )
 
-enum class AlbumFilterSort {
+enum class AlbumSort {
     AZ_ALBUMS,
     AZ_ARTISTS,
     FAVOURITES
@@ -179,5 +198,5 @@ sealed interface AlbumListEvents {
     data class LongClicked(val clicked: Boolean, val album: AlbumWithArtistName?) : AlbumListEvents
     data class DeleteAlbum(val album: AlbumWithArtistName) : AlbumListEvents
     data class MarkAsFavourite(val isFavourite: Boolean, val album: AlbumWithArtistName) : AlbumListEvents
-    data class AlbumFilterSortClicked(val albumFilterSort: AlbumFilterSort) : AlbumListEvents
+    data class SortOrderClicked(val albumSort: AlbumSort) : AlbumListEvents
 }
