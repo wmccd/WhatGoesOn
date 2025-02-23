@@ -139,7 +139,7 @@ class SettingsViewModel(
                     file
                 )
                 putExtra(Intent.EXTRA_STREAM, fileUri)
-                putExtra(Intent.EXTRA_SUBJECT, "All Details Export")
+                putExtra(Intent.EXTRA_SUBJECT, "What Goes On - Data Export")
                 putExtra(Intent.EXTRA_TEXT, "Here's the exported all details data. Note that commas have been replaced with pipes.")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
