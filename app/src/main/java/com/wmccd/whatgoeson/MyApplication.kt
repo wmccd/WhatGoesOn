@@ -1,5 +1,6 @@
 package com.wmccd.whatgoeson
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
@@ -31,6 +32,8 @@ class MyApplication : Application() {
             logger = Logger()
         )
     }
+
+
 
     private fun createAppDataStore() = AppDataStore(this)
 

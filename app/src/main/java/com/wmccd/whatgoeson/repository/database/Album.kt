@@ -44,11 +44,17 @@ interface AlbumDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(entity: Album): Long
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(entities: List<Album>)
+
     @Update(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(entity: Album)
 
     @Delete
     suspend fun delete(entity: Album)
+
+    @Query("DELETE FROM $ALBUM_TABLE_NAME")
+    suspend fun deleteAll()
 
     @Query("SELECT * FROM " + ALBUM_TABLE_NAME + " WHERE id = :id")
     fun getAlbumById(id: Int): Flow<Album>

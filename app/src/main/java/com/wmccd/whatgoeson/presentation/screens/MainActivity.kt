@@ -1,5 +1,6 @@
 package com.wmccd.whatgoeson.presentation.screens
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -55,6 +56,8 @@ class MainActivity : ComponentActivity() {
     2. A NavHostController - this is used to navigate between screens
     3. selectedScreen - this is used to keep track of the currently selected screen
     */
+
+    private val context: Context = this@MainActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -276,6 +279,7 @@ private fun NavigationControl(
     navController: NavHostController,
     innerPadding: PaddingValues
 ) {
+
     //Acts like a content page for all the screens that can be navigated to
     NavHost(
         navController = navController,

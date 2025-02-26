@@ -27,6 +27,8 @@
     <string name="favourites">Favourites</string>
     <string name="all">All</string>
     <string name="export">Export</string>"
+    <string name="add_album_demo">Add Album Demo</string>"
+    <string name="import_text">Import</string>"
     <string name="no_filter_matches">No albums match your filter</string>
     <string name="feature_1_top_screen">Feature 1 Top Screen</string>
     <string name="feature_3_top_screen">Feature 3 Top Screen </string>
@@ -34,5 +36,10 @@
     <string name="feature_1_sub_screen_2">Feature 1 Sub-Screen 2</string>
     <string name="no_image_url_available">No image URL available</string>
     <string name="album_count">Album Count</string>
-    <string name="artist_count">Artist Count</string>">
+    <string name="artist_count">Artist Count</string>
+    <string name="title_activity_movie">MovieActivity</string>
+    <string name="wikipedia">Wiki</string>
+    <string name="discogs">Discogs</string>
+    <string name="allmusic">AllMusic</string>">
+    <string name="youtube">YouTube</string>">
 </resources>

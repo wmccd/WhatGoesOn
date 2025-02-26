@@ -31,17 +31,20 @@ interface ArtistDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(entity: Artist): Long
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(entities: List<Artist>)
+
     @Update(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(entity: Artist)
 
     @Delete
     suspend fun delete(entity: Artist)
 
+    @Query("DELETE FROM $ARTIST_TABLE_NAME")
+    suspend fun deleteAll()
+
     @Query("DELETE FROM " + ARTIST_TABLE_NAME + "  WHERE id = :id")
     suspend fun deleteById(id: Long)
-
-    @Query("DELETE FROM " + ARTIST_TABLE_NAME)
-    suspend fun deleteAll()
 
     @Query("SELECT * FROM " + ARTIST_TABLE_NAME +  " WHERE id = :id")
     fun getArtistById(id: Long): Flow<Artist>

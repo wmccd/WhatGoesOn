@@ -75,6 +75,7 @@ class NewAdditionScreenViewModel(
             imageUrl = "",
             saveButtonEnabled = false,
             artistIdNameList = fetchArtistIdNameList(),
+            displayAddAlbumDemoText = MyApplication.repository.appDatabase.albumDao().getAlbumCount().first() <= 5
         )
     }
 
@@ -93,7 +94,18 @@ class NewAdditionScreenViewModel(
             is NewAlbumScreenEvents.ArtistNameChanged -> onArtistNameChanged(event.artistName)
             is NewAlbumScreenEvents.ArtistSelected -> onArtistSelected(event.artistId, event.artistName)
             NewAlbumScreenEvents.NoImageUrlAvailableClicked -> onNoImageUrlAvailableClicked()
+            NewAlbumScreenEvents.CloseVideoPlayer -> toggleVideoPlayerDisplay()
+            NewAlbumScreenEvents.OpenVideoPlayer -> toggleVideoPlayerDisplay()
         }
+    }
+
+    private fun toggleVideoPlayerDisplay() {
+        val currentValue = uiState.value.data?.displayVideoPlayer ?: false
+        _uiState.value = _uiState.value.copy(
+            data = _uiState.value.data?.copy(
+                displayVideoPlayer = !currentValue
+            )
+        )
     }
 
     private fun onNoImageUrlAvailableClicked() {
@@ -229,7 +241,9 @@ data class NewAlbumScreenUiData(
     val artistName: String? = "",
     val imageUrl: String? = "",
     val artistIdNameList: List<Pair<Long, String>> = emptyList(),
-    val saveButtonEnabled: Boolean = false
+    val saveButtonEnabled: Boolean = false,
+    val displayAddAlbumDemoText: Boolean = false,
+    val displayVideoPlayer: Boolean = false
 )
 
 sealed interface NewAlbumScreenEvents{
@@ -239,4 +253,6 @@ sealed interface NewAlbumScreenEvents{
     data class AlbumImageUrlChanged(val imageUrl: String): NewAlbumScreenEvents
     data object NoImageUrlAvailableClicked: NewAlbumScreenEvents
     data object SaveButtonClicked: NewAlbumScreenEvents
+    data object OpenVideoPlayer: NewAlbumScreenEvents
+    data object CloseVideoPlayer: NewAlbumScreenEvents
 }

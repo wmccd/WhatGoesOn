@@ -1,8 +1,15 @@
 package com.wmccd.whatgoeson.presentation.screens.albumList
 
 import android.annotation.SuppressLint
-import androidx.activity.result.launch
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -41,7 +48,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -61,6 +70,8 @@ import com.wmccd.whatgoeson.presentation.screens.common.composables.INTERNET_IMA
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyInternetImage
 import com.wmccd.whatgoeson.repository.database.AlbumWithArtistName
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.UUID
 import kotlin.text.startsWith
 
@@ -361,47 +372,86 @@ fun AlbumItem(
     album: AlbumWithArtistName,
     onEvent: (AlbumListEvents) -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .combinedClickable(
-                onClick = {},
-                onLongClick = {
-                    onEvent(AlbumListEvents.LongClicked(true, album))
-                },
-                onDoubleClick = {
-                    onEvent(AlbumListEvents.LongClicked(true, album))
-                }
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if(album.albumUrl == INTERNET_IMAGE_NOT_AVAILABLE)
-            Box(modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .height(75.dp)
-                .width(75.dp)
-            )
-        else
-            MyInternetImage(
-                imageUrl = album.albumUrl,
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .height(75.dp)
-                    .width(75.dp)
-            )
+    val context = LocalContext.current
+    val linkRowDisplayed = remember { mutableStateOf(false) }
 
-        Column(
-            modifier = Modifier.weight(1f),
+    Column() {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = {
+                        onEvent(AlbumListEvents.LongClicked(true, album))
+                    },
+                    onDoubleClick = {
+                        linkRowDisplayed.value = !linkRowDisplayed.value
+
+                    }
+                ),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = album.albumName,
-            )
-            Text(
-                text = album.artistName,
-                style = MaterialTheme.typography.bodySmall
-            )
+            if (album.albumUrl == INTERNET_IMAGE_NOT_AVAILABLE)
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .height(75.dp)
+                        .width(75.dp)
+                )
+            else
+                MyInternetImage(
+                    imageUrl = album.albumUrl,
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .height(75.dp)
+                        .width(75.dp)
+                )
+
+            Column(
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(
+                    text = album.albumName,
+                )
+                Text(
+                    text = album.artistName,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            FavouriteIcon(onEvent, album)
         }
-        FavouriteIcon(onEvent, album)
+        AnimatedVisibility(linkRowDisplayed.value){
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ){
+                DisplayDestinationIcon(context, album, R.drawable.logo_allmusic, R.string.allmusic)
+                DisplayDestinationIcon(context, album, R.drawable.logo_discog, R.string.discogs)
+                DisplayDestinationIcon(context, album, R.drawable.logo_wiki, R.string.wikipedia)
+                DisplayDestinationIcon(context, album, R.drawable.logo_youtube, R.string.youtube)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DisplayDestinationIcon(
+    context: Context,
+    album: AlbumWithArtistName,
+    @DrawableRes drawableId: Int,
+    @StringRes siteId: Int
+) {
+    val site = stringResource(siteId)
+    IconButton(
+        onClick = {
+            openCustomTab(context, album, site)
+        }
+    ) {
+        Image(
+            painter = painterResource(drawableId),
+            contentDescription = null,
+            modifier = Modifier.height(24.dp).width(24.dp)
+        )
     }
 }
 
@@ -470,6 +520,33 @@ private fun CheckBeforeDeleting(
     )
 }
 
+
+fun openCustomTab(
+    context: Context,
+    album: AlbumWithArtistName,
+    site: String
+) {
+    val searchQuery = "$site ${album.artistName} ${album.albumName}"
+    val encodedQuery = URLEncoder.encode(searchQuery, StandardCharsets.UTF_8.toString())
+
+    val searchUrl = if(site == "YouTube")
+        "https://www.youtube.com/results?search_query=$encodedQuery"
+    else
+        "https://www.google.com/search?q=$encodedQuery"
+
+    // 1. Create a Custom Tab Intent Builder
+    val builder = CustomTabsIntent.Builder()
+
+    // 2. Build the CustomTabsIntent
+    val customTabsIntent = builder.build()
+
+    // 3. Add the FLAG_ACTIVITY_NEW_TASK flag directly to the CustomTabsIntent's intent
+    customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    customTabsIntent.intent.data = Uri.parse(searchUrl)
+
+    // 4. Launch the Custom Tab with the URL
+    customTabsIntent.launchUrl(context, Uri.parse(searchUrl))
+}
 
 @Preview
 @Composable

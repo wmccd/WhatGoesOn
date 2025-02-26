@@ -1,26 +1,22 @@
 package com.wmccd.whatgoeson.presentation.screens.settings
 
-import android.content.Intent
 import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
+import com.wmccd.whatgoeson.utility.csvImportExport.CsvExporter
+import com.wmccd.whatgoeson.utility.csvImportExport.CsvImporter
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileWriter
 
 class SettingsViewModel(
     mockedUiStateForTestingAndPreviews: SettingsUiState? = null
@@ -78,8 +74,16 @@ class SettingsViewModel(
         return SettingsUiData(
             menuItems = listOf(
                 MenuItem(
+                    titleId = R.string.import_text,
+                    iconId = R.drawable.ic_file_import,
+                ),
+                MenuItem(
                     titleId = R.string.export,
                     iconId = R.drawable.ic_file_export,
+                ),
+                MenuItem(
+                    titleId = R.string.add_album_demo,
+                    iconId = R.drawable.ic_video,
                 ),
             )
         )
@@ -90,7 +94,25 @@ class SettingsViewModel(
         MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent ")
         when (event) {
             is SettingsEvents.MenuItemClicked -> onMenuItemClicked(event.menuItem)
+            is SettingsEvents.ImportFileSelected -> onImportFileSelected(event.uri)
+            SettingsEvents.CloseVideoPlayer -> onVideoPlayerDisplayToggle()
         }
+    }
+
+    private fun onImportFileSelected(uri: Uri) {
+        viewModelScope.launch {
+            MyApplication.appContext.contentResolver.openInputStream(uri)?.use { inputStream ->
+                CsvImporter(
+                    MyApplication.repository.appDatabase.albumDao(),
+                    MyApplication.repository.appDatabase.artistDao()
+                ).importData(inputStream)
+            }
+        }
+        _uiState.value = uiState.value.copy(
+            data = uiState.value.data?.copy(
+                displayImportFilePicker = false
+            )
+        )
     }
 
     private fun onMenuItemClicked(menuItem: MenuItem) {
@@ -98,69 +120,39 @@ class SettingsViewModel(
         viewModelScope.launch {
             when (menuItem.titleId) {
                 R.string.export -> onExportClicked()
+                R.string.import_text -> onImportClicked()
+                R.string.add_album_demo -> onVideoPlayerDisplayToggle()
             }
         }
     }
 
+    private fun onVideoPlayerDisplayToggle() {
+        val currentValue = uiState.value.data?.displayVideoPlayer ?: false
+        _uiState.value = uiState.value.copy(
+            data = uiState.value.data?.copy(
+                displayVideoPlayer = !currentValue
+            )
+        )
+    }
+
+    private fun onImportClicked() {
+        val currentValue = uiState.value.data?.displayImportFilePicker ?: false
+        _uiState.value = uiState.value.copy(
+            data = uiState.value.data?.copy(
+                displayImportFilePicker = !currentValue
+            )
+        )
+    }
+
     private suspend fun onExportClicked() {
         try {
-            // 1. Read Data from Room
-            val allDetails =
-                MyApplication.repository.appDatabase.albumDao().getAllDetails().firstOrNull()
-                    ?: emptyList()
-
-            // 2. Format Data (CSV)
-            val csvContent = buildString {
-                // CSV Header
-                appendLine("Album ID,Album Name,Album URL,Album Favourite,Artist ID,Artist Name")
-                allDetails.forEach {
-                    val albumName = it.albumName.replace(",", "|")
-                    val artistName = it.artistName.replace(",", "|")
-                    appendLine("${it.albumId},$albumName,${it.albumUrl},${it.albumFavourite},${it.artistId},$artistName")
-                }
-            }
-
-            // 3. Create a File
-            val directory =
-                MyApplication.appContext.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-            val file = File(directory, "all_details_export.csv")
-
-            // 4. Write Data to File
-            FileWriter(file).use { writer ->
-                writer.write(csvContent)
-            }
-
-            // 5. Create an Email Intent
-            val emailIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/csv"
-                val fileUri: Uri = FileProvider.getUriForFile(
-                    MyApplication.appContext,
-                    "${MyApplication.appContext.packageName}.fileprovider",
-                    file
-                )
-                putExtra(Intent.EXTRA_STREAM, fileUri)
-                putExtra(Intent.EXTRA_SUBJECT, "What Goes On - Data Export")
-                putExtra(Intent.EXTRA_TEXT, "Here's the exported all details data. Note that commas have been replaced with pipes.")
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-
-            // 6. Start the Email Activity
-            val chooserIntent = Intent.createChooser(emailIntent, "Send email...")
-            chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            MyApplication.appContext.startActivity(chooserIntent)
-
-            // 7. Delete the temporary file
-            file.deleteOnExit()
-
+            CsvExporter(
+                MyApplication.repository.appDatabase.albumDao()
+            ).export()
         } catch (e: Exception) {
-            // Handle error
-            MyApplication.utilities.logger.log(
-                Log.ERROR,
-                TAG,
-                "onExportClicked: Exception",
-                e
-            )
-        }    }
+            MyApplication.utilities.logger.log(Log.ERROR, TAG, "onExportClicked: Exception", e)
+        }
+    }
 
     companion object {
         private val TAG = SettingsViewModel::class.java.simpleName
@@ -174,7 +166,9 @@ data class SettingsUiState(
 )
 
 data class SettingsUiData(
-    val menuItems: List<MenuItem> = emptyList()
+    val menuItems: List<MenuItem> = emptyList(),
+    val displayImportFilePicker: Boolean = false,
+    val displayVideoPlayer: Boolean = false
 )
 
 data class MenuItem(
@@ -184,4 +178,6 @@ data class MenuItem(
 
 sealed interface SettingsEvents {
     data class MenuItemClicked(val menuItem: MenuItem) : SettingsEvents
+    data class ImportFileSelected(val uri: Uri) : SettingsEvents
+    data object CloseVideoPlayer : SettingsEvents
 }

@@ -1,6 +1,11 @@
 package com.wmccd.whatgoeson.presentation.screens.albumList
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
@@ -13,9 +18,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 class AlbumListViewModel(
-    mockedUiStateForTestingAndPreviews: AlbumListUiState? = null
+    mockedUiStateForTestingAndPreviews: AlbumListUiState? = null,
 ) : ViewModel() {
 
     //Keeps track of the current data that is to be displayed on the screen
@@ -94,7 +101,16 @@ class AlbumListViewModel(
             is AlbumListEvents.LongClicked -> onLongClicked(event.clicked, album = event.album)
             is AlbumListEvents.MarkAsFavourite -> onMarkAsFavourite(event.isFavourite, event.album)
             is AlbumListEvents.SortOrderClicked -> onSortOrderClicked(event.albumSort)
+            is AlbumListEvents.DoubleClicked -> onDoubleClicked(event.album)
         }
+    }
+
+    private fun onDoubleClicked(album: AlbumWithArtistName?) {
+        _uiState.value = uiState.value.copy(
+            data = uiState.value.data?.copy(
+                chromeTabSearch = "wikipedia ${album?.artistName} ${album?.albumName}"
+            )
+        )
     }
 
     private fun onSortOrderClicked(albumSort: AlbumSort) {
@@ -184,7 +200,8 @@ data class AlbumListUiData(
     val displayDeleteDialog: Boolean = false,
     val albumSelectedForDelete: AlbumWithArtistName? = null,
     val albumSort: AlbumSort = AlbumSort.AZ_ALBUMS,
-    val filterChar: Char? = null
+    val filterChar: Char? = null,
+    val chromeTabSearch: String? = null
 )
 
 enum class AlbumSort {
@@ -195,6 +212,7 @@ enum class AlbumSort {
 
 sealed interface AlbumListEvents {
     data object ButtonClicked : AlbumListEvents
+    data class DoubleClicked(val album: AlbumWithArtistName?) : AlbumListEvents
     data class LongClicked(val clicked: Boolean, val album: AlbumWithArtistName?) : AlbumListEvents
     data class DeleteAlbum(val album: AlbumWithArtistName) : AlbumListEvents
     data class MarkAsFavourite(val isFavourite: Boolean, val album: AlbumWithArtistName) : AlbumListEvents

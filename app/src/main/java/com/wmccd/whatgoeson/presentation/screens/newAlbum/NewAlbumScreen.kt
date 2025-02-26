@@ -1,6 +1,11 @@
 package com.wmccd.whatgoeson.presentation.screens.newAlbum
 
 import android.util.Log
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -21,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,6 +42,7 @@ import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyDropdownMenu
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyInternetImage
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyOutlinedInputText
+import com.wmccd.whatgoeson.presentation.screens.common.composables.SimpleVideoPlayerScreen
 import java.util.UUID
 
 @Composable
@@ -86,6 +94,23 @@ private fun DisplayData(
     data: NewAlbumScreenUiData,
     onEvent: (NewAlbumScreenEvents) -> Unit
 ) {
+    if(data.displayVideoPlayer){
+        SimpleVideoPlayerScreen(
+            videoResId = R.raw.add_album_demostration,
+            onEvent = {
+                onEvent(NewAlbumScreenEvents.CloseVideoPlayer)
+            }
+        )
+    }else {
+        DisplayAddAlbum(data, onEvent)
+    }
+}
+
+@Composable
+private fun DisplayAddAlbum(
+    data: NewAlbumScreenUiData,
+    onEvent: (NewAlbumScreenEvents) -> Unit
+) {
     Box(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
@@ -96,6 +121,28 @@ private fun DisplayData(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (data.displayAddAlbumDemoText) {
+                TextButton(
+                    onClick = {
+                        onEvent(NewAlbumScreenEvents.OpenVideoPlayer)
+                    }
+                ){
+                    val infiniteTransition =
+                        rememberInfiniteTransition(label = "")
+                    val rotation by infiniteTransition.animateFloat(
+                        initialValue = -2f,
+                        targetValue = 2f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(durationMillis = 100, easing = LinearEasing)
+                        ), label = ""
+                    )
+                    Text(
+                        text = "Watch Instruction Video",
+                        Modifier.rotate(rotation),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
             DisplayArtistInputs(data, onEvent)
             DisplayAlbumInputs(data, onEvent)
             DisplayImageUrlInputs(data, onEvent)
