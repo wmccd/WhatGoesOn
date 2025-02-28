@@ -131,12 +131,8 @@ fun DisplayData(
 
     }else {
         AlbumList(
-            albumList = data.albumList,
+            data = data,
             onEvent = onEvent,
-            displayDeleteDialog = data.displayDeleteDialog,
-            albumSelectedForDelete = data.albumSelectedForDelete,
-            albumSort = data.albumSort,
-            appliedFilterChar = data.filterChar
         )
     }
 }
@@ -155,27 +151,21 @@ private fun DisplayNoAlbums() {
 
 @Composable
 fun AlbumList(
-    albumList: List<AlbumWithArtistName>,
+    data: AlbumListUiData,
     onEvent: (AlbumListEvents) -> Unit,
-    displayDeleteDialog: Boolean,
-    albumSort: AlbumSort,
-    albumSelectedForDelete: AlbumWithArtistName? = null,
-    appliedFilterChar: Char? = null
 ){
     Column {
         StickyFilters(
-            albumSort = albumSort,
+            albumSort = data.albumSort,
             onEvent = onEvent
         )
         DisplayAlbums(
-            albumList = albumList,
+            data = data,
             onEvent = onEvent,
-            albumSort = albumSort,
-            appliedFilterChar = appliedFilterChar
         )
-        if (displayDeleteDialog && albumSelectedForDelete != null) {
+        if (data.displayDeleteDialog && data.albumSelectedForDelete != null) {
             CheckBeforeDeleting(
-                album = albumSelectedForDelete,
+                album = data.albumSelectedForDelete,
                 onEvent = onEvent,
             )
         }
@@ -184,10 +174,8 @@ fun AlbumList(
 
 @Composable
 private fun DisplayAlbums(
-    albumList: List<AlbumWithArtistName>,
+    data: AlbumListUiData,
     onEvent: (AlbumListEvents) -> Unit,
-    albumSort: AlbumSort,
-    appliedFilterChar: Char? = null
 ) {
     var scrollLetter by remember {mutableStateOf('A')}
 
@@ -204,15 +192,14 @@ private fun DisplayAlbums(
                 onEvent = {
                     scrollLetter = it
                 },
-                appliedFilterChar = appliedFilterChar
+                appliedFilterChar = data.filterChar
             )
         }
         VerticalDivider(modifier = Modifier.padding(horizontal = 8.dp))
         Box(modifier = Modifier.weight(.9f)) {
             DisplayAlbumList(
-                albumList = albumList,
+                data = data,
                 onEvent = onEvent,
-                albumSort = albumSort,
                 scrollLetter = scrollLetter
             )
         }
@@ -272,15 +259,14 @@ fun DisplayFilterLetter(
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 private fun DisplayAlbumList(
-    albumList: List<AlbumWithArtistName>,
+    data: AlbumListUiData,
     onEvent: (AlbumListEvents) -> Unit,
-    albumSort: AlbumSort,
     scrollLetter: Char
 ) {
-
+    val albumList = data.albumList.orEmpty()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val index = if (albumSort == AlbumSort.AZ_ALBUMS)
+    val index = if (data.albumSort == AlbumSort.AZ_ALBUMS)
         albumList.indexOfFirst { it.albumName.startsWith(scrollLetter, ignoreCase = true) }
     else
         albumList.indexOfFirst { it.artistName.startsWith(scrollLetter, ignoreCase = true) }
@@ -296,9 +282,10 @@ private fun DisplayAlbumList(
         items(albumList.size) { index ->
             AlbumItem(
                 album = albumList[index],
-                onEvent = onEvent,
-
-                )
+                spotifyEnabled = data.spotifyInstalled,
+                youTubeMusicEnabled = data.youTubeMusicInstalled,
+                onEvent = onEvent
+            )
             HorizontalDivider()
         }
     }
@@ -313,7 +300,7 @@ private fun StickyFilters(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .zIndex(1f), // Ensure it's drawn on top
+            .zIndex(1f),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -370,6 +357,8 @@ private fun StickyFilters(
 @Composable
 fun AlbumItem(
     album: AlbumWithArtistName,
+    spotifyEnabled: Boolean,
+    youTubeMusicEnabled: Boolean,
     onEvent: (AlbumListEvents) -> Unit,
 ) {
     val context = LocalContext.current
@@ -380,14 +369,13 @@ fun AlbumItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .combinedClickable(
-                    onClick = {},
-                    onLongClick = {
-                        onEvent(AlbumListEvents.LongClicked(true, album))
-                    },
-                    onDoubleClick = {
+                    onClick = {
                         linkRowDisplayed.value = !linkRowDisplayed.value
-
-                    }
+                    },
+                    onLongClick = {
+                        onEvent(AlbumListEvents.AlbumLongClicked(true, album))
+                    },
+                    onDoubleClick = {}
                 ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -425,17 +413,38 @@ fun AlbumItem(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ){
-                DisplayDestinationIcon(context, album, R.drawable.logo_allmusic, R.string.allmusic)
-                DisplayDestinationIcon(context, album, R.drawable.logo_discog, R.string.discogs)
-                DisplayDestinationIcon(context, album, R.drawable.logo_wiki, R.string.wikipedia)
-                DisplayDestinationIcon(context, album, R.drawable.logo_youtube, R.string.youtube)
+                DisplaySiteDestinationIcon(context, album, R.drawable.logo_allmusic, R.string.allmusic)
+                DisplaySiteDestinationIcon(context, album, R.drawable.logo_discog, R.string.discogs)
+                DisplaySiteDestinationIcon(context, album, R.drawable.logo_wiki, R.string.wikipedia)
+                DisplaySiteDestinationIcon(context, album, R.drawable.logo_youtube, R.string.youtube)
+                if (spotifyEnabled) {
+                    DisplayPlayerDestinationIcon(album, MusicPlayer.SPOTIFY, onEvent)
+                }
+                if (youTubeMusicEnabled) {
+                    DisplayPlayerDestinationIcon(album, MusicPlayer.YOUTUBE_MUSIC, onEvent)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun DisplayDestinationIcon(
+fun DisplayPlayerDestinationIcon(
+    album: AlbumWithArtistName,
+    musicPlayer: MusicPlayer,
+    onEvent: (AlbumListEvents) -> Unit
+) {
+    IconButton(
+        onClick = {
+            onEvent(AlbumListEvents.MusicPlayerTapped(album, musicPlayer))
+        }
+    ) {
+        DrawLogo(musicPlayer.imageId)
+    }
+}
+
+@Composable
+private fun DisplaySiteDestinationIcon(
     context: Context,
     album: AlbumWithArtistName,
     @DrawableRes drawableId: Int,
@@ -447,12 +456,19 @@ private fun DisplayDestinationIcon(
             openCustomTab(context, album, site)
         }
     ) {
-        Image(
-            painter = painterResource(drawableId),
-            contentDescription = null,
-            modifier = Modifier.height(24.dp).width(24.dp)
-        )
+        DrawLogo(drawableId)
     }
+}
+
+@Composable
+private fun DrawLogo(drawableId: Int) {
+    Image(
+        painter = painterResource(drawableId),
+        contentDescription = null,
+        modifier = Modifier
+            .height(24.dp)
+            .width(24.dp)
+    )
 }
 
 @Composable
@@ -491,7 +507,7 @@ private fun CheckBeforeDeleting(
 ){
     AlertDialog(
         onDismissRequest = {
-            onEvent(AlbumListEvents.LongClicked(false, null))
+            onEvent(AlbumListEvents.AlbumLongClicked(false, null))
         },
         title = {
             Text(text = stringResource(R.string.are_you_sure))
@@ -502,7 +518,7 @@ private fun CheckBeforeDeleting(
         confirmButton = {
             //Displays the "Delete" button to confirm the action
             Button(onClick = {
-                onEvent(AlbumListEvents.LongClicked(false, null))
+                onEvent(AlbumListEvents.AlbumLongClicked(false, null))
                 onEvent(AlbumListEvents.DeleteAlbum(album))
 
             }) {
@@ -512,7 +528,7 @@ private fun CheckBeforeDeleting(
         dismissButton = {
             //Displays the "Cancel" button to cancel the action
             Button(onClick = {
-                onEvent(AlbumListEvents.LongClicked(false, null))
+                onEvent(AlbumListEvents.AlbumLongClicked(false, null))
             }) {
                 Text(text = stringResource(R.string.cancel))
             }

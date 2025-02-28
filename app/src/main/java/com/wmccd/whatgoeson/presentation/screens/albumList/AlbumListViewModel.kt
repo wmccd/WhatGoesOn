@@ -1,17 +1,18 @@
 package com.wmccd.whatgoeson.presentation.screens.albumList
 
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import androidx.browser.customtabs.CustomTabsIntent
-import androidx.compose.ui.platform.LocalContext
+import androidx.annotation.DrawableRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
+import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.repository.database.Album
 import com.wmccd.whatgoeson.repository.database.AlbumWithArtistName
+import com.wmccd.whatgoeson.utility.device.InstalledAppChecker
+import com.wmccd.whatgoeson.utility.musicPlayer.Spotify
+import com.wmccd.whatgoeson.utility.musicPlayer.YouTubeMusic
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +33,8 @@ class AlbumListViewModel(
     //keeps track of when we want to navigate to another screen
     private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
     val navigationEvent = _navigationEvent.asSharedFlow()
+
+    private val installedAppChecker = InstalledAppChecker()
 
     init {
         //The init block **only** runs when the ViewModel is created
@@ -86,7 +89,9 @@ class AlbumListViewModel(
                     albumList = allDetails.sortedBy { it.albumName },
                     displayDeleteDialog = _uiState.value.data?.displayDeleteDialog ?: false,
                     albumSelectedForDelete = _uiState.value.data?.albumSelectedForDelete,
-                    albumSort = filterSortApplied
+                    albumSort = filterSortApplied,
+                    spotifyInstalled = installedAppChecker.check(InstalledAppChecker.AppPackage.SPOTIFY),
+                    youTubeMusicInstalled = installedAppChecker.check(InstalledAppChecker.AppPackage.YOUTUBE_MUSIC)
                 )
             )
         }
@@ -98,19 +103,21 @@ class AlbumListViewModel(
         when (event) {
             AlbumListEvents.ButtonClicked -> onActionButtonClicked()
             is AlbumListEvents.DeleteAlbum -> onDeleteAlbum(event.album)
-            is AlbumListEvents.LongClicked -> onLongClicked(event.clicked, album = event.album)
+            is AlbumListEvents.AlbumLongClicked -> onAlbumLongClicked(event.clicked, album = event.album)
             is AlbumListEvents.MarkAsFavourite -> onMarkAsFavourite(event.isFavourite, event.album)
             is AlbumListEvents.SortOrderClicked -> onSortOrderClicked(event.albumSort)
-            is AlbumListEvents.DoubleClicked -> onDoubleClicked(event.album)
+            is AlbumListEvents.MusicPlayerTapped -> onMusicPlayerTapped(event.album, event.musicPlayer)
         }
     }
 
-    private fun onDoubleClicked(album: AlbumWithArtistName?) {
-        _uiState.value = uiState.value.copy(
-            data = uiState.value.data?.copy(
-                chromeTabSearch = "wikipedia ${album?.artistName} ${album?.albumName}"
-            )
-        )
+    private fun onMusicPlayerTapped(
+        album: AlbumWithArtistName,
+        musicPlayer: MusicPlayer
+    ) {
+        when(musicPlayer){
+            MusicPlayer.SPOTIFY -> Spotify().open(album.artistName, album.albumName)
+            MusicPlayer.YOUTUBE_MUSIC -> YouTubeMusic().open(album.artistName, album.albumName)
+        }
     }
 
     private fun onSortOrderClicked(albumSort: AlbumSort) {
@@ -153,7 +160,7 @@ class AlbumListViewModel(
         }
     }
 
-    private fun onLongClicked(clicked: Boolean, album: AlbumWithArtistName? = null) {
+    private fun onAlbumLongClicked(clicked: Boolean, album: AlbumWithArtistName? = null) {
         _uiState.value = uiState.value.copy(
             data = uiState.value.data?.copy(
                 displayDeleteDialog = clicked,
@@ -201,7 +208,9 @@ data class AlbumListUiData(
     val albumSelectedForDelete: AlbumWithArtistName? = null,
     val albumSort: AlbumSort = AlbumSort.AZ_ALBUMS,
     val filterChar: Char? = null,
-    val chromeTabSearch: String? = null
+    val chromeTabSearch: String? = null,
+    val spotifyInstalled:Boolean = false,
+    val youTubeMusicInstalled:Boolean = false
 )
 
 enum class AlbumSort {
@@ -210,11 +219,16 @@ enum class AlbumSort {
     FAVOURITES
 }
 
+enum class MusicPlayer(@DrawableRes val imageId: Int) {
+    SPOTIFY(R.drawable.logo_spotify),
+    YOUTUBE_MUSIC(R.drawable.logo_youtubemusic)
+}
+
 sealed interface AlbumListEvents {
     data object ButtonClicked : AlbumListEvents
-    data class DoubleClicked(val album: AlbumWithArtistName?) : AlbumListEvents
-    data class LongClicked(val clicked: Boolean, val album: AlbumWithArtistName?) : AlbumListEvents
+    data class AlbumLongClicked(val clicked: Boolean, val album: AlbumWithArtistName?) : AlbumListEvents
     data class DeleteAlbum(val album: AlbumWithArtistName) : AlbumListEvents
     data class MarkAsFavourite(val isFavourite: Boolean, val album: AlbumWithArtistName) : AlbumListEvents
     data class SortOrderClicked(val albumSort: AlbumSort) : AlbumListEvents
+    data class MusicPlayerTapped(val album: AlbumWithArtistName, val musicPlayer: MusicPlayer) : AlbumListEvents
 }
