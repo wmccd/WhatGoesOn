@@ -417,6 +417,8 @@ fun AlbumItem(
                 DisplaySiteDestinationIcon(context, album, R.drawable.logo_discog, R.string.discogs)
                 DisplaySiteDestinationIcon(context, album, R.drawable.logo_wiki, R.string.wikipedia)
                 DisplaySiteDestinationIcon(context, album, R.drawable.logo_youtube, R.string.youtube)
+                DisplaySiteDestinationIcon(context, album, R.drawable.official, R.string.official_website)
+
                 if (spotifyEnabled) {
                     DisplayPlayerDestinationIcon(album, MusicPlayer.SPOTIFY, onEvent)
                 }
