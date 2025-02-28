@@ -173,7 +173,7 @@ private fun CheckBeforeClosing(
             Text(text = stringResource(R.string.are_you_sure))
         },
         text = {
-            Text(text = stringResource(R.string.this_action_cant_be_undone))
+            Text(text = stringResource(R.string.you_can_add_again_later))
        },
         confirmButton = {
             //Displays the "Delete" button to confirm the action
