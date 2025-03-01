@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,9 +23,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.wmccd.whatgoeson.R
-import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
-import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
-import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
+import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayError
+import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING

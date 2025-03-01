@@ -4,8 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
+import com.wmccd.whatgoeson.presentation.screens.albumList.AlbumListEvents
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.repository.database.Album
+import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
+import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayerFactory
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -125,7 +128,20 @@ class HomeViewModel(
         when (event) {
             HomeEvents.ButtonClicked -> onActionButtonClicked()
             is HomeEvents.AlbumFilterSortClicked -> onAlbumFilterSortClicked(event.albumFavouriteFilter)
+            is HomeEvents.MusicPlayerTapped -> onMusicPlayerTapped(event.albumName, event.artistName, event.musicPlayer)
         }
+    }
+
+    private fun onMusicPlayerTapped(
+        albumName: String,
+        artistName: String,
+        musicPlayer: MusicPlayer
+    ) {
+        val musicPlayerLauncher = MusicPlayerFactory(musicPlayer).create()
+        musicPlayerLauncher.launch(
+            artistName = artistName,
+            albumName = albumName
+        )
     }
 
     private fun onAlbumFilterSortClicked(albumFilterSort: AlbumFavouriteFilter) {
@@ -162,7 +178,9 @@ data class HomeUiData(
     val albumArtUrl: String? = null,
     val noAlbumsStored: Boolean = false,
     val noFilterMatches: Boolean = false,
-    val albumFilterSort: AlbumFavouriteFilter = AlbumFavouriteFilter.ALL_ALBUMS
+    val albumFilterSort: AlbumFavouriteFilter = AlbumFavouriteFilter.ALL_ALBUMS,
+    val spotifyInstalled:Boolean = false,
+    val youTubeMusicInstalled:Boolean = false
 )
 
 enum class AlbumFavouriteFilter {
@@ -174,4 +192,5 @@ enum class AlbumFavouriteFilter {
 sealed interface HomeEvents {
     data object ButtonClicked : HomeEvents
     data class AlbumFilterSortClicked(val albumFavouriteFilter: AlbumFavouriteFilter) : HomeEvents
+    data class MusicPlayerTapped(val albumName: String, val artistName: String, val musicPlayer: MusicPlayer) :HomeEvents
 }

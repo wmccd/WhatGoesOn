@@ -3,6 +3,7 @@ package com.wmccd.whatgoeson.presentation.screens.common
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayError
 import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
 
 @Composable

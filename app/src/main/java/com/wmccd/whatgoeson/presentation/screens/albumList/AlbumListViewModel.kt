@@ -1,17 +1,14 @@
 package com.wmccd.whatgoeson.presentation.screens.albumList
 
 import android.util.Log
-import androidx.annotation.DrawableRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
-import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.repository.database.Album
 import com.wmccd.whatgoeson.repository.database.AlbumWithArtistName
-import com.wmccd.whatgoeson.utility.device.InstalledAppChecker
-import com.wmccd.whatgoeson.utility.musicPlayer.Spotify
-import com.wmccd.whatgoeson.utility.musicPlayer.YouTubeMusic
+import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
+import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayerFactory
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,12 +28,11 @@ class AlbumListViewModel(
     private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
     val navigationEvent = _navigationEvent.asSharedFlow()
 
-    private val installedAppChecker = InstalledAppChecker()
     private var spotifyInstalled: Boolean = false
     private var youTubeMusicInstalled:Boolean = false
     init {
-        spotifyInstalled = installedAppChecker.check(InstalledAppChecker.AppPackage.SPOTIFY)
-        youTubeMusicInstalled = installedAppChecker.check(InstalledAppChecker.AppPackage.YOUTUBE_MUSIC)
+        spotifyInstalled = MyApplication.device.spotifyInstalled
+        youTubeMusicInstalled = MyApplication.device.youTubeMusicInstalled
 
         //The init block **only** runs when the ViewModel is created
         if (mockedUiStateForTestingAndPreviews == null)
@@ -82,7 +78,6 @@ class AlbumListViewModel(
     private suspend fun fetchUiData() {
         MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData")
         MyApplication.repository.appDatabase.albumDao().getAllDetails().collect { allDetails ->
-            val filterSortApplied = _uiState.value.data?.albumSort?: AlbumSort.AZ_ALBUMS
             MyApplication.utilities.logger.log(Log.INFO, TAG, "fetchUiData collecting $allDetails")
             _uiState.value = uiState.value.copy(
                 isLoading = false,
@@ -111,18 +106,20 @@ class AlbumListViewModel(
             is AlbumListEvents.AlbumLongClicked -> onAlbumLongClicked(event.clicked, album = event.album)
             is AlbumListEvents.MarkAsFavourite -> onMarkAsFavourite(event.isFavourite, event.album)
             is AlbumListEvents.SortOrderClicked -> onSortOrderClicked(event.albumSort)
-            is AlbumListEvents.MusicPlayerTapped -> onMusicPlayerTapped(event.album, event.musicPlayer)
+            is AlbumListEvents.MusicPlayerTapped -> onMusicPlayerTapped(event.albumName, event.artistName, event.musicPlayer)
         }
     }
 
     private fun onMusicPlayerTapped(
-        album: AlbumWithArtistName,
+        albumName: String,
+        artistName: String,
         musicPlayer: MusicPlayer
     ) {
-        when(musicPlayer){
-            MusicPlayer.SPOTIFY -> Spotify().open(album.artistName, album.albumName)
-            MusicPlayer.YOUTUBE_MUSIC -> YouTubeMusic().open(album.artistName, album.albumName)
-        }
+        val musicPlayerLauncher = MusicPlayerFactory(musicPlayer).create()
+        musicPlayerLauncher.launch(
+            artistName = artistName,
+            albumName = albumName
+        )
     }
 
     private fun onSortOrderClicked(albumSort: AlbumSort) {
@@ -224,10 +221,7 @@ enum class AlbumSort {
     FAVOURITES
 }
 
-enum class MusicPlayer(@DrawableRes val imageId: Int) {
-    SPOTIFY(R.drawable.logo_spotify),
-    YOUTUBE_MUSIC(R.drawable.logo_youtubemusic)
-}
+
 
 sealed interface AlbumListEvents {
     data object ButtonClicked : AlbumListEvents
@@ -235,5 +229,5 @@ sealed interface AlbumListEvents {
     data class DeleteAlbum(val album: AlbumWithArtistName) : AlbumListEvents
     data class MarkAsFavourite(val isFavourite: Boolean, val album: AlbumWithArtistName) : AlbumListEvents
     data class SortOrderClicked(val albumSort: AlbumSort) : AlbumListEvents
-    data class MusicPlayerTapped(val album: AlbumWithArtistName, val musicPlayer: MusicPlayer) : AlbumListEvents
+    data class MusicPlayerTapped(val albumName: String, val artistName: String, val musicPlayer: MusicPlayer) : AlbumListEvents
 }

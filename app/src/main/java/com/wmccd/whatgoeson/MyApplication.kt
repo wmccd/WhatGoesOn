@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.wmccd.whatgoeson.repository.database.AppDatabase
 import com.wmccd.whatgoeson.repository.datastore.AppDataStore
 import com.wmccd.whatgoeson.repository.webservice.SetListFmApi
+import com.wmccd.whatgoeson.utility.device.InstalledAppChecker
 import com.wmccd.whatgoeson.utility.logger.ILogger
 import com.wmccd.whatgoeson.utility.logger.Logger
 import okhttp3.OkHttpClient
@@ -31,10 +32,13 @@ class MyApplication : Application() {
             gson = Gson(),
             logger = Logger()
         )
+        val installedAppChecker = InstalledAppChecker()
+        device = Device(
+            spotifyInstalled = installedAppChecker.check(InstalledAppChecker.AppPackage.SPOTIFY),
+            youTubeMusicInstalled = installedAppChecker.check(InstalledAppChecker.AppPackage.YOUTUBE_MUSIC)
+        )
     }
-
-
-
+    
     private fun createAppDataStore() = AppDataStore(this)
 
     private fun createAppDatabaseInstance() = Room.databaseBuilder(
@@ -78,6 +82,11 @@ class MyApplication : Application() {
         val logger: ILogger,
     )
 
+    data class Device(
+        val spotifyInstalled: Boolean,
+        val youTubeMusicInstalled: Boolean,
+    )
+
     companion object {
         //Declares global variables that can be accessed from anywhere in the app
         lateinit var appContext: Context
@@ -85,6 +94,8 @@ class MyApplication : Application() {
         lateinit var repository: Repository
             private set
         lateinit var utilities: Utilities
+            private set
+        lateinit var device: Device
             private set
     }
 }

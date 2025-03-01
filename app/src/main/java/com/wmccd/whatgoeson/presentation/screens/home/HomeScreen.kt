@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -39,15 +38,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
+import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
-import com.wmccd.whatgoeson.presentation.screens.common.DisplayError
-import com.wmccd.whatgoeson.presentation.screens.common.DisplayLoading
+import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayError
+import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
-import com.wmccd.whatgoeson.presentation.screens.common.NoAlbums
+import com.wmccd.whatgoeson.presentation.screens.common.screens.NoAlbums
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
+import com.wmccd.whatgoeson.presentation.screens.common.composables.ExternalDestinationRow
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyInternetImage
+import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
 import java.util.UUID
 
 @Composable
@@ -146,17 +148,46 @@ private fun AlbumDetails(
             onEvent = onEvent
         )
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (noFilterMatches)
+            if (noFilterMatches) {
                 NoFilterMatches()
-            else
+            }else {
                 FilterMatches(data)
+            }
+        }
+        if(!noFilterMatches && data != null) {
+            ExternalDestinationRow(
+                albumName = data.albumName ?: "",
+                artistName = data.artistName ?: "",
+                spotifyEnabled = MyApplication.device.spotifyInstalled,
+                youTubeMusicEnabled = MyApplication.device.youTubeMusicInstalled,
+                onSpotifyTapped = {
+                    onEvent(
+                        HomeEvents.MusicPlayerTapped(
+                            albumName = data.albumName ?: "",
+                            artistName = data.artistName ?: "",
+                            musicPlayer = MusicPlayer.SPOTIFY
+                        )
+                    )
+                },
+                onYouTubeMusicTapped = {
+                    onEvent(
+                        HomeEvents.MusicPlayerTapped(
+                            albumName = data.albumName ?: "",
+                            artistName = data.artistName ?: "",
+                            musicPlayer = MusicPlayer.YOUTUBE_MUSIC
+                        )
+                    )
+                }
+            )
         }
     }
 }
+
+
 
 @Composable
 fun NoFilterMatches() {
@@ -238,10 +269,6 @@ private fun StickyFilters(
                     onEvent(HomeEvents.AlbumFilterSortClicked(AlbumFavouriteFilter.FAVOURITES_ONLY))
                 },
                 label = {
-//                    Text(
-//                        text = stringResource(R.string.favourites),
-//                        style = TextStyle(fontSize = nonScaledFontSize)
-//                    )
                     Icon(
                         imageVector = Icons.Default.Favorite,
                         contentDescription = stringResource(R.string.favourites),
@@ -255,10 +282,6 @@ private fun StickyFilters(
                     onEvent(HomeEvents.AlbumFilterSortClicked(AlbumFavouriteFilter.NON_FAVOURITES_ONLY))
                 },
                 label = {
-//                    Text(
-//                        text = stringResource(R.string.non_favourite),
-//                        style = TextStyle(fontSize = nonScaledFontSize)
-//                    )
                     Icon(
                         imageVector = Icons.Default.FavoriteBorder,
                         contentDescription = stringResource(R.string.favourites),

@@ -8,11 +8,11 @@ import com.wmccd.whatgoeson.utility.device.InstalledAppChecker
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-class Spotify {
+class Spotify: MusicPlayerLauncher {
 
     private val installedAppChecker = InstalledAppChecker()
 
-    fun open(artistName: String, albumName: String) {
+    override fun launch(artistName: String, albumName: String) {
         // 1. Create the Search Query
         val searchQuery = "$artistName $albumName"
 
