@@ -1,6 +1,5 @@
 package com.wmccd.whatgoeson.presentation.screens.albumList
 
-import android.net.Uri
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.lifecycle.ViewModel
@@ -19,8 +18,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 class AlbumListViewModel(
     mockedUiStateForTestingAndPreviews: AlbumListUiState? = null,
@@ -35,8 +32,12 @@ class AlbumListViewModel(
     val navigationEvent = _navigationEvent.asSharedFlow()
 
     private val installedAppChecker = InstalledAppChecker()
-
+    private var spotifyInstalled: Boolean = false
+    private var youTubeMusicInstalled:Boolean = false
     init {
+        spotifyInstalled = installedAppChecker.check(InstalledAppChecker.AppPackage.SPOTIFY)
+        youTubeMusicInstalled = installedAppChecker.check(InstalledAppChecker.AppPackage.YOUTUBE_MUSIC)
+
         //The init block **only** runs when the ViewModel is created
         if (mockedUiStateForTestingAndPreviews == null)
             liveData()
@@ -89,10 +90,14 @@ class AlbumListViewModel(
                     albumList = allDetails.sortedBy { it.albumName },
                     displayDeleteDialog = _uiState.value.data?.displayDeleteDialog ?: false,
                     albumSelectedForDelete = _uiState.value.data?.albumSelectedForDelete,
-                    albumSort = filterSortApplied,
-                    spotifyInstalled = installedAppChecker.check(InstalledAppChecker.AppPackage.SPOTIFY),
-                    youTubeMusicInstalled = installedAppChecker.check(InstalledAppChecker.AppPackage.YOUTUBE_MUSIC)
+                    albumSort = _uiState.value.data?.albumSort?: AlbumSort.AZ_ALBUMS,
+                    filterChar = _uiState.value.data?.filterChar,
+                    spotifyInstalled = spotifyInstalled,
+                    youTubeMusicInstalled = youTubeMusicInstalled
                 )
+            )
+            onSortOrderClicked(
+                albumSort = _uiState.value.data?.albumSort?: AlbumSort.AZ_ALBUMS
             )
         }
     }

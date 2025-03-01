@@ -177,7 +177,7 @@ private fun DisplayAlbums(
     data: AlbumListUiData,
     onEvent: (AlbumListEvents) -> Unit,
 ) {
-    var scrollLetter by remember {mutableStateOf('A')}
+    var scrollLetter by remember {mutableStateOf(data.filterChar)}
 
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -251,7 +251,6 @@ fun DisplayFilterLetter(
             )
             .clickable {
                 onEvent(c)
-                //onEvent(AlbumListEvents.FilterLetterClicked(c))
             }
     )
 }
@@ -261,18 +260,20 @@ fun DisplayFilterLetter(
 private fun DisplayAlbumList(
     data: AlbumListUiData,
     onEvent: (AlbumListEvents) -> Unit,
-    scrollLetter: Char
+    scrollLetter: Char? = null
 ) {
     val albumList = data.albumList.orEmpty()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val index = if (data.albumSort == AlbumSort.AZ_ALBUMS)
-        albumList.indexOfFirst { it.albumName.startsWith(scrollLetter, ignoreCase = true) }
-    else
-        albumList.indexOfFirst { it.artistName.startsWith(scrollLetter, ignoreCase = true) }
-    if (index != -1) {
-        coroutineScope.launch {
-            listState.scrollToItem(index)
+    if(scrollLetter!=null) {
+        val index = if (data.albumSort == AlbumSort.AZ_ALBUMS)
+            albumList.indexOfFirst { it.albumName.startsWith(scrollLetter, ignoreCase = true) }
+        else
+            albumList.indexOfFirst { it.artistName.startsWith(scrollLetter, ignoreCase = true) }
+        if (index != -1) {
+            coroutineScope.launch {
+                listState.scrollToItem(index)
+            }
         }
     }
 
