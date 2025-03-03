@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -183,6 +184,7 @@ private fun AlbumDetails(
                     )
                 }
             )
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -330,6 +332,22 @@ private fun PreviewDisplayNoFilterMatches(){
             uiState = HomeUiState(
                 data = HomeUiData(
                     noFilterMatches = true
+                ),
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewDisplayMatches(){
+    PreviewTheme {
+        DisplayContent(
+            uiState = HomeUiState(
+                data = HomeUiData(
+                    artistName = "Artist",
+                    albumName = "Album",
+                    albumArtUrl = null,
                 ),
             )
         )
