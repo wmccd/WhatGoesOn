@@ -1,6 +1,7 @@
 package com.wmccd.whatgoeson.presentation.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -156,34 +157,36 @@ private fun AlbumDetails(
             if (noFilterMatches) {
                 NoFilterMatches()
             }else {
-                FilterMatches(data)
+                FilterMatches(data, onEvent)
             }
         }
         if(!noFilterMatches && data != null) {
-            ExternalDestinationRow(
-                albumName = data.albumName ?: "",
-                artistName = data.artistName ?: "",
-                spotifyEnabled = MyApplication.device.spotifyInstalled,
-                youTubeMusicEnabled = MyApplication.device.youTubeMusicInstalled,
-                onSpotifyTapped = {
-                    onEvent(
-                        HomeEvents.MusicPlayerTapped(
-                            albumName = data.albumName ?: "",
-                            artistName = data.artistName ?: "",
-                            musicPlayer = MusicPlayer.SPOTIFY
+            AnimatedVisibility(data.externalDestinationEnabled) {
+                ExternalDestinationRow(
+                    albumName = data.albumName ?: "",
+                    artistName = data.artistName ?: "",
+                    spotifyEnabled = MyApplication.device.spotifyInstalled,
+                    youTubeMusicEnabled = MyApplication.device.youTubeMusicInstalled,
+                    onSpotifyTapped = {
+                        onEvent(
+                            HomeEvents.MusicPlayerTapped(
+                                albumName = data.albumName ?: "",
+                                artistName = data.artistName ?: "",
+                                musicPlayer = MusicPlayer.SPOTIFY
+                            )
                         )
-                    )
-                },
-                onYouTubeMusicTapped = {
-                    onEvent(
-                        HomeEvents.MusicPlayerTapped(
-                            albumName = data.albumName ?: "",
-                            artistName = data.artistName ?: "",
-                            musicPlayer = MusicPlayer.YOUTUBE_MUSIC
+                    },
+                    onYouTubeMusicTapped = {
+                        onEvent(
+                            HomeEvents.MusicPlayerTapped(
+                                albumName = data.albumName ?: "",
+                                artistName = data.artistName ?: "",
+                                musicPlayer = MusicPlayer.YOUTUBE_MUSIC
+                            )
                         )
-                    )
-                }
-            )
+                    }
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -202,33 +205,45 @@ fun NoFilterMatches() {
 
 @Composable
 private fun ColumnScope.FilterMatches(
-    data: HomeUiData?
-) {
+    data: HomeUiData?,
+    onEvent: (HomeEvents) -> Unit = {},
+    ) {
     val fetchedImageFor = remember { mutableStateOf("") }
     val fetchedImageSuccessful = remember { mutableStateOf(true) }
 
     if(fetchedImageFor.value != data?.albumName){
         fetchedImageSuccessful.value = true
     }
-    Text(
-        text = "${data?.albumName}",
-        style = MaterialTheme.typography.headlineMedium,
-        textAlign = TextAlign.Center
-    )
-    Text(
-        text = "${data?.artistName}",
-        textAlign = TextAlign.Center
-    )
-    Spacer(modifier = Modifier.height(24.dp))
-
-    AnimatedVisibility(fetchedImageSuccessful.value) {
-        MyInternetImage(
-            imageUrl = data?.albumArtUrl.orEmpty(),
-            successful = {
-                fetchedImageSuccessful.value = it
-                fetchedImageFor.value = data?.albumName.toString()
-            }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .weight(1f)
+            .clickable {
+            onEvent(HomeEvents.AlbumTapped)
+        },
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "${data?.albumName}",
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center
         )
+        Text(
+            text = "${data?.artistName}",
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+
+        AnimatedVisibility(fetchedImageSuccessful.value) {
+            MyInternetImage(
+                imageUrl = data?.albumArtUrl.orEmpty(),
+                successful = {
+                    fetchedImageSuccessful.value = it
+                    fetchedImageFor.value = data?.albumName.toString()
+                }
+            )
+        }
     }
 }
 

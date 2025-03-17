@@ -129,6 +129,18 @@ class HomeViewModel(
             HomeEvents.ButtonClicked -> onActionButtonClicked()
             is HomeEvents.AlbumFilterSortClicked -> onAlbumFilterSortClicked(event.albumFavouriteFilter)
             is HomeEvents.MusicPlayerTapped -> onMusicPlayerTapped(event.albumName, event.artistName, event.musicPlayer)
+            HomeEvents.AlbumTapped -> onAlbumTapped()
+        }
+    }
+
+    private fun onAlbumTapped() {
+        val currentValue = uiState.value.data?.externalDestinationEnabled ?: false
+        viewModelScope.launch {
+            _uiState.value = uiState.value.copy(
+                data = uiState.value.data?.copy(
+                    externalDestinationEnabled = !currentValue
+                )
+            )
         }
     }
 
@@ -180,7 +192,8 @@ data class HomeUiData(
     val noFilterMatches: Boolean = false,
     val albumFilterSort: AlbumFavouriteFilter = AlbumFavouriteFilter.ALL_ALBUMS,
     val spotifyInstalled:Boolean = false,
-    val youTubeMusicInstalled:Boolean = false
+    val youTubeMusicInstalled:Boolean = false,
+    val externalDestinationEnabled:Boolean = false,
 )
 
 enum class AlbumFavouriteFilter {
@@ -193,4 +206,6 @@ sealed interface HomeEvents {
     data object ButtonClicked : HomeEvents
     data class AlbumFilterSortClicked(val albumFavouriteFilter: AlbumFavouriteFilter) : HomeEvents
     data class MusicPlayerTapped(val albumName: String, val artistName: String, val musicPlayer: MusicPlayer) :HomeEvents
+    data object AlbumTapped :HomeEvents
+
 }
