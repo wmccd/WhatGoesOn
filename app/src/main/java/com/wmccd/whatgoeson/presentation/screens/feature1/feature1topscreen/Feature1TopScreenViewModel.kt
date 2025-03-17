@@ -70,9 +70,7 @@ class Feature1TopScreenViewModel(
         return Feature1TopScreenUiData(
             randomText = MyApplication.repository.appDataStore.userNameFlow.first().orEmpty(),
             randomLong = System.currentTimeMillis(),
-            randomInt = if(response.isSuccessful){
-                        response.body()?.total ?:0
-                    } else {-1}
+            randomInt = 0
         )
     }
 

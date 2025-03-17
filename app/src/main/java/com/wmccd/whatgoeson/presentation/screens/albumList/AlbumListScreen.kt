@@ -54,7 +54,7 @@ import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
-import com.wmccd.whatgoeson.presentation.screens.common.composables.ExternalDestinationRow
+import com.wmccd.whatgoeson.presentation.screens.common.composables.ExternalAlbumDestinationRow
 import com.wmccd.whatgoeson.presentation.screens.common.composables.INTERNET_IMAGE_NOT_AVAILABLE
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyInternetImage
 import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayError
@@ -352,7 +352,7 @@ fun AlbumItem(
     youTubeMusicEnabled: Boolean,
     onEvent: (AlbumListEvents) -> Unit,
 ) {
-    val linkRowDisplayed = remember { mutableStateOf(false) }
+    val externalDestinationRowDisplayed = remember { mutableStateOf(false) }
 
     Column {
         Row(
@@ -360,7 +360,7 @@ fun AlbumItem(
                 .fillMaxWidth()
                 .combinedClickable(
                     onClick = {
-                        linkRowDisplayed.value = !linkRowDisplayed.value
+                        externalDestinationRowDisplayed.value = !externalDestinationRowDisplayed.value
                     },
                     onLongClick = {
                         onEvent(AlbumListEvents.AlbumLongClicked(true, album))
@@ -398,8 +398,8 @@ fun AlbumItem(
             }
             FavouriteIcon(onEvent, album)
         }
-        AnimatedVisibility(linkRowDisplayed.value){
-            ExternalDestinationRow(
+        AnimatedVisibility(externalDestinationRowDisplayed.value){
+            ExternalAlbumDestinationRow(
                 albumName = album.albumName,
                 artistName = album.artistName,
                 spotifyEnabled = spotifyEnabled,

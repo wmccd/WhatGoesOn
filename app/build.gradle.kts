@@ -88,4 +88,5 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.opencsv)
     implementation(libs.androidx.browser)
+    implementation(libs.converter.simplexml)
 }

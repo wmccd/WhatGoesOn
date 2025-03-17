@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,7 +48,7 @@ import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.presentation.screens.common.screens.NoAlbums
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
-import com.wmccd.whatgoeson.presentation.screens.common.composables.ExternalDestinationRow
+import com.wmccd.whatgoeson.presentation.screens.common.composables.ExternalAlbumDestinationRow
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyInternetImage
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
 import java.util.UUID
@@ -162,7 +161,7 @@ private fun AlbumDetails(
         }
         if(!noFilterMatches && data != null) {
             AnimatedVisibility(data.externalDestinationEnabled) {
-                ExternalDestinationRow(
+                ExternalAlbumDestinationRow(
                     albumName = data.albumName ?: "",
                     artistName = data.artistName ?: "",
                     spotifyEnabled = MyApplication.device.spotifyInstalled,

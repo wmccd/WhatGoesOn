@@ -1,5 +1,7 @@
 package com.wmccd.whatgoeson.presentation.screens.stats
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -28,7 +32,9 @@ import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
+import com.wmccd.whatgoeson.presentation.screens.common.composables.ExternalArtistDestinationRow
 import com.wmccd.whatgoeson.repository.database.AlbumArtistCount
+import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
 import java.util.UUID
 
 @Composable
@@ -111,22 +117,60 @@ fun DisplayData(
             Spacer(modifier = Modifier.height(32.dp))
             LazyColumn{
                 items(data.artistAlbumCount.size){
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            text = data.artistAlbumCount[it].artistName,
-                            modifier = Modifier.weight(0.8f),
-                        )
-                        Text(
-                            text = data.artistAlbumCount[it].albumCount.toString(),
-                            modifier = Modifier.weight(0.2f),
-                            textAlign = TextAlign.End,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-
-                    }
+                    ArtistRow(data, onEvent, it)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ArtistRow(
+    data: StatsUiData,
+    onEvent: (StatsEvents) -> Unit = {},
+    it: Int
+) {
+    val externalDestinationRowDisplayed = remember { mutableStateOf(false) }
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth().clickable {
+                externalDestinationRowDisplayed.value = !externalDestinationRowDisplayed.value
+            },
+        ) {
+            Text(
+                text = data.artistAlbumCount[it].artistName,
+                modifier = Modifier.weight(0.8f),
+            )
+            Text(
+                text = data.artistAlbumCount[it].albumCount.toString(),
+                modifier = Modifier.weight(0.2f),
+                textAlign = TextAlign.End,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        AnimatedVisibility(externalDestinationRowDisplayed.value) {
+            Row{
+                ExternalArtistDestinationRow(
+                    artistName = data.artistAlbumCount[it].artistName,
+                    spotifyEnabled = data.spotifyInstalled,
+                    youTubeMusicEnabled = data.youTubeMusicInstalled,
+                    onSpotifyTapped = {
+                        onEvent(
+                            StatsEvents.MusicPlayerTapped(
+                                artistName = data.artistAlbumCount[it].artistName,
+                                musicPlayer = MusicPlayer.SPOTIFY
+                            )
+                        )
+                    },
+                    onYouTubeMusicTapped = {
+                        onEvent(
+                            StatsEvents.MusicPlayerTapped(
+                                artistName = data.artistAlbumCount[it].artistName,
+                                musicPlayer = MusicPlayer.YOUTUBE_MUSIC
+                            )
+                        )
+                    }
+                )
             }
         }
     }

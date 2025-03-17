@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.repository.database.AlbumArtistCount
+import com.wmccd.whatgoeson.utility.chromeTab.CustomTab
+import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
+import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayerFactory
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +29,11 @@ class StatsViewModel(
     private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
     val navigationEvent = _navigationEvent.asSharedFlow()
 
+    private var spotifyInstalled: Boolean = false
+    private var youTubeMusicInstalled:Boolean = false
     init {
+        spotifyInstalled = MyApplication.device.spotifyInstalled
+        youTubeMusicInstalled = MyApplication.device.youTubeMusicInstalled
         //The init block **only** runs when the ViewModel is created
         if (mockedUiStateForTestingAndPreviews == null)
             liveData()
@@ -73,7 +80,9 @@ class StatsViewModel(
         return StatsUiData(
             albumCount = allAlbums.first().size,
             artistCount = allArtists.first().size,
-            artistAlbumCount = artistAlbumCount.first()
+            artistAlbumCount = artistAlbumCount.first(),
+            spotifyInstalled = spotifyInstalled,
+            youTubeMusicInstalled = youTubeMusicInstalled
         )
     }
 
@@ -82,7 +91,19 @@ class StatsViewModel(
         MyApplication.utilities.logger.log(Log.INFO, TAG, "onEvent ")
         when (event) {
             StatsEvents.ButtonClicked -> onActionButtonClicked()
+            is StatsEvents.MusicPlayerTapped -> onMusicPlayerTapped(event.artistName, event.musicPlayer)
         }
+    }
+
+    private fun onMusicPlayerTapped(
+        artistName: String,
+        musicPlayer: MusicPlayer
+    ) {
+        val musicPlayerLauncher = MusicPlayerFactory(musicPlayer).create()
+        musicPlayerLauncher.launch(
+            artistName = artistName,
+            albumName = ""
+        )
     }
 
     private fun onActionButtonClicked() {
@@ -108,8 +129,12 @@ data class StatsUiData(
     val albumCount: Int = 0,
     val artistCount: Int = 0,
     val artistAlbumCount: List<AlbumArtistCount> = emptyList(),
+    val externalDestinationEnabled:Boolean = false,
+    val spotifyInstalled:Boolean = false,
+    val youTubeMusicInstalled:Boolean = false,
 )
 
 sealed interface StatsEvents {
     data object ButtonClicked : StatsEvents
+    data class MusicPlayerTapped(val artistName: String, val musicPlayer: MusicPlayer) : StatsEvents
 }
