@@ -6,14 +6,18 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,8 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
-import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayError
-import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayLoading
+import com.wmccd.whatgoeson.presentation.screens.common.MediaType
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
@@ -43,6 +46,8 @@ import com.wmccd.whatgoeson.presentation.screens.common.composables.MyDropdownMe
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyInternetImage
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyOutlinedInputText
 import com.wmccd.whatgoeson.presentation.screens.common.composables.SimpleVideoPlayerScreen
+import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayError
+import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayLoading
 import java.util.UUID
 
 @Composable
@@ -121,28 +126,8 @@ private fun DisplayAddAlbum(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (data.displayAddAlbumDemoText) {
-                TextButton(
-                    onClick = {
-                        onEvent(NewAlbumScreenEvents.OpenVideoPlayer)
-                    }
-                ){
-                    val infiniteTransition =
-                        rememberInfiniteTransition(label = "")
-                    val rotation by infiniteTransition.animateFloat(
-                        initialValue = -2f,
-                        targetValue = 2f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(durationMillis = 100, easing = LinearEasing)
-                        ), label = ""
-                    )
-                    Text(
-                        text = "Watch Instruction Video",
-                        Modifier.rotate(rotation),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
+            DisplayDemo(data, onEvent)
+            DisplayMediaTypeInputs(data, onEvent)
             DisplayArtistInputs(data, onEvent)
             DisplayAlbumInputs(data, onEvent)
             DisplayImageUrlInputs(data, onEvent)
@@ -155,6 +140,61 @@ private fun DisplayAddAlbum(
             ) {
                 Text(text = stringResource(R.string.save))
             }
+        }
+    }
+}
+
+@Composable
+private fun DisplayDemo(
+    data: NewAlbumScreenUiData,
+    onEvent: (NewAlbumScreenEvents) -> Unit
+) {
+    if (data.displayAddAlbumDemoText) {
+        TextButton(
+            onClick = {
+                onEvent(NewAlbumScreenEvents.OpenVideoPlayer)
+            }
+        ) {
+            val infiniteTransition =
+                rememberInfiniteTransition(label = "")
+            val rotation by infiniteTransition.animateFloat(
+                initialValue = -2f,
+                targetValue = 2f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 100, easing = LinearEasing)
+                ), label = ""
+            )
+            Text(
+                text = "Watch Instruction Video",
+                Modifier.rotate(rotation),
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
+
+@Composable
+fun DisplayMediaTypeInputs(
+    data: NewAlbumScreenUiData,
+    onEvent: (NewAlbumScreenEvents) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        MediaType.entries.forEach {
+            FilterChip(
+                modifier = Modifier.padding(horizontal = 4.dp),
+                selected = data.mediaType == it,
+                onClick = {
+                    onEvent(NewAlbumScreenEvents.MediaTypeSelected(it))
+                },
+                label = {
+                    Text(
+                        text = it.label,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            )
         }
     }
 }

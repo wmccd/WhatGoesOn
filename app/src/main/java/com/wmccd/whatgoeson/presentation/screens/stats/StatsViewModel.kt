@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
+import com.wmccd.whatgoeson.presentation.screens.common.MediaType
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.repository.database.AlbumArtistCount
 import com.wmccd.whatgoeson.utility.chromeTab.CustomTab
@@ -77,10 +78,18 @@ class StatsViewModel(
         val allAlbums = MyApplication.repository.appDatabase.albumDao().getAllAlbums()
         val allArtists = MyApplication.repository.appDatabase.artistDao().getAllArtists()
         val artistAlbumCount = MyApplication.repository.appDatabase.albumDao().getAlbumArtistCountList()
+        val cassetteCount = MyApplication.repository.appDatabase.albumDao().getMediaCount(MediaType.CASSETTE.name)
+        val opticalCount = MyApplication.repository.appDatabase.albumDao().getMediaCount(MediaType.OPTICAL.name)
+        val digitalCount = MyApplication.repository.appDatabase.albumDao().getMediaCount(MediaType.DIGITAL.name)
+        val vinylCount = MyApplication.repository.appDatabase.albumDao().getMediaCount(MediaType.VINYL.name)
         return StatsUiData(
             albumCount = allAlbums.first().size,
             artistCount = allArtists.first().size,
             artistAlbumCount = artistAlbumCount.first(),
+            cassetteCount = cassetteCount.first(),
+            opticalCount = opticalCount.first(),
+            digitalCount = digitalCount.first(),
+            vinylCount = vinylCount.first(),
             spotifyInstalled = spotifyInstalled,
             youTubeMusicInstalled = youTubeMusicInstalled
         )
@@ -128,6 +137,10 @@ data class StatsUiData(
     val someData: String? = "",
     val albumCount: Int = 0,
     val artistCount: Int = 0,
+    val cassetteCount: Int = 0,
+    val opticalCount: Int = 0,
+    val digitalCount: Int = 0,
+    val vinylCount: Int = 0,
     val artistAlbumCount: List<AlbumArtistCount> = emptyList(),
     val externalDestinationEnabled:Boolean = false,
     val spotifyInstalled:Boolean = false,

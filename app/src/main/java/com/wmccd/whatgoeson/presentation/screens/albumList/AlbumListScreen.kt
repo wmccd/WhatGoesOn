@@ -1,6 +1,8 @@
 package com.wmccd.whatgoeson.presentation.screens.albumList
 
 import android.annotation.SuppressLint
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -30,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,9 +44,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +57,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.wmccd.whatgoeson.R
+import com.wmccd.whatgoeson.presentation.screens.common.MediaType
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
@@ -360,7 +367,8 @@ fun AlbumItem(
                 .fillMaxWidth()
                 .combinedClickable(
                     onClick = {
-                        externalDestinationRowDisplayed.value = !externalDestinationRowDisplayed.value
+                        externalDestinationRowDisplayed.value =
+                            !externalDestinationRowDisplayed.value
                     },
                     onLongClick = {
                         onEvent(AlbumListEvents.AlbumLongClicked(true, album))
@@ -386,14 +394,18 @@ fun AlbumItem(
                 )
 
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 4.dp),
             ) {
+
                 Text(
                     text = album.albumName,
                 )
                 Text(
                     text = album.artistName,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
                 )
             }
             FavouriteIcon(onEvent, album)
@@ -506,17 +518,19 @@ private fun PreviewDisplayAlbums() {
                             albumId = 1,
                             albumName = "Album 1",
                             albumUrl = "",
+                            mediaType = MediaType.VINYL,
                             artistName = "Artist 1",
                             artistId = 1,
-                            albumFavourite = false
+                            albumFavourite = false,
                         ),
                         AlbumWithArtistName(
                             albumId = 1,
                             albumName = "Album 2",
                             albumUrl = "",
+                            mediaType = MediaType.DIGITAL,
                             artistName = "Artist 2",
                             artistId = 1,
-                            albumFavourite = true
+                            albumFavourite = true,
                         ),
                     )
                 )

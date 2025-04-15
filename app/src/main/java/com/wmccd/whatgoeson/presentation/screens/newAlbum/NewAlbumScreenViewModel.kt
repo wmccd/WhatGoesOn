@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wmccd.whatgoeson.MyApplication
+import com.wmccd.whatgoeson.presentation.screens.common.MediaType
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.presentation.screens.common.composables.INTERNET_IMAGE_NOT_AVAILABLE
 import com.wmccd.whatgoeson.repository.database.Album
@@ -96,7 +97,16 @@ class NewAdditionScreenViewModel(
             NewAlbumScreenEvents.NoImageUrlAvailableClicked -> onNoImageUrlAvailableClicked()
             NewAlbumScreenEvents.CloseVideoPlayer -> toggleVideoPlayerDisplay()
             NewAlbumScreenEvents.OpenVideoPlayer -> toggleVideoPlayerDisplay()
+            is NewAlbumScreenEvents.MediaTypeSelected -> onMediaTypeSelected(event.mediaType)
         }
+    }
+
+    private fun onMediaTypeSelected(mediaType: MediaType) {
+        _uiState.value = _uiState.value.copy(
+            data = _uiState.value.data?.copy(
+                mediaType = mediaType
+            )
+        )
     }
 
     private fun toggleVideoPlayerDisplay() {
@@ -203,7 +213,8 @@ class NewAdditionScreenViewModel(
                 Album(
                     artistId = artistId,
                     name = uiState.value.data?.albumName.orEmpty(),
-                    imageUrl = uiState.value.data?.imageUrl.orEmpty()
+                    imageUrl = uiState.value.data?.imageUrl.orEmpty(),
+                    mediaType = uiState.value.data?.mediaType ?: MediaType.VINYL,
                 )
             )
             Toast.makeText(MyApplication.appContext, "Album saved", Toast.LENGTH_SHORT).show()
@@ -240,10 +251,11 @@ data class NewAlbumScreenUiData(
     val artistId: Long = -1,
     val artistName: String? = "",
     val imageUrl: String? = "",
+    val mediaType: MediaType? = MediaType.VINYL,
     val artistIdNameList: List<Pair<Long, String>> = emptyList(),
     val saveButtonEnabled: Boolean = false,
     val displayAddAlbumDemoText: Boolean = false,
-    val displayVideoPlayer: Boolean = false
+    val displayVideoPlayer: Boolean = false,
 )
 
 sealed interface NewAlbumScreenEvents{
@@ -251,6 +263,7 @@ sealed interface NewAlbumScreenEvents{
     data class ArtistNameChanged(val artistName: String): NewAlbumScreenEvents
     data class AlbumNameChanged(val albumName: String): NewAlbumScreenEvents
     data class AlbumImageUrlChanged(val imageUrl: String): NewAlbumScreenEvents
+    data class MediaTypeSelected(val mediaType: MediaType): NewAlbumScreenEvents
     data object NoImageUrlAvailableClicked: NewAlbumScreenEvents
     data object SaveButtonClicked: NewAlbumScreenEvents
     data object OpenVideoPlayer: NewAlbumScreenEvents

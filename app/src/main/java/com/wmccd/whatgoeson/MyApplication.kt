@@ -45,11 +45,7 @@ class MyApplication : Application() {
 
     private fun createAppDataStore() = AppDataStore(this)
 
-    private fun createAppDatabaseInstance() = Room.databaseBuilder(
-        this,
-        AppDatabase::class.java,
-        AppDatabase.DATABASE_NAME
-    ).build()
+    private fun createAppDatabaseInstance() = AppDatabase.getDatabase(this)
 
     private fun createSetListFmApiInstance(): SetListFmApi{
         //sets up the logging interceptor that will send request and response data to logcat

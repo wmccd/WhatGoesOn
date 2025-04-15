@@ -1,5 +1,6 @@
 package com.wmccd.whatgoeson.repository.database
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
@@ -10,13 +11,16 @@ import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Update
+import com.wmccd.whatgoeson.presentation.screens.common.MediaType
 import kotlinx.coroutines.flow.Flow
 
-private const val ALBUM_TABLE_NAME = "Albums"
+const val ALBUM_TABLE_NAME = "Albums"
 private const val ALBUM_ID = "album_id"
 private const val ALBUM_NAME = "album_name"
 private const val ALBUM_URL = "album_url"
 private const val ALBUM_FAVOURITE = "album_favourite"
+const val MEDIA_TYPE = "media_type"
+
 
 
 @Entity(
@@ -30,11 +34,12 @@ private const val ALBUM_FAVOURITE = "album_favourite"
         )
     ]
 )
-data class Album(
+data class Album @OptIn(ExperimentalFoundationApi::class) constructor(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = ALBUM_NAME) val name: String,
     @ColumnInfo(name = ALBUM_URL) val imageUrl: String,
     @ColumnInfo(name = ALBUM_FAVOURITE) val isFavourite: Boolean = false,
+    @ColumnInfo(name = MEDIA_TYPE) val mediaType: MediaType = MediaType.VINYL,
     @ColumnInfo(name = "artist_id") val artistId: Long
 )
 
@@ -65,6 +70,10 @@ interface AlbumDao {
     @Query("SELECT Count(*) FROM " + ALBUM_TABLE_NAME)
     fun getAlbumCount(): Flow<Int>
 
+    @Query("SELECT Count(*) FROM " + ALBUM_TABLE_NAME + " WHERE media_type = :mediaType")
+    fun getMediaCount(mediaType: String): Flow<Int>
+
+
     @Query("SELECT * FROM " + ALBUM_TABLE_NAME + " WHERE artist_id = :artistId")
     fun getAlbumsByArtistId(artistId: Long): Flow<List<Album>>
 
@@ -75,6 +84,7 @@ interface AlbumDao {
                 "Albums.id AS albumId, " +
                 "Albums.album_favourite AS albumFavourite, " +
                 "Artists.artist_name AS artistName, " +
+                "Albums.media_type AS mediaType, " +
                 "Artists.id AS artistId " +
                 "FROM Albums " +
                 "INNER JOIN Artists ON Albums.artist_id = Artists.id"
@@ -105,5 +115,6 @@ data class AlbumWithArtistName(
     @ColumnInfo(name = "albumFavourite") val albumFavourite: Boolean,
     @ColumnInfo(name = "albumId") val albumId: Long,
     @ColumnInfo(name = "artistName") val artistName: String,
+    @ColumnInfo(name = "mediaType") val mediaType: MediaType,
     @ColumnInfo(name = "artistId") val artistId: Long
 )

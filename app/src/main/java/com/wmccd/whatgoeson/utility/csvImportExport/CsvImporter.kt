@@ -8,6 +8,8 @@ import kotlin.text.toBoolean
 import android.util.Log
 import com.opencsv.CSVReader
 import com.wmccd.whatgoeson.MyApplication
+import com.wmccd.whatgoeson.presentation.screens.common.MediaType
+import com.wmccd.whatgoeson.repository.database.Converters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.InputStream
@@ -35,14 +37,20 @@ class CsvImporter(
                 val albums = mutableListOf<Album>()
                 val artists = mutableListOf<Artist>()
 
+                val converters = Converters()
                 for (line in dataLines) {
-                    // Assuming CSV format: albumId,albumName,albumUrl,albumFavourite,artistId,artistName
+                    // Assuming CSV format: albumId,albumName,albumUrl,albumFavourite,artistId,artistName,media,release
                     val albumId = line[0]
                     val albumName = line[1]
                     val albumUrl = line[2]
                     val albumFavourite = line[3].toBoolean()
                     val artistId = line[4]
                     val artistName = line[5]
+                    val mediaType = runCatching {
+                        line[6]
+                    }.getOrElse {
+                        MediaType.VINYL.name
+                    }
 
                     albums.add(
                         Album(
@@ -50,7 +58,8 @@ class CsvImporter(
                             name = albumName.replace(CsvConstants.COMMA_DELIMITER, ","),
                             imageUrl = albumUrl,
                             isFavourite = albumFavourite,
-                            artistId = artistId.toLong()
+                            artistId = artistId.toLong(),
+                            mediaType = converters.toMediaType(mediaType),
                         )
                     )
                     artists.add(

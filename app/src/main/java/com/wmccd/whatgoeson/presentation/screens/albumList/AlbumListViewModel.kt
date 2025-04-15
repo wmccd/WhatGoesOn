@@ -156,6 +156,7 @@ class AlbumListViewModel(
                     name = album.albumName,
                     imageUrl = album.albumUrl,
                     artistId = album.artistId,
+                    mediaType = album.mediaType,
                     isFavourite = isFavourite
                 )
             )
@@ -179,6 +180,7 @@ class AlbumListViewModel(
                     id =  album.albumId,
                     name = album.albumName,
                     imageUrl = album.albumUrl,
+                    mediaType = album.mediaType,
                     artistId = album.artistId
                 )
             )

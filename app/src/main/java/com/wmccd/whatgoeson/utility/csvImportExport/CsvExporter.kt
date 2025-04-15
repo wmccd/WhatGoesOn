@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.core.content.FileProvider
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.repository.database.AlbumDao
+import com.wmccd.whatgoeson.repository.database.Converters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
@@ -26,13 +27,15 @@ class CsvExporter(
                         ?: emptyList()
 
                 // 2. Format Data (CSV)
+                val converters = Converters()
                 val csvContent = buildString {
                     // CSV Header
                     appendLine(CsvConstants.CSV_FIELD_ORDER)
                     allDetails.forEach {
                         val albumName = it.albumName.replace(",", CsvConstants.COMMA_DELIMITER)
                         val artistName = it.artistName.replace(",", CsvConstants.COMMA_DELIMITER)
-                        appendLine("${it.albumId},$albumName,${it.albumUrl},${it.albumFavourite},${it.artistId},$artistName")
+                        val mediaType = converters.fromMediaType(it.mediaType)
+                        appendLine("${it.albumId},$albumName,${it.albumUrl},${it.albumFavourite},${it.artistId},$artistName,$mediaType,")
                     }
                 }
 
