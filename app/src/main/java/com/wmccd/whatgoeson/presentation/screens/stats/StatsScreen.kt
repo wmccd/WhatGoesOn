@@ -184,11 +184,11 @@ private fun ArtistRow(
     onEvent: (StatsEvents) -> Unit = {},
     it: Int
 ) {
-    val externalDestinationRowDisplayed = remember { mutableStateOf(false) }
+
     Column {
         Row(
             modifier = Modifier.fillMaxWidth().clickable {
-                externalDestinationRowDisplayed.value = !externalDestinationRowDisplayed.value
+                onEvent(StatsEvents.ArtistClicked(data.artistAlbumCount[it].artistName))
             },
         ) {
             Text(
@@ -202,7 +202,7 @@ private fun ArtistRow(
                 color = MaterialTheme.colorScheme.primary
             )
         }
-        AnimatedVisibility(externalDestinationRowDisplayed.value) {
+        AnimatedVisibility(data.artistSelectedForDetails == data.artistAlbumCount[it].artistName) {
             Row{
                 ExternalArtistDestinationRow(
                     artistName = data.artistAlbumCount[it].artistName,

@@ -7,7 +7,6 @@ import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.presentation.screens.common.MediaType
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.repository.database.AlbumArtistCount
-import com.wmccd.whatgoeson.utility.chromeTab.CustomTab
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayerFactory
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -101,7 +100,17 @@ class StatsViewModel(
         when (event) {
             StatsEvents.ButtonClicked -> onActionButtonClicked()
             is StatsEvents.MusicPlayerTapped -> onMusicPlayerTapped(event.artistName, event.musicPlayer)
+            is StatsEvents.ArtistClicked -> onArtistClicked(event.artistName)
         }
+    }
+
+    private fun onArtistClicked(artistName: String?) {
+        val showingExpanded = artistName == uiState.value.data?.artistSelectedForDetails
+        _uiState.value = uiState.value.copy(
+            data = uiState.value.data?.copy(
+                artistSelectedForDetails = if (showingExpanded) null else artistName
+            )
+        )
     }
 
     private fun onMusicPlayerTapped(
@@ -142,7 +151,7 @@ data class StatsUiData(
     val digitalCount: Int = 0,
     val vinylCount: Int = 0,
     val artistAlbumCount: List<AlbumArtistCount> = emptyList(),
-    val externalDestinationEnabled:Boolean = false,
+    val artistSelectedForDetails: String? = null,
     val spotifyInstalled:Boolean = false,
     val youTubeMusicInstalled:Boolean = false,
 )
@@ -150,4 +159,5 @@ data class StatsUiData(
 sealed interface StatsEvents {
     data object ButtonClicked : StatsEvents
     data class MusicPlayerTapped(val artistName: String, val musicPlayer: MusicPlayer) : StatsEvents
+    data class ArtistClicked(val artistName: String?) : StatsEvents
 }

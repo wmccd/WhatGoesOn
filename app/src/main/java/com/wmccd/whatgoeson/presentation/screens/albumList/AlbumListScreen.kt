@@ -1,8 +1,6 @@
 package com.wmccd.whatgoeson.presentation.screens.albumList
 
 import android.annotation.SuppressLint
-import android.speech.tts.TextToSpeech
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -32,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,12 +41,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -282,7 +277,8 @@ private fun DisplayAlbumList(
                 album = albumList[index],
                 spotifyEnabled = data.spotifyInstalled,
                 youTubeMusicEnabled = data.youTubeMusicInstalled,
-                onEvent = onEvent
+                onEvent = onEvent,
+                expandedDisplay = data.albumSelectedForDetails == albumList[index].albumId
             )
             HorizontalDivider()
         }
@@ -358,17 +354,15 @@ fun AlbumItem(
     spotifyEnabled: Boolean,
     youTubeMusicEnabled: Boolean,
     onEvent: (AlbumListEvents) -> Unit,
+    expandedDisplay: Boolean = false
 ) {
-    val externalDestinationRowDisplayed = remember { mutableStateOf(false) }
-
     Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .combinedClickable(
                     onClick = {
-                        externalDestinationRowDisplayed.value =
-                            !externalDestinationRowDisplayed.value
+                        onEvent(AlbumListEvents.AlbumClicked(album.albumId))
                     },
                     onLongClick = {
                         onEvent(AlbumListEvents.AlbumLongClicked(true, album))
@@ -410,7 +404,7 @@ fun AlbumItem(
             }
             FavouriteIcon(onEvent, album)
         }
-        AnimatedVisibility(externalDestinationRowDisplayed.value){
+        AnimatedVisibility(expandedDisplay){
             ExternalAlbumDestinationRow(
                 albumName = album.albumName,
                 artistName = album.artistName,

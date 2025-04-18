@@ -107,7 +107,17 @@ class AlbumListViewModel(
             is AlbumListEvents.MarkAsFavourite -> onMarkAsFavourite(event.isFavourite, event.album)
             is AlbumListEvents.SortOrderClicked -> onSortOrderClicked(event.albumSort)
             is AlbumListEvents.MusicPlayerTapped -> onMusicPlayerTapped(event.albumName, event.artistName, event.musicPlayer)
+            is AlbumListEvents.AlbumClicked -> onAlbumClicked(event.albumId)
         }
+    }
+
+    private fun onAlbumClicked(albumId: Long?) {
+        val showingExpanded = albumId == uiState.value.data?.albumSelectedForDetails
+        _uiState.value = uiState.value.copy(
+            data = uiState.value.data?.copy(
+                albumSelectedForDetails = if (showingExpanded) null else albumId
+            )
+        )
     }
 
     private fun onMusicPlayerTapped(
@@ -210,6 +220,7 @@ data class AlbumListUiData(
     val albumList: List<AlbumWithArtistName>? = null,
     val displayDeleteDialog: Boolean = false,
     val albumSelectedForDelete: AlbumWithArtistName? = null,
+    val albumSelectedForDetails: Long? = null,
     val albumSort: AlbumSort = AlbumSort.AZ_ALBUMS,
     val filterChar: Char? = null,
     val chromeTabSearch: String? = null,
@@ -227,6 +238,7 @@ enum class AlbumSort {
 
 sealed interface AlbumListEvents {
     data object ButtonClicked : AlbumListEvents
+    data class AlbumClicked(val albumId: Long?) : AlbumListEvents
     data class AlbumLongClicked(val clicked: Boolean, val album: AlbumWithArtistName?) : AlbumListEvents
     data class DeleteAlbum(val album: AlbumWithArtistName) : AlbumListEvents
     data class MarkAsFavourite(val isFavourite: Boolean, val album: AlbumWithArtistName) : AlbumListEvents
