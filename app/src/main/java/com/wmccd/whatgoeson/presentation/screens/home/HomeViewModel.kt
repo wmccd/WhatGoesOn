@@ -11,6 +11,7 @@ import com.wmccd.whatgoeson.repository.webservice.gemini.models.RecommendationRe
 import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.SimilarAlbums
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayerFactory
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class HomeViewModel(
     mockedUiStateForTestingAndPreviews: HomeUiState? = null
@@ -134,31 +136,43 @@ class HomeViewModel(
             HomeEvents.AlbumTapped -> onAlbumTapped()
             HomeEvents.InformationTapped -> onInformationTapped()
             HomeEvents.SearchTapped -> onSearchTapped()
-            HomeEvents.FlipToCardFront -> onFlipToCardFront()
+            HomeEvents.CloseOverlay -> onCloseOverlay()
         }
     }
 
-    private fun onFlipToCardFront() {
-        val currentValue = uiState.value.data?.showFrontCard ?: true
+    private fun onCloseOverlay() {
+        val currentValue = uiState.value.data?.showOverlay ?: true
         viewModelScope.launch {
             _uiState.value = uiState.value.copy(
                 data = uiState.value.data?.copy(
-                    showFrontCard = !currentValue
+                    showOverlay = !currentValue
                 )
             )
         }
     }
 
     private fun onSearchTapped() {
+        MyApplication.utilities.logger.log(Log.INFO, TAG, "onSearchTapped")
+        _uiState.value = uiState.value.copy(
+            data = uiState.value.data?.copy(
+                showOverlay = true,
+                showRecommendations = true,
+                showInformation = false
+            )
+        )
         val album = _uiState.value.data?.albumName.orEmpty()
         val artist = _uiState.value.data?.artistName.orEmpty()
         try{
-            val recommendationResponse = SimilarAlbums().getSimilarAlbumsDirect(album, artist)
-            _uiState.value = uiState.value.copy(
-                data = uiState.value.data?.copy(
-                    recommendations = recommendationResponse
+            MyApplication.utilities.logger.log(Log.INFO, TAG, "Before runBlocking")
+            SimilarAlbums().getSimilarAlbumsDirect(album, artist,{
+                MyApplication.utilities.logger.log(Log.INFO, TAG, "In success callback ${it}")
+                _uiState.value = uiState.value.copy(
+                    data = uiState.value.data?.copy(
+                        recommendations = it
+                    )
                 )
-            )
+            })
+            MyApplication.utilities.logger.log(Log.INFO, TAG, "updated uiState")
         } catch (ex: Exception) {
             MyApplication.utilities.logger.log(Log.ERROR, TAG, "Similar Album onFailure", ex)
         }
@@ -229,7 +243,9 @@ data class HomeUiData(
     val youTubeMusicInstalled:Boolean = false,
     val externalDestinationEnabled:Boolean = false,
     val recommendations:  List<RecommendationResponse.Recommendation> = emptyList(),
-    val showFrontCard: Boolean = true
+    val showOverlay: Boolean = false,
+    val showRecommendations: Boolean = false,
+    val showInformation: Boolean = false,
 )
 
 enum class AlbumFavouriteFilter {
@@ -245,5 +261,5 @@ sealed interface HomeEvents {
     data object AlbumTapped :HomeEvents
     data object InformationTapped :HomeEvents
     data object SearchTapped :HomeEvents
-    data object FlipToCardFront: HomeEvents
+    data object CloseOverlay: HomeEvents
 }

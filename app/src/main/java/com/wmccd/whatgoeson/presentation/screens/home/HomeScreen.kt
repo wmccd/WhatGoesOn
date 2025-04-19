@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -24,8 +26,10 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,6 +50,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -133,6 +138,10 @@ private fun DisplayData(
         ) {
             when{
                 data?.noAlbumsStored == true -> NoAlbums()
+                data?.showOverlay == true-> DisplayOverLay(
+                    data = data,
+                    onEvent = onEvent
+                )
                 else -> AlbumDetails(
                     data = data,
                     albumFavouriteFilter = albumFavouriteFilter,
@@ -144,6 +153,52 @@ private fun DisplayData(
     }
 }
 
+@Composable
+fun DisplayOverLay(
+    data: HomeUiData?,
+    onEvent: (HomeEvents) -> Unit = {}
+) {
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .clickable {
+                onEvent(
+                    HomeEvents.CloseOverlay
+                )
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        data?.let{
+            if(data.showRecommendations) {
+                DisplayRecommendations(data)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DisplayRecommendations(data: HomeUiData) {
+
+    if(data.recommendations.isEmpty()){
+        CircularProgressIndicator()
+    } else {
+        data.recommendations.forEach {
+            Text(
+                text = it.album_name,
+                style = MaterialTheme.typography.headlineMedium,
+            )
+            Text(
+                text = it.artist,
+                fontWeight = FontWeight.Bold
+            )
+            Text(it.release_year)
+            Text(it.details)
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+        }
+    }
+}
 
 
 @Composable
