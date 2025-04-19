@@ -1,7 +1,11 @@
 package com.wmccd.whatgoeson.presentation.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +20,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,9 +35,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -149,48 +162,61 @@ private fun AlbumDetails(
             onEvent = onEvent
         )
         Column(
-            modifier = Modifier.fillMaxSize().weight(1f),
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (noFilterMatches) {
-                NoFilterMatches()
-            }else {
-                FilterMatches(data, onEvent)
+            when{
+                noFilterMatches ->NoFilterMatches()
+                else -> FrontCard(data, onEvent)
             }
         }
-        if(!noFilterMatches && data != null) {
-            AnimatedVisibility(data.externalDestinationEnabled) {
-                ExternalAlbumDestinationRow(
-                    albumName = data.albumName ?: "",
-                    artistName = data.artistName ?: "",
-                    spotifyEnabled = MyApplication.device.spotifyInstalled,
-                    youTubeMusicEnabled = MyApplication.device.youTubeMusicInstalled,
-                    onSpotifyTapped = {
-                        onEvent(
-                            HomeEvents.MusicPlayerTapped(
-                                albumName = data.albumName ?: "",
-                                artistName = data.artistName ?: "",
-                                musicPlayer = MusicPlayer.SPOTIFY
-                            )
-                        )
-                    },
-                    onYouTubeMusicTapped = {
-                        onEvent(
-                            HomeEvents.MusicPlayerTapped(
-                                albumName = data.albumName ?: "",
-                                artistName = data.artistName ?: "",
-                                musicPlayer = MusicPlayer.YOUTUBE_MUSIC
-                            )
-                        )
-                    }
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-        }
+        DisplayExternalRow(
+            display = noFilterMatches,
+            data =data,
+            onEvent = onEvent
+        )
     }
 }
 
+@Composable
+private fun ColumnScope.DisplayExternalRow(
+    display: Boolean,
+    data: HomeUiData?,
+    onEvent: (HomeEvents) -> Unit
+) {
+    if (!display && data != null) {
+        AnimatedVisibility(data.externalDestinationEnabled) {
+            ExternalAlbumDestinationRow(
+                albumName = data.albumName ?: "",
+                artistName = data.artistName ?: "",
+                spotifyEnabled = MyApplication.device.spotifyInstalled,
+                youTubeMusicEnabled = MyApplication.device.youTubeMusicInstalled,
+                onSpotifyTapped = {
+                    onEvent(
+                        HomeEvents.MusicPlayerTapped(
+                            albumName = data.albumName ?: "",
+                            artistName = data.artistName ?: "",
+                            musicPlayer = MusicPlayer.SPOTIFY
+                        )
+                    )
+                },
+                onYouTubeMusicTapped = {
+                    onEvent(
+                        HomeEvents.MusicPlayerTapped(
+                            albumName = data.albumName ?: "",
+                            artistName = data.artistName ?: "",
+                            musicPlayer = MusicPlayer.YOUTUBE_MUSIC
+                        )
+                    )
+                }
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
 
 
 @Composable
@@ -203,7 +229,7 @@ fun NoFilterMatches() {
 }
 
 @Composable
-private fun ColumnScope.FilterMatches(
+private fun ColumnScope.FrontCard(
     data: HomeUiData?,
     onEvent: (HomeEvents) -> Unit = {},
     ) {
@@ -213,36 +239,79 @@ private fun ColumnScope.FilterMatches(
     if(fetchedImageFor.value != data?.albumName){
         fetchedImageSuccessful.value = true
     }
-    Column(
+    Card(
         modifier = Modifier
-            .fillMaxSize()
-            .weight(1f)
-            .clickable {
-            onEvent(HomeEvents.AlbumTapped)
-        },
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxWidth()
+            .align(Alignment.CenterHorizontally),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        )
     ) {
-        Text(
-            text = "${data?.albumName}",
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            text = "${data?.artistName}",
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(24.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f)
+                .clickable {
+                    onEvent(HomeEvents.AlbumTapped)
+                },
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "${data?.albumName}",
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "${data?.artistName}",
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(24.dp))
 
-        AnimatedVisibility(fetchedImageSuccessful.value) {
-            MyInternetImage(
-                imageUrl = data?.albumArtUrl.orEmpty(),
-                successful = {
-                    fetchedImageSuccessful.value = it
-                    fetchedImageFor.value = data?.albumName.toString()
-                }
+            AnimatedVisibility(fetchedImageSuccessful.value) {
+                MyInternetImage(
+                    imageUrl = data?.albumArtUrl.orEmpty(),
+                    successful = {
+                        fetchedImageSuccessful.value = it
+                        fetchedImageFor.value = data?.albumName.toString()
+                    }
+                )
+            }
+            DisplayAiIconsRow(
+                onEvent = onEvent
             )
         }
+    }
+}
+
+@Composable
+private fun DisplayAiIconsRow(
+    onEvent: (HomeEvents) -> Unit = {},
+) {
+    Row(
+        modifier = Modifier
+            .padding(vertical = 12.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Icon(
+            imageVector = Icons.Default.Info,
+            contentDescription = null,
+            modifier = Modifier
+                .padding(8.dp)
+                .clickable {
+                    onEvent(HomeEvents.InformationTapped)
+                },
+        )
+        Icon(
+            imageVector = Icons.Outlined.Search,
+            contentDescription = null,
+            modifier = Modifier
+                .padding(8.dp)
+                .clickable {
+                    onEvent(HomeEvents.SearchTapped)
+                },
+        )
     }
 }
 
@@ -307,6 +376,53 @@ private fun StickyFilters(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FlippableCard(
+    frontContent: @Composable () -> Unit,
+    backContent: @Composable () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isFlipped by remember { mutableStateOf(false) }
+    val rotation by animateFloatAsState(
+        targetValue = if (isFlipped) 180f else 0f,
+        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
+        label = "Flip Animation"
+    )
+
+    Box(
+        modifier = modifier
+            .clickableWithoutRipple { isFlipped = !isFlipped }
+            .rotate(rotation)
+            .clip(RectangleShape) // Optional: Clip to a rectangle
+    ) {
+        if (rotation <= 90f || rotation >= 270f) {
+            Card(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    frontContent()
+                }
+            }
+        } else {
+            Card(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    backContent()
+                }
+            }
+        }
+    }
+}
+
+// Helper function to disable ripple effect
+@Composable
+fun Modifier.clickableWithoutRipple(onClick: () -> Unit): Modifier =
+    this.then(
+        Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = onClick
+        )
+    )
 
 @Preview
 @Composable

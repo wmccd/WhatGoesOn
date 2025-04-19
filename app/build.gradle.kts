@@ -1,3 +1,4 @@
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -19,16 +20,25 @@ android {
         versionName = "1.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
         defaultConfig {
-            buildConfigField("String", "SETLIST_FM_API_KEY", "\"LKayaEKoot_9c3Er00S45L2y1BsAtWzPMEct\"")
 
             //local.properties file automatically excluded from Git
             //Use this technique to stop api key from being committed to Git
             //buildConfigField("String", "API_KEY", localProperties.getProperty("API_KEY", "\"\""))
-        }
+
+            val properties = Properties()
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                properties.load(localPropertiesFile.inputStream())
+            }
+
+            buildConfigField("String", "GEMINI_API_KEY", "\"${properties.getProperty("gemini.api.key") ?: ""}\"")
+            buildConfigField("String", "SETLIST_FM_API_KEY", "\"${properties.getProperty("setlist.api.key") ?: ""}\"")
+         }
 
         release {
             isMinifyEnabled = false

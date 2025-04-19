@@ -1,4 +1,4 @@
-package com.wmccd.whatgoeson.repository.webservice.responsemodels
+package com.wmccd.whatgoeson.repository.webservice.setlist.responsemodels
 
 import com.google.gson.annotations.SerializedName
 

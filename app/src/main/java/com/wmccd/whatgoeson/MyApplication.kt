@@ -1,14 +1,12 @@
 package com.wmccd.whatgoeson
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import androidx.room.Room
 import com.google.gson.Gson
 import com.wmccd.whatgoeson.repository.database.AppDatabase
 import com.wmccd.whatgoeson.repository.datastore.AppDataStore
-import com.wmccd.whatgoeson.repository.webservice.SetListFmApi
-import com.wmccd.whatgoeson.repository.webservice.SetListFmRepository
+import com.wmccd.whatgoeson.repository.webservice.setlist.api.SetListFmApiService
+import com.wmccd.whatgoeson.repository.webservice.setlist.SetListFmRepository
 import com.wmccd.whatgoeson.utility.device.InstalledAppChecker
 import com.wmccd.whatgoeson.utility.logger.ILogger
 import com.wmccd.whatgoeson.utility.logger.Logger
@@ -47,7 +45,7 @@ class MyApplication : Application() {
 
     private fun createAppDatabaseInstance() = AppDatabase.getDatabase(this)
 
-    private fun createSetListFmApiInstance(): SetListFmApi{
+    private fun createSetListFmApiInstance(): SetListFmApiService {
         //sets up the logging interceptor that will send request and response data to logcat
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY // Set the desired logging level
@@ -63,18 +61,18 @@ class MyApplication : Application() {
 
         //set up the Retrofit instance that will call all the service end points at the base URL
         val retrofit = Retrofit.Builder()
-            .baseUrl(SetListFmApi.BASE_URL)
+            .baseUrl(SetListFmApiService.BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        return retrofit.create(SetListFmApi::class.java)
+        return retrofit.create(SetListFmApiService::class.java)
     }
 
     //Gather all the sources of data into one object so easier to work with
     data class Repository(
         val appDataStore: AppDataStore,
         val appDatabase: AppDatabase,
-        val setListFmApi: SetListFmApi,
+        val setListFmApiService: SetListFmApiService,
         val setListFmRepository: SetListFmRepository
     )
 

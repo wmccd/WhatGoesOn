@@ -1,7 +1,7 @@
-package com.wmccd.whatgoeson.repository.webservice
+package com.wmccd.whatgoeson.repository.webservice.setlist.api
 
 import com.wmccd.whatgoeson.BuildConfig
-import com.wmccd.whatgoeson.repository.webservice.responsemodels.ArtistSearchResult
+import com.wmccd.whatgoeson.repository.webservice.setlist.responsemodels.ArtistSearchResult
 import retrofit2.Response //// Ensure you're importing the correct Response class
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -9,7 +9,7 @@ import retrofit2.http.Query
 
 //https://publicapis.dev/category/music
 
-interface SetListFmApi {
+interface SetListFmApiService {
     @GET("search/artists")
     suspend fun searchArtists(
         @Query("artistName") artistName: String,

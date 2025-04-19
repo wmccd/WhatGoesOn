@@ -7,6 +7,8 @@ import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.presentation.screens.albumList.AlbumListEvents
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.repository.database.Album
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.RecommendationResponse
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.SimilarAlbums
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayerFactory
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -130,7 +132,39 @@ class HomeViewModel(
             is HomeEvents.AlbumFilterSortClicked -> onAlbumFilterSortClicked(event.albumFavouriteFilter)
             is HomeEvents.MusicPlayerTapped -> onMusicPlayerTapped(event.albumName, event.artistName, event.musicPlayer)
             HomeEvents.AlbumTapped -> onAlbumTapped()
+            HomeEvents.InformationTapped -> onInformationTapped()
+            HomeEvents.SearchTapped -> onSearchTapped()
+            HomeEvents.FlipToCardFront -> onFlipToCardFront()
         }
+    }
+
+    private fun onFlipToCardFront() {
+        val currentValue = uiState.value.data?.showFrontCard ?: true
+        viewModelScope.launch {
+            _uiState.value = uiState.value.copy(
+                data = uiState.value.data?.copy(
+                    showFrontCard = !currentValue
+                )
+            )
+        }
+    }
+
+    private fun onSearchTapped() {
+        val album = _uiState.value.data?.albumName.orEmpty()
+        val artist = _uiState.value.data?.artistName.orEmpty()
+        try{
+            val recommendationResponse = SimilarAlbums().getSimilarAlbumsDirect(album, artist)
+            _uiState.value = uiState.value.copy(
+                data = uiState.value.data?.copy(
+                    recommendations = recommendationResponse
+                )
+            )
+        } catch (ex: Exception) {
+            MyApplication.utilities.logger.log(Log.ERROR, TAG, "Similar Album onFailure", ex)
+        }
+    }
+
+    private fun onInformationTapped() {
     }
 
     private fun onAlbumTapped() {
@@ -194,6 +228,8 @@ data class HomeUiData(
     val spotifyInstalled:Boolean = false,
     val youTubeMusicInstalled:Boolean = false,
     val externalDestinationEnabled:Boolean = false,
+    val recommendations:  List<RecommendationResponse.Recommendation> = emptyList(),
+    val showFrontCard: Boolean = true
 )
 
 enum class AlbumFavouriteFilter {
@@ -207,5 +243,7 @@ sealed interface HomeEvents {
     data class AlbumFilterSortClicked(val albumFavouriteFilter: AlbumFavouriteFilter) : HomeEvents
     data class MusicPlayerTapped(val albumName: String, val artistName: String, val musicPlayer: MusicPlayer) :HomeEvents
     data object AlbumTapped :HomeEvents
-
+    data object InformationTapped :HomeEvents
+    data object SearchTapped :HomeEvents
+    data object FlipToCardFront: HomeEvents
 }

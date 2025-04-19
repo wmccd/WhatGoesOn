@@ -66,7 +66,7 @@ class Feature1TopScreenViewModel(
     }
 
     private suspend fun fetchUiData(): Feature1TopScreenUiData{
-        val response = MyApplication.repository.setListFmApi.searchArtists("The Beatles")
+        val response = MyApplication.repository.setListFmApiService.searchArtists("The Beatles")
         return Feature1TopScreenUiData(
             randomText = MyApplication.repository.appDataStore.userNameFlow.first().orEmpty(),
             randomLong = System.currentTimeMillis(),
