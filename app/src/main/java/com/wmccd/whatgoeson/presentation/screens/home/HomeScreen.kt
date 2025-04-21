@@ -228,11 +228,11 @@ private fun DisplayAlbumInformation(data: HomeUiData) {
 @Composable
 private fun AlbumInformationRecording(album: Album) {
     SectionTitle("Recording")
-    Text(text = "Dates",modifier = Modifier.padding(top = 8.dp).fillMaxWidth())
+    SectionLabel("Dates")
     Text(text = album.recordingDetails?.dates.orEmpty(), modifier = Modifier.fillMaxWidth())
-    Text(text = "Location",modifier = Modifier.padding(top = 8.dp).fillMaxWidth())
+    SectionLabel("Location")
     Text(text = album.recordingDetails?.location.orEmpty(), modifier = Modifier.fillMaxWidth())
-    Text(text = "Notes",modifier = Modifier.padding(top = 8.dp).fillMaxWidth())
+    SectionLabel("Notes")
     Text(text = album.recordingDetails?.notes.orEmpty(), modifier = Modifier.fillMaxWidth())
     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 }
@@ -240,33 +240,15 @@ private fun AlbumInformationRecording(album: Album) {
 @Composable
 private fun AlbumInformationBackground(album: Album) {
     SectionTitle("Background")
-    Text(
-        text = "Context:",
-        modifier = Modifier
-            .padding(top = 8.dp)
-            .fillMaxWidth(),
-    )
-    Text(
-        text = album.background?.context.orEmpty(),
-    )
-    Text(
-        text = "Influence:",
-        modifier = Modifier
-            .padding(top = 8.dp)
-            .fillMaxWidth(),
-    )
-    Text(
-        text = album.background?.influence.orEmpty(),
-    )
-    Text(
-        text = "Also:",
-        modifier = Modifier
-            .padding(top = 8.dp)
-            .fillMaxWidth(),
-    )
-    Text(
-        text = album.background?.interestingAnecdote.orEmpty(),
-    )
+
+    SectionLabel("Context")
+    Text(text = album.background?.context.orEmpty(),)
+
+    SectionLabel("Influence")
+    Text(text = album.background?.influence.orEmpty(),)
+
+    SectionLabel("Also")
+    Text(text = album.background?.interestingAnecdote.orEmpty(),)
     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 }
 
@@ -280,12 +262,8 @@ private fun AlbumInformationReception(album: Album) {
             .fillMaxWidth(),
     )
     album.reception?.sources?.forEach { source ->
-        Text(
-            text = "${source.source} - ${source.rating}",
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .fillMaxWidth(),
-        )
+        val sourcesAndRating = source.source + if (source.rating.isNullOrEmpty()) "" else " - ${source.rating}"
+        SectionLabel(sourcesAndRating)
         Text(
             text = "\"${source.reviewSnippet}\"",
             fontStyle = FontStyle.Italic
@@ -298,13 +276,7 @@ private fun AlbumInformationReception(album: Album) {
 private fun AlbumInformationPlayers(album: Album) {
     SectionTitle("Players")
     album.musicians.forEach { musician ->
-        Text(
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .fillMaxWidth(),
-            text = "${musician.name}",
-            fontWeight = FontWeight.Bold
-        )
+        SectionLabel("${musician.name}")
         Text(
             text = musician.instruments.toString().drop(1).dropLast(1),
             modifier = Modifier.fillMaxWidth()
@@ -339,6 +311,17 @@ private fun SectionTitle(title: String) {
 }
 
 @Composable
+private fun SectionLabel(label: String) {
+    Text(
+        text = label,
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .fillMaxWidth(),
+        fontWeight = FontWeight.Bold
+    )
+}
+
+@Composable
 private fun AlbumInformationMain(album: Album) {
     Text(
         text = album.title.orEmpty(),
@@ -348,7 +331,8 @@ private fun AlbumInformationMain(album: Album) {
     )
     Text(
         text = album.artist.orEmpty(),
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
+        fontWeight = FontWeight.Bold
     )
     Text(
         text = "Released: ${album.releaseDate.orEmpty()}",
@@ -360,11 +344,11 @@ private fun AlbumInformationMain(album: Album) {
 
 @Composable
 private fun AlbumInformationCredits(album: Album) {
-    Text("Label", modifier = Modifier.fillMaxWidth().padding(top=8.dp))
+    SectionLabel("Label")
     Text(album.label.orEmpty(), modifier = Modifier.fillMaxWidth())
-    Text("Producer(s)", modifier = Modifier.fillMaxWidth().padding(top=8.dp))
+    SectionLabel("Producer(s)")
     Text(album.producer.orEmpty(), modifier = Modifier.fillMaxWidth())
-    Text("Genre(s)", modifier = Modifier.fillMaxWidth().padding(top=8.dp))
+    SectionLabel("Genre(s)")
     Text(album.genre.toString().drop(1).dropLast(1), modifier = Modifier.fillMaxWidth())
     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 }

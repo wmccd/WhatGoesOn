@@ -2,7 +2,6 @@ package com.wmccd.whatgoeson.repository.webservice.gemini.prompts
 
 import GeminiApiClient
 import android.util.Log
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.AlbumInformationModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wmccd.whatgoeson.BuildConfig
@@ -13,6 +12,7 @@ import com.wmccd.whatgoeson.repository.webservice.gemini.GeminiNetworkException
 import com.wmccd.whatgoeson.repository.webservice.gemini.GeminiParsingException
 import com.wmccd.whatgoeson.repository.webservice.gemini.models.GeminiRequest
 import com.wmccd.whatgoeson.repository.webservice.gemini.models.GeminiResponse
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.AlbumInformationModel
 import com.wmccd.whatgoeson.repository.webservice.gemini.models.similaralbums.SimilarAlbumsResponse
 import retrofit2.Call
 import retrofit2.Callback
@@ -36,7 +36,6 @@ class TriggerGeminiPrompt {
             success = promptModel.success as (Any) -> Unit,
             failure = promptModel.failure
         )
-        //            prompt = "Tell me about the album ${promptModel.albumName} by ${promptModel.artist}. Include a section for reviews of the album. Mention any significant cultural references to the songs or well recieved cover versions. Format it using simple html.",
     }
 
     fun simplePrompt(promptModel: SimplePromptModel){
