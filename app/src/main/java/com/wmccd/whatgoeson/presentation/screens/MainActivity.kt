@@ -37,12 +37,9 @@ import androidx.navigation.compose.rememberNavController
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.albumList.AlbumListScreen
-import com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen1.Feature1SubScreen1
-import com.wmccd.whatgoeson.presentation.screens.feature1.feature1subscreen2.Feature1SubScreen2
-import com.wmccd.whatgoeson.presentation.screens.feature1.feature1topscreen.Feature1TopScreen
-import com.wmccd.whatgoeson.presentation.screens.newAlbum.NewAlbumScreen
-import com.wmccd.whatgoeson.presentation.screens.feature3.feature3topscreen.Feature3TopScreen
 import com.wmccd.whatgoeson.presentation.screens.home.HomeScreen
+import com.wmccd.whatgoeson.presentation.screens.newAlbum.NewAlbumScreen
+import com.wmccd.whatgoeson.presentation.screens.questions.QuestionsScreen
 import com.wmccd.whatgoeson.presentation.screens.settings.SettingsScreen
 import com.wmccd.whatgoeson.presentation.screens.stats.StatsScreen
 import com.wmccd.whatgoeson.presentation.theme.MyAppTheme
@@ -241,9 +238,8 @@ private fun DisplayBottomBar(
                 DisplayBottomBarItem(navController, NavigationEnum.NewAlbumScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.AlbumListScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.StatsScreen, selectedScreen)
+                DisplayBottomBarItem(navController, NavigationEnum.QuestionsScreen, selectedScreen)
                 DisplayBottomBarItem(navController, NavigationEnum.SettingsScreen, selectedScreen)
-                //DisplayBottomBarItem(navController, NavigationEnum.Feature3TopScreen, selectedScreen)
-                //DisplayBottomBarItem(navController, NavigationEnum.Feature1TopScreen, selectedScreen)
             }
         }
     }
@@ -279,7 +275,6 @@ private fun NavigationControl(
     navController: NavHostController,
     innerPadding: PaddingValues
 ) {
-
     //Acts like a content page for all the screens that can be navigated to
     NavHost(
         navController = navController,
@@ -288,13 +283,10 @@ private fun NavigationControl(
     ) {
         //Declares all the screens that can be navigated to
         composable(NavigationEnum.HomeScreen.route) { HomeScreen(navController = navController) }
-        composable(NavigationEnum.Feature1TopScreen.route) { Feature1TopScreen(navController = navController) }
         composable(NavigationEnum.NewAlbumScreen.route) { NewAlbumScreen(navController = navController) }
-        composable(NavigationEnum.Feature3TopScreen.route) { Feature3TopScreen(navController = navController) }
-        composable(NavigationEnum.Feature1SubScreen1.route) { Feature1SubScreen1(navController = navController) }
-        composable(NavigationEnum.Feature1SubScreen2.route) { Feature1SubScreen2(navController = navController) }
         composable(NavigationEnum.AlbumListScreen.route) { AlbumListScreen(navController = navController) }
         composable(NavigationEnum.StatsScreen.route) { StatsScreen(navController = navController) }
+        composable(NavigationEnum.QuestionsScreen.route) { QuestionsScreen(navController = navController) }
         composable(NavigationEnum.SettingsScreen.route) { SettingsScreen(navController = navController) }
     }
 }

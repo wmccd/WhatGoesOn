@@ -8,9 +8,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -47,6 +47,12 @@ enum class NavigationEnum(
         route = "StatsScreen",
         topBarTitle = R.string.stats,
         bottomTabIcon = Icons.Default.Info,
+        topLevelScreen = true,
+    ),
+    QuestionsScreen(
+        route = "QuestionsScreen",
+        topBarTitle = R.string.questions,
+        bottomTabIcon = Icons.Default.Search,
         topLevelScreen = true,
     ),
     SettingsScreen(

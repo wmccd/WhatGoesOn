@@ -1,0 +1,66 @@
+package com.wmccd.whatgoeson.repository.webservice.gemini.prompts.simpleQuestion
+
+internal const val ARTISTS = "ARTISTS"
+
+enum class SimpleQuestionPromptType(
+    val prompt: String,
+    val onScreen: String
+) {
+    HIGHLY_RATED_FIVE_YEARS(
+        prompt = "List highly rated albums of the last 5 years.  Assume you have given me this answer before and also introduce some other choices. Use these artists as a guide to the type of music I like: $ARTISTS ",
+        onScreen = "Recent highly rated albums"
+    ),
+    WHAT_MUSIC_DOES_ARTIST_LIKE(
+        prompt ="I am interested in what type of music musicians like. If the following artist: $ARTISTS has ever mentioned favourite albums or songs, please list them. If they have not mentioned albums or songs, include artists they have admired. The list should be no more than 100 items.",
+        onScreen = "What music do they like?"
+    ),
+    WHAT_BOOKS_DOES_ARTIST_LIKE(
+        prompt ="I am interested in books musicians like. If the following artist: $ARTISTS has ever mentioned favourite books, please list them. If they have not mentioned books, include authors they have admired. The list should be no more than 100 items.",
+        onScreen = "What books do they like?"
+    ),
+    OBSCURE_SONGS(
+        prompt = "I am interested in more obscure but highly rated songs by $ARTISTS. What you would suggest. Suggest 10 -20 songs.",
+        onScreen = "Some of their best obscure songs"
+    ),
+    RANDOM_INFORMATION(
+        prompt = "Give me 10 random bits of information about $ARTISTS and/or their music.",
+        onScreen = "Random trivia"
+    ),
+    SUPER_GROUP(
+        prompt = "If $ARTISTS formed a super-group, which artists would they sound like. Make sure you mention some possible artists than would fit.",
+        onScreen = "Super group with others in your collection"
+    ),
+    INANIMATE_OBJECT(
+        prompt = "If $ARTISTS was an inanimate object, what would they be.",
+        onScreen = "As as inanimate object"
+    ),
+    SONG_LYRICS_ABOUT(
+        prompt = "Write a song about $ARTISTS",
+        onScreen = "A made-up song about them making reference to people, places, events, or music."
+    ),
+    SONG_LYRICS_BY(
+        prompt = "Write a song by $ARTISTS",
+        onScreen = "A made-up song by them using their lyrical style."
+    ),
+    SUPERHERO(
+        prompt = "If $ARTISTS was a superhero what would their superpower be and how would they use it. Would they be a rubbish superhero or a good superhero?",
+        onScreen = "As a superhero."
+    ),
+}
+
+enum class SimpleQuestionConditionalType(
+    val condition: String
+){
+    JSON_FORMAT(
+        condition = " The response should be in the following json format: {\"overview\":\"\",\"details\":[{\"label\":\"\",\"body\": \"\"}],\"summary\":\"\"}"
+    ),
+    NO_EXTRANEOUS_CHARACTERS(
+        condition = " Please do not use * characters in the response to indicate boldness"
+    ),
+    ENGLISH_ONLY(
+        condition = " Exclude any albums where the title is not in the English language."
+    ),
+    SOME_OBSCURE_CHOICES(
+        " Suggest some obscure choices. Assume you have given me this answer before and replace some of the initial choices."
+    ),
+}

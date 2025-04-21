@@ -5,11 +5,12 @@ import android.content.Context
 import com.google.gson.Gson
 import com.wmccd.whatgoeson.repository.database.AppDatabase
 import com.wmccd.whatgoeson.repository.datastore.AppDataStore
-import com.wmccd.whatgoeson.repository.webservice.setlist.api.SetListFmApiService
 import com.wmccd.whatgoeson.repository.webservice.setlist.SetListFmRepository
+import com.wmccd.whatgoeson.repository.webservice.setlist.api.SetListFmApiService
 import com.wmccd.whatgoeson.utility.device.InstalledAppChecker
 import com.wmccd.whatgoeson.utility.logger.ILogger
 import com.wmccd.whatgoeson.utility.logger.Logger
+import kotlinx.coroutines.MainScope
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -17,6 +18,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 class MyApplication : Application() {
+
+    val s = MainScope()
 
     override fun onCreate() {
         super.onCreate()

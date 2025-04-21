@@ -1,6 +1,5 @@
 package com.wmccd.whatgoeson.repository.database
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
@@ -15,10 +14,10 @@ import com.wmccd.whatgoeson.presentation.screens.common.MediaType
 import kotlinx.coroutines.flow.Flow
 
 const val ALBUM_TABLE_NAME = "Albums"
-private const val ALBUM_ID = "album_id"
 private const val ALBUM_NAME = "album_name"
 private const val ALBUM_URL = "album_url"
 private const val ALBUM_FAVOURITE = "album_favourite"
+private const val ARTIST_ID = "artist_id"
 const val MEDIA_TYPE = "media_type"
 
 
@@ -29,18 +28,18 @@ const val MEDIA_TYPE = "media_type"
         ForeignKey(
             entity = Artist::class,
             parentColumns = ["id"],
-            childColumns = ["artist_id"],
+            childColumns = [ARTIST_ID],
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
-data class Album @OptIn(ExperimentalFoundationApi::class) constructor(
+data class Album constructor(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = ALBUM_NAME) val name: String,
     @ColumnInfo(name = ALBUM_URL) val imageUrl: String,
     @ColumnInfo(name = ALBUM_FAVOURITE) val isFavourite: Boolean = false,
     @ColumnInfo(name = MEDIA_TYPE) val mediaType: MediaType = MediaType.VINYL,
-    @ColumnInfo(name = "artist_id") val artistId: Long
+    @ColumnInfo(name = ARTIST_ID) val artistId: Long
 )
 
 @Dao
@@ -80,7 +79,8 @@ interface AlbumDao {
     @Query(
         "SELECT " +
                 "Albums.album_name AS albumName, " +
-                "Albums.album_url AS albumUrl, " +
+                "Albums.alb" +
+                "um_url AS albumUrl, " +
                 "Albums.id AS albumId, " +
                 "Albums.album_favourite AS albumFavourite, " +
                 "Artists.artist_name AS artistName, " +

@@ -57,17 +57,19 @@ import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
 import com.wmccd.whatgoeson.presentation.screens.common.composables.ExternalAlbumDestinationRow
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyInternetImage
+import com.wmccd.whatgoeson.presentation.screens.common.composables.SectionLabel
+import com.wmccd.whatgoeson.presentation.screens.common.composables.SectionTitle
 import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayError
 import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.screens.NoAlbums
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Album
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.AlbumInformationModel
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Background
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Musicians
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Reception
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.RecordingDetails
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Sources
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Tracks
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.albuminformation.responsemodels.Album
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.albuminformation.responsemodels.AlbumInformationModel
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.albuminformation.responsemodels.Background
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.albuminformation.responsemodels.Musicians
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.albuminformation.responsemodels.Reception
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.albuminformation.responsemodels.RecordingDetails
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.albuminformation.responsemodels.Sources
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.albuminformation.responsemodels.Tracks
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
 import java.util.UUID
 
@@ -299,27 +301,7 @@ private fun AlbumInformationTracks(album: Album) {
     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 }
 
-@Composable
-private fun SectionTitle(title: String) {
-    Text(
-        text = title,
-        modifier = Modifier
-            .padding(vertical = 8.dp)
-            .fillMaxWidth(),
-        style = MaterialTheme.typography.titleLarge,
-    )
-}
 
-@Composable
-private fun SectionLabel(label: String) {
-    Text(
-        text = label,
-        modifier = Modifier
-            .padding(top = 8.dp)
-            .fillMaxWidth(),
-        fontWeight = FontWeight.Bold
-    )
-}
 
 @Composable
 private fun AlbumInformationMain(album: Album) {

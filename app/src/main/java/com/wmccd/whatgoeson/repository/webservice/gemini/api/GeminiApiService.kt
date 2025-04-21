@@ -1,7 +1,7 @@
 package com.wmccd.whatgoeson.repository.webservice.gemini.api
 
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.GeminiRequest
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.GeminiResponse
+import com.wmccd.whatgoeson.repository.webservice.gemini.common.GeminiRequest
+import com.wmccd.whatgoeson.repository.webservice.gemini.common.GeminiResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Header

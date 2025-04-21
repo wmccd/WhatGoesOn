@@ -3,14 +3,15 @@ package com.wmccd.whatgoeson.presentation.screens.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.AlbumInformationModel
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.repository.database.Album
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.similaralbums.SimilarAlbumsResponse
-import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.AlbumInformationPromptModel
-import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.SimilarAlbumPromptModel
-import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.TriggerGeminiPrompt
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.albuminformation.responsemodels.AlbumInformationModel
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.similaralbums.responsemodels.SimilarAlbumsResponse
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.albuminformation.AlbumInformationPromptModel
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.albuminformation.AlbumInformationPrompter
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.similaralbums.SimilarAlbumPrompter
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.similaralbums.SimilarAlbumPromptModel
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayerFactory
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -140,7 +141,6 @@ class HomeViewModel(
         }
     }
 
-
     private fun onCloseOverlay() {
         val currentValue = uiState.value.data?.showOverlay ?: true
         viewModelScope.launch {
@@ -165,7 +165,7 @@ class HomeViewModel(
         val artist = _uiState.value.data?.artistName.orEmpty()
         try{
             MyApplication.utilities.logger.log(Log.INFO, TAG, "Before runBlocking")
-            TriggerGeminiPrompt().similarAlbums(
+            SimilarAlbumPrompter().prompt(
                 SimilarAlbumPromptModel(
                     albumName = album,
                     artist = artist,
@@ -207,7 +207,7 @@ class HomeViewModel(
             val album = _uiState.value.data?.albumName.orEmpty()
             val artist = _uiState.value.data?.artistName.orEmpty()
 
-            TriggerGeminiPrompt().albumInformation(
+            AlbumInformationPrompter().prompt(
                 AlbumInformationPromptModel(
                     albumName = album,
                     artist = artist,
