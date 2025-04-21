@@ -3,15 +3,16 @@ package com.wmccd.whatgoeson.presentation.screens.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.AlbumInformationModel
 import com.wmccd.whatgoeson.MyApplication
-import com.wmccd.whatgoeson.presentation.screens.albumList.AlbumListEvents
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
 import com.wmccd.whatgoeson.repository.database.Album
-import com.wmccd.whatgoeson.repository.webservice.gemini.models.RecommendationResponse
-import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.SimilarAlbums
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.similaralbums.SimilarAlbumsResponse
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.AlbumInformationPromptModel
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.SimilarAlbumPromptModel
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.TriggerGeminiPrompt
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayerFactory
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class HomeViewModel(
     mockedUiStateForTestingAndPreviews: HomeUiState? = null
@@ -140,6 +140,7 @@ class HomeViewModel(
         }
     }
 
+
     private fun onCloseOverlay() {
         val currentValue = uiState.value.data?.showOverlay ?: true
         viewModelScope.launch {
@@ -156,22 +157,36 @@ class HomeViewModel(
         _uiState.value = uiState.value.copy(
             data = uiState.value.data?.copy(
                 showOverlay = true,
-                showRecommendations = true,
-                showInformation = false
+                showSimilarAlbums = true,
+                showAlbumInformation = false
             )
         )
         val album = _uiState.value.data?.albumName.orEmpty()
         val artist = _uiState.value.data?.artistName.orEmpty()
         try{
             MyApplication.utilities.logger.log(Log.INFO, TAG, "Before runBlocking")
-            SimilarAlbums().getSimilarAlbumsDirect(album, artist,{
-                MyApplication.utilities.logger.log(Log.INFO, TAG, "In success callback ${it}")
-                _uiState.value = uiState.value.copy(
-                    data = uiState.value.data?.copy(
-                        recommendations = it
-                    )
+            TriggerGeminiPrompt().similarAlbums(
+                SimilarAlbumPromptModel(
+                    albumName = album,
+                    artist = artist,
+                    success = {
+                        MyApplication.utilities.logger.log(Log.INFO, TAG, "In success callback ${it}")
+                        _uiState.value = uiState.value.copy(
+                            data = uiState.value.data?.copy(
+                                similarAlbums = it
+                            )
+                        )
+                    },
+                    failure = {
+                        MyApplication.utilities.logger.log(Log.INFO, TAG, "In success callback ${it}")
+                        _uiState.value = uiState.value.copy(
+                            data = uiState.value.data?.copy(
+                                similarAlbums = emptyList()
+                            )
+                        )
+                    }
                 )
-            })
+            )
             MyApplication.utilities.logger.log(Log.INFO, TAG, "updated uiState")
         } catch (ex: Exception) {
             MyApplication.utilities.logger.log(Log.ERROR, TAG, "Similar Album onFailure", ex)
@@ -179,6 +194,45 @@ class HomeViewModel(
     }
 
     private fun onInformationTapped() {
+        MyApplication.utilities.logger.log(Log.INFO, TAG, "onSearchTapped")
+        _uiState.value = uiState.value.copy(
+            data = uiState.value.data?.copy(
+                showOverlay = true,
+                showSimilarAlbums = false,
+                showAlbumInformation = true
+            )
+        )
+        try{
+            MyApplication.utilities.logger.log(Log.INFO, TAG, "Before runBlocking")
+            val album = _uiState.value.data?.albumName.orEmpty()
+            val artist = _uiState.value.data?.artistName.orEmpty()
+
+            TriggerGeminiPrompt().albumInformation(
+                AlbumInformationPromptModel(
+                    albumName = album,
+                    artist = artist,
+                    success = {
+                        MyApplication.utilities.logger.log(Log.INFO, TAG, "In success callback ${it}")
+                        _uiState.value = uiState.value.copy(
+                            data = uiState.value.data?.copy(
+                                albumInformation = it
+                            )
+                        )
+                    },
+                    failure = {
+                        MyApplication.utilities.logger.log(Log.INFO, TAG, "In success callback ${it}")
+                        _uiState.value = uiState.value.copy(
+                            data = uiState.value.data?.copy(
+                                albumInformation = null
+                            )
+                        )
+                    }
+                )
+            )
+            MyApplication.utilities.logger.log(Log.INFO, TAG, "updated uiState")
+        } catch (ex: Exception) {
+            MyApplication.utilities.logger.log(Log.ERROR, TAG, "Similar Album onFailure", ex)
+        }
     }
 
     private fun onAlbumTapped() {
@@ -242,10 +296,11 @@ data class HomeUiData(
     val spotifyInstalled:Boolean = false,
     val youTubeMusicInstalled:Boolean = false,
     val externalDestinationEnabled:Boolean = false,
-    val recommendations:  List<RecommendationResponse.Recommendation> = emptyList(),
+    val similarAlbums:  List<SimilarAlbumsResponse.SimilarAlbum> = emptyList(),
+    val albumInformation: AlbumInformationModel? = null,
     val showOverlay: Boolean = false,
-    val showRecommendations: Boolean = false,
-    val showInformation: Boolean = false,
+    val showSimilarAlbums: Boolean = false,
+    val showAlbumInformation: Boolean = false,
 )
 
 enum class AlbumFavouriteFilter {

@@ -1,11 +1,7 @@
 package com.wmccd.whatgoeson.presentation.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +23,6 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -39,17 +34,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,14 +52,22 @@ import androidx.navigation.NavHostController
 import com.wmccd.whatgoeson.MyApplication
 import com.wmccd.whatgoeson.R
 import com.wmccd.whatgoeson.presentation.screens.NavigationEnum
-import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayError
-import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayLoading
 import com.wmccd.whatgoeson.presentation.screens.common.NavigationEvent
-import com.wmccd.whatgoeson.presentation.screens.common.screens.NoAlbums
 import com.wmccd.whatgoeson.presentation.screens.common.PreviewTheme
 import com.wmccd.whatgoeson.presentation.screens.common.STANDARD_SCREEN_PADDING
 import com.wmccd.whatgoeson.presentation.screens.common.composables.ExternalAlbumDestinationRow
 import com.wmccd.whatgoeson.presentation.screens.common.composables.MyInternetImage
+import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayError
+import com.wmccd.whatgoeson.presentation.screens.common.screens.DisplayLoading
+import com.wmccd.whatgoeson.presentation.screens.common.screens.NoAlbums
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Album
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.AlbumInformationModel
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Background
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Musicians
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Reception
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.RecordingDetails
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Sources
+import com.wmccd.whatgoeson.repository.webservice.gemini.models.albuminformation.Tracks
 import com.wmccd.whatgoeson.utility.musicPlayer.MusicPlayer
 import java.util.UUID
 
@@ -128,7 +128,7 @@ private fun DisplayData(
     Box(
         modifier = Modifier
             .fillMaxHeight()
-            .padding(horizontal = STANDARD_SCREEN_PADDING),
+            .padding(horizontal = 12.dp),
         contentAlignment = Alignment.TopCenter
     ) {
         Column(
@@ -162,6 +162,7 @@ fun DisplayOverLay(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(horizontal = STANDARD_SCREEN_PADDING)
             .verticalScroll(scrollState)
             .clickable {
                 onEvent(
@@ -169,10 +170,12 @@ fun DisplayOverLay(
                 )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         data?.let{
-            if(data.showRecommendations) {
-                DisplayRecommendations(data)
+            when{
+                data.showSimilarAlbums -> DisplayRecommendations(data)
+                data.showAlbumInformation -> DisplayAlbumInformation(data)
             }
         }
     }
@@ -181,13 +184,16 @@ fun DisplayOverLay(
 @Composable
 private fun DisplayRecommendations(data: HomeUiData) {
 
-    if(data.recommendations.isEmpty()){
+    if(data.similarAlbums.isEmpty()){
         CircularProgressIndicator()
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Searching the known universe for you...")
     } else {
-        data.recommendations.forEach {
+        data.similarAlbums.forEach {
             Text(
                 text = it.album_name,
                 style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
             )
             Text(
                 text = it.artist,
@@ -198,6 +204,169 @@ private fun DisplayRecommendations(data: HomeUiData) {
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
         }
     }
+}
+
+@Composable
+private fun DisplayAlbumInformation(data: HomeUiData) {
+
+    val album = data.albumInformation?.album
+    if(album == null){
+        CircularProgressIndicator()
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Consulting the Oracle for you...")
+    } else {
+        AlbumInformationMain(album)
+        AlbumInformationCredits(album)
+        AlbumInformationTracks(album)
+        AlbumInformationPlayers(album)
+        AlbumInformationReception(album)
+        AlbumInformationBackground(album)
+        AlbumInformationRecording(album)
+    }
+}
+
+@Composable
+private fun AlbumInformationRecording(album: Album) {
+    SectionTitle("Recording")
+    Text(text = "Dates",modifier = Modifier.padding(top = 8.dp).fillMaxWidth())
+    Text(text = album.recordingDetails?.dates.orEmpty(), modifier = Modifier.fillMaxWidth())
+    Text(text = "Location",modifier = Modifier.padding(top = 8.dp).fillMaxWidth())
+    Text(text = album.recordingDetails?.location.orEmpty(), modifier = Modifier.fillMaxWidth())
+    Text(text = "Notes",modifier = Modifier.padding(top = 8.dp).fillMaxWidth())
+    Text(text = album.recordingDetails?.notes.orEmpty(), modifier = Modifier.fillMaxWidth())
+    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+}
+
+@Composable
+private fun AlbumInformationBackground(album: Album) {
+    SectionTitle("Background")
+    Text(
+        text = "Context:",
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .fillMaxWidth(),
+    )
+    Text(
+        text = album.background?.context.orEmpty(),
+    )
+    Text(
+        text = "Influence:",
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .fillMaxWidth(),
+    )
+    Text(
+        text = album.background?.influence.orEmpty(),
+    )
+    Text(
+        text = "Also:",
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .fillMaxWidth(),
+    )
+    Text(
+        text = album.background?.interestingAnecdote.orEmpty(),
+    )
+    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+}
+
+@Composable
+private fun AlbumInformationReception(album: Album) {
+    SectionTitle("Reception")
+    Text(
+        text = album.reception?.overall.orEmpty(),
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth(),
+    )
+    album.reception?.sources?.forEach { source ->
+        Text(
+            text = "${source.source} - ${source.rating}",
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .fillMaxWidth(),
+        )
+        Text(
+            text = "\"${source.reviewSnippet}\"",
+            fontStyle = FontStyle.Italic
+        )
+    }
+    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+}
+
+@Composable
+private fun AlbumInformationPlayers(album: Album) {
+    SectionTitle("Players")
+    album.musicians.forEach { musician ->
+        Text(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .fillMaxWidth(),
+            text = "${musician.name}",
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = musician.instruments.toString().drop(1).dropLast(1),
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+}
+
+@Composable
+private fun AlbumInformationTracks(album: Album) {
+    SectionTitle("Tracks")
+    album.tracks.forEachIndexed { index, track ->
+        Text(
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+                .fillMaxWidth(),
+            text = "${index + 1}. ${track.title} - (${track.duration})"
+        )
+    }
+    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+}
+
+@Composable
+private fun SectionTitle(title: String) {
+    Text(
+        text = title,
+        modifier = Modifier
+            .padding(vertical = 8.dp)
+            .fillMaxWidth(),
+        style = MaterialTheme.typography.titleLarge,
+    )
+}
+
+@Composable
+private fun AlbumInformationMain(album: Album) {
+    Text(
+        text = album.title.orEmpty(),
+        style = MaterialTheme.typography.headlineMedium,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.primary
+    )
+    Text(
+        text = album.artist.orEmpty(),
+        textAlign = TextAlign.Center
+    )
+    Text(
+        text = "Released: ${album.releaseDate.orEmpty()}",
+        textAlign = TextAlign.Center
+    )
+
+    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+}
+
+@Composable
+private fun AlbumInformationCredits(album: Album) {
+    Text("Label", modifier = Modifier.fillMaxWidth().padding(top=8.dp))
+    Text(album.label.orEmpty(), modifier = Modifier.fillMaxWidth())
+    Text("Producer(s)", modifier = Modifier.fillMaxWidth().padding(top=8.dp))
+    Text(album.producer.orEmpty(), modifier = Modifier.fillMaxWidth())
+    Text("Genre(s)", modifier = Modifier.fillMaxWidth().padding(top=8.dp))
+    Text(album.genre.toString().drop(1).dropLast(1), modifier = Modifier.fillMaxWidth())
+    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 }
 
 
@@ -432,53 +601,6 @@ private fun StickyFilters(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FlippableCard(
-    frontContent: @Composable () -> Unit,
-    backContent: @Composable () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var isFlipped by remember { mutableStateOf(false) }
-    val rotation by animateFloatAsState(
-        targetValue = if (isFlipped) 180f else 0f,
-        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
-        label = "Flip Animation"
-    )
-
-    Box(
-        modifier = modifier
-            .clickableWithoutRipple { isFlipped = !isFlipped }
-            .rotate(rotation)
-            .clip(RectangleShape) // Optional: Clip to a rectangle
-    ) {
-        if (rotation <= 90f || rotation >= 270f) {
-            Card(modifier = Modifier.fillMaxSize()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    frontContent()
-                }
-            }
-        } else {
-            Card(modifier = Modifier.fillMaxSize()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    backContent()
-                }
-            }
-        }
-    }
-}
-
-// Helper function to disable ripple effect
-@Composable
-fun Modifier.clickableWithoutRipple(onClick: () -> Unit): Modifier =
-    this.then(
-        Modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = onClick
-        )
-    )
-
 @Preview
 @Composable
 private fun PreviewDisplayData(){
@@ -535,6 +657,76 @@ private fun PreviewDisplayMatches(){
                     albumArtUrl = null,
                 ),
             )
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewAlbumInformation(){
+    PreviewTheme {
+        DisplayOverLay(
+            data = HomeUiData(
+                artistName = "Artist",
+                albumName = "Album",
+                albumArtUrl = null,
+                showSimilarAlbums = false,
+                showAlbumInformation = true,
+                albumInformation = AlbumInformationModel(
+                    album = Album(
+                        title = "Album Title",
+                        artist = "Artist Name",
+                        releaseDate = "Release Date",
+                        producer = "Producer Name",
+                        genre = arrayListOf("Genre 1", "Genre 2"),
+                        tracks = arrayListOf(
+                            Tracks(
+                                title = "Track Title",
+                                duration = "3:43"
+                            ),
+                            Tracks(
+                                title = "Track Title",
+                                duration = "2:30"
+                            )
+                        ),
+                        musicians = arrayListOf(
+                            Musicians(
+                                name = "Musician Name",
+                                instruments = arrayListOf("Instrument 1", "Instrument 2")
+                            ),
+                            Musicians(
+                                name = "Musician Name",
+                                instruments = arrayListOf("Instrument 1", "Instrument 2")
+                            )
+                        ),
+                        reception = Reception(
+                            overall = "Overall Review Summary",
+                            sources = arrayListOf(
+                                Sources(
+                                    source = "Review Source",
+                                    rating = "4/5 or B+",
+                                    reviewSnippet = "Description of artist's state of mind during recording"
+                                ),
+                                Sources(
+                                    source = "Review Source",
+                                    rating = "4/5 or B+",
+                                    reviewSnippet = "Description of artist's state of mind during recording"
+                                )
+                            )
+                        ),
+                        background = Background(
+                            context = "Background Context",
+                            influence = "Influences",
+                            interestingAnecdote = "Description of artist's state of mind during recording"
+                        ),
+                        recordingDetails = RecordingDetails(
+                            location = "Recording Location",
+                            dates = "Recording Dates",
+                            notes = "Recording Notes"
+                        )
+                    )
+                )
+            ),
         )
     }
 }
