@@ -35,16 +35,16 @@ enum class SimpleQuestionPromptType(
         onScreen = "As as inanimate object"
     ),
     SONG_LYRICS_ABOUT(
-        prompt = "Write a song about $ARTISTS",
-        onScreen = "A made-up song about them making reference to people, places, events, or music."
+        prompt = "Write a song about $ARTISTS making reference to people, places, events, or music, using their lyrical style.",
+        onScreen = "A made-up song about them"
     ),
     SONG_LYRICS_BY(
-        prompt = "Write a song by $ARTISTS",
-        onScreen = "A made-up song by them using their lyrical style."
+        prompt = "Write a song by $ARTISTS with their lyrical style.",
+        onScreen = "A made-up song by them"
     ),
     SUPERHERO(
-        prompt = "If $ARTISTS was a superhero what would their superpower be and how would they use it. Would they be a rubbish superhero or a good superhero?",
-        onScreen = "As a superhero."
+        prompt = "If $ARTISTS was a superhero what would their superpower be and how would they use it. Would they be a rubbish superhero or a good superhero? Who would their nemesis be and who would win in a battle to the death?",
+        onScreen = "As a superhero"
     ),
 }
 

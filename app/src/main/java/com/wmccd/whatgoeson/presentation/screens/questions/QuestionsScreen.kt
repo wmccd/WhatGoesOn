@@ -127,7 +127,7 @@ fun DisplayResponse(
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier.verticalScroll(scrollState).padding( horizontal = 16.dp).fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.Start
     ) {
         SectionTitle(title = "Overview")
         Text(text = simpleQuestionResponse.overview.orEmpty())

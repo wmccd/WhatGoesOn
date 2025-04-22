@@ -31,19 +31,9 @@ class SimpleQuestionPrompter:
                 SimpleQuestionConditionalType.ENGLISH_ONLY.condition +
                         SimpleQuestionConditionalType.SOME_OBSCURE_CHOICES.condition
             }
-            SimpleQuestionPromptType.WHAT_MUSIC_DOES_ARTIST_LIKE,
-            SimpleQuestionPromptType.WHAT_BOOKS_DOES_ARTIST_LIKE,
-            SimpleQuestionPromptType.OBSCURE_SONGS,
-            SimpleQuestionPromptType.RANDOM_INFORMATION,
-            SimpleQuestionPromptType.INANIMATE_OBJECT,
-            SimpleQuestionPromptType.SONG_LYRICS_ABOUT,
-            SimpleQuestionPromptType.SONG_LYRICS_BY,
-            SimpleQuestionPromptType.SUPERHERO,
-            SimpleQuestionPromptType.SUPER_GROUP -> {
-                SimpleQuestionConditionalType.NO_EXTRANEOUS_CHARACTERS.condition
-            }
-        } + SimpleQuestionConditionalType.JSON_FORMAT.condition
-            .replace(ARTISTS, promptModel.artistNames?.joinToString(",") ?: "")
+
+            else -> ""
+        } + SimpleQuestionConditionalType.JSON_FORMAT.condition + SimpleQuestionConditionalType.NO_EXTRANEOUS_CHARACTERS.condition
 
         return (promptModel.questionType.prompt + conditionals).replace(ARTISTS, promptModel.artistNames?.joinToString(",") ?: "")
     }
