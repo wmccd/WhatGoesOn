@@ -30,6 +30,10 @@ enum class SimpleQuestionPromptType(
         prompt = "If $ARTISTS formed a super-group, which artists would they sound like. Make sure you mention some possible artists than would fit.",
         onScreen = "Super group with others in your collection"
     ),
+    LEARN_TO_PLAY_ON_GUITAR(
+        prompt = "What songs by $ARTISTS  would be the easiest to learn to play on guitar.",
+        onScreen = "The easiest songs to play on guitar"
+    ),
     INANIMATE_OBJECT(
         prompt = "If $ARTISTS was an inanimate object, what would they be.",
         onScreen = "As as inanimate object"
