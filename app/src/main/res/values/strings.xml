@@ -45,5 +45,22 @@
     <string name="tierMaker">TierMaker</string>">
     <string name="setlistFm">SetList.fm</string>">
     <string name="youtube">YouTube</string>">
-    <string name="official_website">Official Website</string>">
+    <string name="official_website">Official Website</string>
+    <string name="recording">Recording</string>
+    <string name="dates">Dates</string>
+    <string name="location">Location</string>
+    <string name="notes">Notes</string>
+    <string name="background">Background</string>
+    <string name="context">Context</string>
+    <string name="influence">Influence</string>
+    <string name="also">Also</string>
+    <string name="reception">Reception</string>
+    <string name="players">Players</string>
+    <string name="tracks">Tracks</string>
+    <string name="label">Label</string>
+    <string name="producer_s">Producer(s)</string>
+    <string name="genre_s">Genre(s)</string>
+    <string name="consulting_the_oracle_for_you">Consulting the Oracle for you...</string>
+    <string name="searching_the_known_universe_for_you">Searching the known universe for you...</string>
+    ">
 </resources>

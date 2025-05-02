@@ -6,17 +6,25 @@ enum class SimpleQuestionPromptType(
     val prompt: String,
     val onScreen: String
 ) {
+    ALL_RELEASES(
+        prompt = "Give me the complete discography by $ARTISTS. Include studio albums, box sets, live albums, compilations, EPs and singles. It is not necessary to include every single format and promotional release. ",
+        onScreen = "Complete discography"
+    ),
+    ALBUM_RANKINGS(
+        prompt = "Ranks all the albums by $ARTISTS from worst to best. Use any available rankings and reviews to help complete the process.",
+        onScreen = "Albums ranked from worst to best"
+    ),
     HIGHLY_RATED_FIVE_YEARS(
         prompt = "List highly rated albums of the last 5 years.  Assume you have given me this answer before and also introduce some other choices. Use these artists as a guide to the type of music I like: $ARTISTS ",
         onScreen = "Recent highly rated albums"
     ),
     WHAT_MUSIC_DOES_ARTIST_LIKE(
         prompt ="I am interested in what type of music musicians like. If the following artist: $ARTISTS has ever mentioned favourite albums or songs, please list them. If they have not mentioned albums or songs, include artists they have admired. The list should be no more than 100 items.",
-        onScreen = "What music do they like?"
+        onScreen = "Music they like"
     ),
     WHAT_BOOKS_DOES_ARTIST_LIKE(
         prompt ="I am interested in books musicians like. If the following artist: $ARTISTS has ever mentioned favourite books, please list them. If they have not mentioned books, include authors they have admired. The list should be no more than 100 items.",
-        onScreen = "What books do they like?"
+        onScreen = "Books they like"
     ),
     OBSCURE_SONGS(
         prompt = "I am interested in more obscure but highly rated songs by $ARTISTS. What you would suggest. Suggest 10 -20 songs.",
@@ -33,10 +41,6 @@ enum class SimpleQuestionPromptType(
     LEARN_TO_PLAY_ON_GUITAR(
         prompt = "What songs by $ARTISTS  would be the easiest to learn to play on guitar.",
         onScreen = "The easiest songs to play on guitar"
-    ),
-    INANIMATE_OBJECT(
-        prompt = "If $ARTISTS was an inanimate object, what would they be.",
-        onScreen = "As as inanimate object"
     ),
     SONG_LYRICS_ABOUT(
         prompt = "Write a song about $ARTISTS making reference to people, places, events, or music, using their lyrical style.",

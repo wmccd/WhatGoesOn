@@ -9,6 +9,7 @@ import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.BaseSuccessHand
 import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.PromptType
 import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.TriggerGeminiPrompt
 import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.similaralbums.responsemodels.SimilarAlbumsResponse
+import com.wmccd.whatgoeson.repository.webservice.gemini.prompts.simpleQuestion.ARTISTS
 
 class SimilarAlbumPrompter:
     BasePrompter<SimilarAlbumPromptModel>,
@@ -17,7 +18,7 @@ class SimilarAlbumPrompter:
     override fun prompt(promptModel: SimilarAlbumPromptModel){
         TriggerGeminiPrompt().trigger (
             promptType = PromptType.SIMILAR_ALBUMS,
-            prompt = "Recommend 5 albums similar to '${promptModel.albumName}' by ${promptModel.artist}. Return the recommendations as a JSON array with fields 'album_name', 'artist', 'release_year', and 'details' in a flat structure.",
+            prompt = "Recommend 5 albums similar to '${promptModel.albumName}' by ${promptModel.artist}. Return the recommendations as a JSON array with fields 'album_name', 'artist', 'release_year', and 'details' in a flat structure. No more than one from $ARTISTS",
             success = promptModel.success as (Any) -> Unit,
             failure = promptModel.failure
         )
